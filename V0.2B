@@ -41,9 +41,9 @@ LoadingStar.Parent = LoadingFrame
 LoadingStar.Size = UDim2.new(0,80,0,80)
 LoadingStar.Position = UDim2.new(0.5,-40,0.3,-40)
 LoadingStar.BackgroundTransparency = 1
-LoadingStar.Text = "✦"
-LoadingStar.Font = Enum.Font.GothamBold
-LoadingStar.TextSize = 55
+LoadingStar.Text = "★"
+LoadingStar.TextSize = 65
+LoadingStar.Font = Enum.Font.SourceSansBold
 LoadingStar.TextColor3 = Color3.fromRGB(220,190,255)
 LoadingStar.Rotation = 0
 LoadingStar.ZIndex = 1000
@@ -147,8 +147,6 @@ TweenService:Create(
 
 task.wait(1)
 
-Frame.Visible = true
-
 TweenService:Create(
 	LoadingStar,
 	TweenInfo.new(0.8),
@@ -157,6 +155,9 @@ TweenService:Create(
 		Rotation = LoadingStar.Rotation + 90
 	}
 ):Play()
+
+task.wait(0.8)
+Frame.Visible = true
 LoadingFrame:Destroy()
 
 Frame.Parent = ScreenGui
