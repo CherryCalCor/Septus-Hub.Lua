@@ -198,6 +198,32 @@ TopBar.BorderSizePixel = 0
 
 local Title = Instance.new("TextLabel")
 
+local InjectorTag = Instance.new("TextLabel")
+local InjectorCorner = Instance.new("UICorner")
+
+local executor = "Unknown"
+
+pcall(function()
+    if identifyexecutor then
+        executor = identifyexecutor()
+    elseif getexecutorname then
+        executor = getexecutorname()
+    end
+end)
+
+InjectorTag.Parent = Frame
+InjectorTag.Size = UDim2.new(0, 90, 0, 20)
+InjectorTag.Position = UDim2.new(1, -145, 0, 6) -- рядом с "-"
+InjectorTag.BackgroundColor3 = Color3.fromRGB(220,190,255)
+InjectorTag.BorderSizePixel = 0
+InjectorTag.Text = executor
+InjectorTag.TextColor3 = Color3.fromRGB(20,20,25)
+InjectorTag.TextSize = 11
+InjectorTag.Font = Enum.Font.GothamBold
+
+InjectorCorner.Parent = InjectorTag
+InjectorCorner.CornerRadius = UDim.new(0,8)
+
 Title.Parent = Frame
 Title.Size = UDim2.new(0, 180, 0, 30)
 Title.Position = UDim2.new(0, 12, 0, 4)
