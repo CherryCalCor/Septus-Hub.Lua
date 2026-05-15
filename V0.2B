@@ -285,3 +285,85 @@ MinBtn.MouseButton1Click:Connect(function()
         )
     end
 end)
+
+-- Кнопка SH (отдельно от GUI)
+local UserInputService = game:GetService("UserInputService")
+
+local ToggleBtn = Instance.new("TextButton")
+local ToggleCorner = Instance.new("UICorner")
+local ToggleStroke = Instance.new("UIStroke")
+
+ToggleBtn.Parent = ScreenGui
+ToggleBtn.Size = UDim2.new(0,50,0,50)
+ToggleBtn.Position = UDim2.new(0,50,0.5,-25)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+ToggleBtn.Text = "SH"
+ToggleBtn.TextColor3 = Color3.fromRGB(20,20,25)
+ToggleBtn.TextSize = 20
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Visible = false
+ToggleBtn.BorderSizePixel = 0
+
+ToggleCorner.Parent = ToggleBtn
+ToggleCorner.CornerRadius = UDim.new(0,12)
+
+ToggleStroke.Parent = ToggleBtn
+ToggleStroke.Color = Color3.fromRGB(240,220,255)
+ToggleStroke.Thickness = 1.2
+
+-- показать кнопку после загрузки
+task.spawn(function()
+	repeat task.wait() until Frame.Visible
+	ToggleBtn.Visible = true
+end)
+
+-- скрыть / показать GUI
+local guiVisible = true
+
+ToggleBtn.MouseButton1Click:Connect(function()
+	guiVisible = not guiVisible
+	Frame.Visible = guiVisible
+end)
+
+-- перетаскивание кнопки
+local dragging = false
+local dragStart
+local startPos
+local dragInput
+
+ToggleBtn.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = ToggleBtn.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+ToggleBtn.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+
+		local delta = input.Position - dragStart
+
+		ToggleBtn.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
