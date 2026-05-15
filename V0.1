@@ -36,15 +36,17 @@ TopBar.BorderSizePixel = 0
 
 -- ИКОНКА
 local Icon = Instance.new("ImageLabel")
-
 Icon.Parent = Frame
-Icon.Size = UDim2.new(0, 16, 0, 16) -- маленькая
-Icon.Position = UDim2.new(0, 8, 0, 6) -- сверху слева
-Icon.BackgroundTransparency = 1
-Icon.BorderSizePixel = 0
-Icon.Image = "rbxassetid://7072718364"
 
--- чтобы не выглядела размытой
+Icon.Size = UDim2.new(0, 18, 0, 18)
+Icon.Position = UDim2.new(0, 8, 0, 5)
+
+Icon.BackgroundTransparency = 1
+Icon.ImageTransparency = 0
+Icon.Visible = true
+Icon.ZIndex = 10 -- поверх всего
+
+Icon.Image = "rbxassetid://7072718364"
 Icon.ScaleType = Enum.ScaleType.Fit
 
 -- кнопка сворачивания
@@ -68,6 +70,12 @@ CloseBtn.TextSize = 14
 CloseBtn.Font = Enum.Font.Gotham
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.BorderSizePixel = 0
+
+TopBar.ZIndex = 1
+Icon.ZIndex = 10
+CloseBtn.ZIndex = 10
+MinBtn.ZIndex = 10
+
 
 -- закрыть GUI
 CloseBtn.MouseButton1Click:Connect(function()
