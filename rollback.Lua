@@ -1028,6 +1028,21 @@ servers
 	srv.maxPlayers..
 	" players"
 
+players.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+players.Font =
+Enum.Font.GothamBold
+
+players.TextSize =
+14
+
+players.TextXAlignment =
+Enum.TextXAlignment.Left
 
 	local join =
 	Instance.new(
