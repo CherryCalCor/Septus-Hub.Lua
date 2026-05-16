@@ -1119,9 +1119,6 @@ Sort.MouseButton1Click:Connect(function()
 
 end)
 
--- ОТКРЫТИЕ МЕНЮ
-
-
 
 for _,v in pairs(
 	List:GetChildren()
