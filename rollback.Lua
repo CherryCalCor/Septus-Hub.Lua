@@ -335,6 +335,9 @@ createBtn(
 100
 )
 
+local player =
+game.Players.LocalPlayer
+
 RejoinBtn.MouseButton1Click:Connect(function()
 
 game:GetService(
@@ -442,9 +445,6 @@ false
 end
 
 end)
-
-sw.Parent=
-ServerWidget
 
 local ServerMenu=
 Instance.new("Frame")
