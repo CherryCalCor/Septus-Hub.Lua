@@ -543,41 +543,6 @@ end
 
 end)
 
-ServerWidget.MouseButton1Click:Connect(function()
-
-	ServerMenu.Visible =
-	not ServerMenu.Visible
-
-end)
-
-local sortLow=true
-
-local Sort=
-Instance.new(
-"TextButton"
-)
-
-Sort.Parent=
-ServerMenu
-
-Sort.Text=
-"↓↑"
-
-Sort.Position=
-UDim2.new(
-1,
--90,
-0,
-5
-)
-
-Sort.MouseButton1Click:Connect(function()
-
-sortLow=
-not sortLow
-
-end)
-
 local ServerMenu =
 Instance.new("Frame")
 
@@ -630,7 +595,40 @@ Color3.fromRGB(
 255
 )
 
+ServerWidget.MouseButton1Click:Connect(function()
 
+	ServerMenu.Visible =
+	not ServerMenu.Visible
+
+end)
+
+local sortLow=true
+
+local Sort=
+Instance.new(
+"TextButton"
+)
+
+Sort.Parent=
+ServerMenu
+
+Sort.Text=
+"↓↑"
+
+Sort.Position=
+UDim2.new(
+1,
+-90,
+0,
+5
+)
+
+Sort.MouseButton1Click:Connect(function()
+
+sortLow=
+not sortLow
+
+end)
 
 -- КНОПКА X
 
@@ -897,9 +895,6 @@ Sort.MouseButton1Click:Connect(function()
 	not sortLow
 
 end)
-
-
-
 
 -- ОТКРЫТИЕ МЕНЮ
 
