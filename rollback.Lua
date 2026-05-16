@@ -688,12 +688,6 @@ for _,plr in pairs(
 game.Players:GetPlayers()
 ) do
 
-local NameToggle, NameCircle =
-createToggle("ESP Name",0)
-
-local OutlineToggle, OutlineCircle =
-createToggle("ESP Outline",40)
-
 if plr == game.Players.LocalPlayer then
 continue
 end
@@ -788,25 +782,28 @@ if not gui then
 
 end
 
-local dist =
-math.floor(
+local player =
+game.Players.LocalPlayer
 
-(
+local myChar =
 player.Character
-.HumanoidRootPart.Position
 
--
+if myChar and myChar:FindFirstChild("HumanoidRootPart") then
 
-hrp.Position
+    local dist =
+    math.floor(
+        (
+            myChar.HumanoidRootPart.Position
+            -
+            hrp.Position
+        ).Magnitude
+    )
 
-).Magnitude
+    gui.TXT.Text =
+    plr.Name..
+    "\n"..dist.."m"
 
-)
-
-
-gui.TXT.Text =
-plr.Name..
-"\n"..dist.."m"
+end
 
 else
 
