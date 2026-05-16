@@ -609,6 +609,67 @@ Color3.fromRGB(
 255
 )
 
+-- ПЕРЕТАСКИВАНИЕ ServerMenu
+
+local menuDragging = false
+local menuDragStart
+local menuStartPos
+
+ServerMenu.InputBegan:Connect(function(input)
+
+	if input.UserInputType ==
+	Enum.UserInputType.MouseButton1
+	or input.UserInputType ==
+	Enum.UserInputType.Touch then
+
+		menuDragging = true
+		menuDragStart = input.Position
+		menuStartPos = ServerMenu.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState ==
+			Enum.UserInputState.End then
+
+				menuDragging = false
+
+			end
+
+		end)
+
+	end
+
+end)
+
+
+UIS.InputChanged:Connect(function(input)
+
+	if menuDragging then
+
+		local delta =
+		input.Position -
+		menuDragStart
+
+
+		ServerMenu.Position =
+		UDim2.new(
+
+			menuStartPos.X.Scale,
+
+			menuStartPos.X.Offset +
+			delta.X,
+
+			menuStartPos.Y.Scale,
+
+			menuStartPos.Y.Offset +
+			delta.Y
+
+		)
+
+	end
+
+end)
+
 ServerWidget.MouseButton1Click:Connect(function()
 
 	ServerMenu.Visible =
