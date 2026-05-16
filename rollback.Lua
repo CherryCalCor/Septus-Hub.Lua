@@ -898,7 +898,7 @@ for _,srv in pairs(servers) do
     players.Size = UDim2.new(0.6,0,1,0)
     players.BackgroundTransparency = 1
     players.Text =
-        srv.playing.."/"..srv.maxPlayers.." players
+        srv.playing.."/"..srv.maxPlayers.." players"
 
     local join = Instance.new("TextButton")
     join.Parent = holder
