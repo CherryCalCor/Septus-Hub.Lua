@@ -250,6 +250,32 @@ ServerBtn
 ServerCorner.CornerRadius =
 UDim.new(0,8)
 
+-- VISUALS BUTTON
+local VisualsBtn = Instance.new("TextButton")
+local VisualsCorner = Instance.new("UICorner")
+
+VisualsBtn.Parent = Frame
+VisualsBtn.Size = UDim2.new(0,80,0,28)
+VisualsBtn.Position = UDim2.new(0,10,0,110)
+VisualsBtn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+VisualsBtn.Text = "Visuals"
+VisualsBtn.TextColor3 =
+Color3.fromRGB(20,20,25)
+
+VisualsBtn.Font =
+Enum.Font.GothamBold
+
+VisualsBtn.TextSize = 14
+VisualsBtn.BorderSizePixel = 0
+
+VisualsCorner.Parent =
+VisualsBtn
+
+VisualsCorner.CornerRadius =
+UDim.new(0,8)
+
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
 
@@ -279,6 +305,529 @@ UDim2.new(1,-120,1,-50)
 
 ServerPage.BackgroundTransparency =
 1
+
+local VisualsPage =
+Instance.new("Frame")
+
+VisualsPage.Parent =
+Frame
+
+VisualsPage.Visible =
+false
+
+VisualsPage.Position =
+UDim2.new(0,110,0,40)
+
+VisualsPage.Size =
+UDim2.new(1,-120,1,-50)
+
+VisualsPage.BackgroundTransparency =
+1
+
+local ESPBtn =
+Instance.new("TextButton")
+
+ESPBtn.Parent =
+VisualsPage
+
+ESPBtn.Size =
+UDim2.new(1,-20,0,35)
+
+ESPBtn.Position =
+UDim2.new(0,10,0,10)
+
+ESPBtn.BackgroundColor3 =
+Color3.fromRGB(30,30,35)
+
+ESPBtn.Text =
+"ESP"
+
+ESPBtn.TextColor3 =
+Color3.new(1,1,1)
+
+ESPBtn.Font =
+Enum.Font.GothamBold
+
+Instance.new(
+"UICorner",
+ESPBtn
+)
+
+local Arrow =
+Instance.new("TextLabel")
+
+Arrow.Parent =
+ESPBtn
+
+Arrow.Size =
+UDim2.new(0,20,1,0)
+
+Arrow.Position =
+UDim2.new(1,-25,0,0)
+
+Arrow.BackgroundTransparency =
+1
+
+Arrow.Text =
+"▲"
+
+Arrow.Font =
+Enum.Font.GothamBold
+
+Arrow.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+local ESPMenu =
+Instance.new("Frame")
+
+ESPMenu.Parent =
+VisualsPage
+
+ESPMenu.Visible =
+false
+
+ESPMenu.Position =
+UDim2.new(
+0,
+10,
+0,
+50
+)
+
+ESPMenu.Size =
+UDim2.new(
+1,
+-20,
+0,
+80
+)
+
+ESPMenu.BackgroundTransparency =
+1
+
+
+local espOpened =
+false
+
+ESPBtn.MouseButton1Click:Connect(function()
+
+    espOpened =
+    not espOpened
+
+
+    TweenService:Create(
+        Arrow,
+        TweenInfo.new(.2),
+        {
+            Rotation =
+            espOpened
+            and 180
+            or 0
+        }
+    ):Play()
+
+
+    Arrow.Text =
+    espOpened
+    and "▼"
+    or "▲"
+
+
+    ESPMenu.Visible =
+    espOpened
+
+end)
+
+local function createToggle(
+name,
+y
+)
+
+local label =
+Instance.new(
+"TextLabel"
+)
+
+label.Parent =
+ESPMenu
+
+label.Text =
+name
+
+label.Size =
+UDim2.new(
+0,
+150,
+0,
+30
+)
+
+label.Position =
+UDim2.new(
+0,
+0,
+0,
+y
+)
+
+label.BackgroundTransparency =
+1
+
+label.TextColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+label.Font =
+Enum.Font.Gotham
+
+
+local bg =
+Instance.new(
+"TextButton"
+)
+
+bg.Parent =
+ESPMenu
+
+bg.Size =
+UDim2.new(
+0,
+60,
+0,
+30
+)
+
+bg.Position =
+UDim2.new(
+1,
+-65,
+0,
+y
+)
+
+bg.BackgroundColor3 =
+Color3.fromRGB(
+50,
+50,
+60
+)
+
+Instance.new(
+"UICorner",
+bg
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
+local circle =
+Instance.new(
+"Frame"
+)
+
+circle.Parent =
+bg
+
+circle.Size =
+UDim2.new(
+0,
+24,
+0,
+24
+)
+
+circle.Position =
+UDim2.new(
+0,
+3,
+0.5,
+-12
+)
+
+circle.BackgroundColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+Instance.new(
+"UICorner",
+circle
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
+return bg,circle
+
+end
+
+
+local NameToggle,
+NameCircle =
+createToggle(
+"ESP Name",
+0
+)
+
+local OutlineToggle,
+OutlineCircle =
+createToggle(
+"ESP Outline",
+40
+)
+
+local nameESP =
+false
+
+local outlineESP =
+false
+
+
+NameToggle.MouseButton1Click:Connect(function()
+
+nameESP =
+not nameESP
+
+
+TweenService:Create(
+NameCircle,
+TweenInfo.new(.2),
+{
+Position =
+nameESP
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+end)
+
+
+
+OutlineToggle.MouseButton1Click:Connect(function()
+
+outlineESP =
+not outlineESP
+
+
+TweenService:Create(
+OutlineCircle,
+TweenInfo.new(.2),
+{
+Position =
+outlineESP
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+end)
+
+
+
+task.spawn(function()
+
+while task.wait(.5) do
+
+for _,plr in pairs(
+game.Players:GetPlayers()
+) do
+
+if plr ==
+player then
+continue
+end
+
+
+local char =
+plr.Character
+
+if not char then
+continue
+end
+
+
+local head =
+char:FindFirstChild(
+"Head"
+)
+
+local hrp =
+char:FindFirstChild(
+"HumanoidRootPart"
+)
+
+if not head
+or not hrp then
+continue
+end
+
+
+-- NAME ESP
+if nameESP then
+
+local gui =
+head:FindFirstChild(
+"ESP"
+)
+
+if not gui then
+
+gui =
+Instance.new(
+"BillboardGui"
+)
+
+gui.Name =
+"ESP"
+
+gui.Size =
+UDim2.new(
+0,
+100,
+0,
+40
+)
+
+gui.AlwaysOnTop =
+true
+
+gui.Parent =
+head
+
+
+local txt =
+Instance.new(
+"TextLabel"
+)
+
+txt.Name =
+"TXT"
+
+txt.Parent =
+gui
+
+txt.Size =
+UDim2.new(
+1,
+0,
+1,
+0
+)
+
+txt.BackgroundTransparency =
+1
+
+txt.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+txt.Font =
+Enum.Font.GothamBold
+
+txt.TextScaled =
+true
+
+end
+
+
+local dist =
+math.floor(
+
+(
+player.Character
+.HumanoidRootPart.Position
+
+-
+
+hrp.Position
+
+).Magnitude
+
+)
+
+
+gui.TXT.Text =
+plr.Name..
+"\n"..dist.."m"
+
+else
+
+local gui =
+head:FindFirstChild(
+"ESP"
+
+)
+
+if gui then
+gui:Destroy()
+end
+
+end
+
+
+-- OUTLINE ESP
+if outlineESP then
+
+if not char:FindFirstChild(
+"Highlight"
+) then
+
+local hl =
+Instance.new(
+"Highlight"
+)
+
+hl.FillTransparency =
+1
+
+hl.OutlineTransparency =
+0
+
+hl.OutlineColor =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+hl.Parent =
+char
+
+end
+
+else
+
+local hl =
+char:FindFirstChild(
+"Highlight"
+)
+
+if hl then
+hl:Destroy()
+end
+
+end
+
+end
+
+end
+
+end)
 
 local function createBtn(name,posY)
 
@@ -1393,6 +1942,35 @@ ServerBtn.MouseButton1Click:Connect(function()
 
 end)
 
+local visualsOpened =
+false
+
+VisualsBtn.MouseButton1Click:Connect(function()
+
+visualsOpened =
+not visualsOpened
+
+VisualsPage.Visible =
+visualsOpened
+
+if visualsOpened then
+
+HomePage.Visible =
+false
+
+ServerPage.Visible =
+false
+
+opened =
+false
+
+serverOpened =
+false
+
+end
+
+end)
+
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
@@ -1464,6 +2042,8 @@ MinBtn.MouseButton1Click:Connect(function()
 		opened = false
 ServerBtn.Visible=false
 ServerPage.Visible=false
+VisualsBtn.Visible=false
+VisualsPage.Visible=false
 
 	else
 
@@ -1478,6 +2058,7 @@ ServerPage.Visible=false
 		HomeBtn.Visible = true
 		SideBar.Visible = true
 ServerBtn.Visible=true
+VisualsBtn.Visible=true
 
 	end
 
