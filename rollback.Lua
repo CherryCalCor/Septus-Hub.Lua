@@ -332,7 +332,7 @@ createBtn(
 
 local ListBtn =
 createBtn(
-"Server List",
+"Servers Toggle",
 100
 )
 
@@ -409,9 +409,9 @@ local enabled = false
 ServerWidget.Size =
 UDim2.new(
 0,
-120,
+95,
 0,
-35
+30
 )
 
 
@@ -431,11 +431,14 @@ Color3.fromRGB(
 30
 )
 
+ServerMenu.BackgroundTransparency =
+0.15
+
 ServerWidget.Text =
 "● Servers"
 
 ServerWidget.TextSize =
-20
+14
 
 ServerWidget.TextColor3 =
 Color3.fromRGB(
@@ -456,11 +459,30 @@ UDim.new(
 0
 )
 
+local widgetStroke =
+Instance.new(
+"UIStroke"
+)
+
+widgetStroke.Parent =
+ServerWidget
+
+widgetStroke.Color =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+widgetStroke.Thickness =
+1.3
+
 local dragging =
 false
 
 local dragStart
 local startPos
+local dragInput
 
 
 ServerWidget.InputBegan:Connect(function(input)
@@ -477,30 +499,29 @@ ServerWidget.InputBegan:Connect(function(input)
 		startPos =
 		ServerWidget.Position
 
+	end
 
-		input.Changed:Connect(function()
+end)
 
-			if input.UserInputState ==
-			Enum.UserInputState.End then
 
-				dragging =
-				false
+ServerWidget.InputChanged:Connect(function(input)
 
-			end
+	if input.UserInputType ==
+	Enum.UserInputType.MouseMovement then
 
-		end)
+		dragInput =
+		input
 
 	end
 
 end)
 
 
-
 UIS.InputChanged:Connect(function(input)
 
 	if dragging and
-	input.UserInputType ==
-	Enum.UserInputType.MouseMovement then
+	input ==
+	dragInput then
 
 
 		local delta =
@@ -512,19 +533,27 @@ UIS.InputChanged:Connect(function(input)
 		UDim2.new(
 
 			startPos.X.Scale,
-
-			startPos.X.Offset
-			+
+			startPos.X.Offset +
 			delta.X,
 
-
 			startPos.Y.Scale,
-
-			startPos.Y.Offset
-			+
+			startPos.Y.Offset +
 			delta.Y
 
 		)
+
+	end
+
+end)
+
+
+UIS.InputEnded:Connect(function(input)
+
+	if input.UserInputType ==
+	Enum.UserInputType.MouseButton1 then
+
+		dragging =
+		false
 
 	end
 
@@ -884,13 +913,34 @@ end)
 
 ListBtn.MouseButton1Click:Connect(function()
 
-	enabled = not enabled
-ServerWidget.Visible = enabled
+enabled =
+not enabled
+
+ServerWidget.Visible =
+enabled
+
 
 if not enabled then
-	ServerMenu.Visible = false
-	return
+
+	ServerMenu.Visible =
+	false
+
 end
+
+end)
+
+
+
+ServerWidget.MouseButton1Click:Connect(function()
+
+	if enabled then
+
+		ServerMenu.Visible =
+		not ServerMenu.Visible
+
+	end
+
+end)
 
 -- НЕ открываем меню сразу
 ServerMenu.Visible = false
