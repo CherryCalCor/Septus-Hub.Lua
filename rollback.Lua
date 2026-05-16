@@ -460,12 +460,13 @@ UDim.new(
 )
 
 local widgetStroke =
-Instance.new(
-"UIStroke"
-)
+Instance.new("UIStroke")
 
 widgetStroke.Parent =
 ServerWidget
+
+widgetStroke.ApplyStrokeMode =
+Enum.ApplyStrokeMode.Border
 
 widgetStroke.Color =
 Color3.fromRGB(
@@ -475,7 +476,7 @@ Color3.fromRGB(
 )
 
 widgetStroke.Thickness =
-1.6
+1.5
 
 widgetStroke.Transparency =
 0.15
