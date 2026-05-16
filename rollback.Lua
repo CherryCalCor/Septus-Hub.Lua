@@ -1317,7 +1317,6 @@ layout.AbsoluteContentSize.Y
 
 )
 
-end)
 
 -- PLAYER CARD
 local PlayerCard = Instance.new("Frame")
