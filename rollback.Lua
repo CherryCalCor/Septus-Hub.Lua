@@ -435,6 +435,17 @@ end
 
 end)
 
+-- Открыт ли раздел Home
+local opened = false
+
+HomeBtn.MouseButton1Click:Connect(function()
+
+	if minimized then return end
+
+	opened = not opened
+	HomePage.Visible = opened
+
+end)
 
 local Title = Instance.new("TextLabel")
 
