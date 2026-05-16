@@ -307,7 +307,31 @@ ServerPage.BackgroundTransparency =
 1
 
 local VisualsPage =
-Instance.new("Frame")
+Instance.new("ScrollingFrame")
+
+VisualsPage.Parent =
+Frame
+
+VisualsPage.Visible =
+false
+
+VisualsPage.Position =
+UDim2.new(0,110,0,40)
+
+VisualsPage.Size =
+UDim2.new(1,-120,1,-50)
+
+VisualsPage.BackgroundTransparency =
+1
+
+VisualsPage.CanvasSize =
+UDim2.new(0,0,0,500)
+
+VisualsPage.ScrollBarThickness =
+4
+
+VisualsPage.BorderSizePixel =
+0
 
 VisualsPage.Parent =
 Frame
@@ -569,6 +593,7 @@ or UDim2.new(0,10,0,95)
 end)
 
 local function createToggle(
+parent,
 name,
 y
 )
@@ -579,7 +604,7 @@ Instance.new(
 )
 
 label.Parent =
-ESPMenu
+parent
 
 label.Text =
 name
@@ -622,7 +647,8 @@ Instance.new(
 bg.Text = ""
 
 bg.Parent =
-ESPMenu
+parent
+
 
 bg.Size =
 UDim2.new(
@@ -703,6 +729,7 @@ end
 local BoostToggle,
 BoostCircle =
 createToggle(
+BoostMenu,
 "Boostfps",
 0
 )
@@ -714,6 +741,7 @@ BoostMenu
 local SkinToggle,
 SkinCircle =
 createToggle(
+BoostMenu,
 "Skin Replacement",
 40
 )
@@ -745,6 +773,24 @@ or UDim2.new(0,3,.5,-12)
 }
 ):Play()
 
+TweenService:Create(
+BoostToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+boostFPS
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
 
 if boostFPS then
 
@@ -794,6 +840,24 @@ or UDim2.new(0,3,.5,-12)
 }
 ):Play()
 
+TweenService:Create(
+SkinToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+skinReplace
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
 
 for _,plr in pairs(
 game.Players:GetPlayers()
