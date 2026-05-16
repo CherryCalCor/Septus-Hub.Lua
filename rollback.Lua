@@ -867,6 +867,7 @@ game.PlaceId
 local servers =
 data.data
 
+print("Всего серверов:", #servers)
 
 table.sort(
 servers,
@@ -882,11 +883,6 @@ function(a,b)
 end)
 
 for _,srv in pairs(servers) do
-    local fill = srv.playing / srv.maxPlayers
-
-    if fill < 0.7 or fill > 0.95 then
-        continue
-    end
 
     local holder = Instance.new("Frame")
     holder.Parent = List
