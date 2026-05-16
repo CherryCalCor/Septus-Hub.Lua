@@ -789,6 +789,21 @@ Instance.new(
 layout.Parent =
 List
 
+layout.Padding = UDim.new(0,5)
+
+layout:GetPropertyChangedSignal(
+    "AbsoluteContentSize"
+):Connect(function()
+
+    List.CanvasSize =
+    UDim2.new(
+        0,
+        0,
+        0,
+        layout.AbsoluteContentSize.Y + 10
+    )
+
+end)
 
 ServerMin.MouseButton1Click:Connect(function()
 
@@ -849,25 +864,31 @@ ServerMin.MouseButton1Click:Connect(function()
 
 end)
 
-local success,data = pcall(function()
+local HttpService = game:GetService("HttpService")
+local servers = {}
 
-    return game:GetService("HttpService"):JSONDecode(
+local success, result = pcall(function()
+
+    return HttpService:JSONDecode(
         game:HttpGet(
             "https://games.roblox.com/v1/games/"
             ..game.PlaceId..
-            "/servers/Public?limit=50"
+            "/servers/Public?sortOrder=Asc&limit=100"
         )
     )
 
 end)
 
-local servers = {}
+if success and result and result.data then
 
-if success and data and data.data then
-    servers = data.data
-    print("Всего серверов:", #servers)
+    servers = result.data
+
+    print("Loaded:", #servers)
+
 else
-    warn("Не удалось загрузить сервера")
+
+    warn("Ошибка загрузки серверов")
+
 end
 
 table.sort(
@@ -976,12 +997,14 @@ for _,srv in pairs(servers) do
 
 end
 
+task.wait()
+
 List.CanvasSize =
 UDim2.new(
-0,
-0,
-0,
-layout.AbsoluteContentSize.Y
+    0,
+    0,
+    0,
+    layout.AbsoluteContentSize.Y + 10
 )
 
 -- TOGGLE SWITCH
