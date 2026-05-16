@@ -934,10 +934,26 @@ ListBtn.MouseButton1Click:Connect(function()
 
 	))
 
+local servers =
+data.data
+
+
+table.sort(
+servers,
+
+function(a,b)
+
+	if sortLow then
+		return a.playing < b.playing
+	else
+		return a.playing > b.playing
+	end
+
+end)
 
 	for _,srv in pairs(
-	data.data
-	) do
+servers
+) do
 
 		local btn =
 		Instance.new(
