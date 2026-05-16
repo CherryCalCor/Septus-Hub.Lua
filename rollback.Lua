@@ -1,4 +1,5 @@
 local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Stroke = Instance.new("UIStroke")
 local Corner = Instance.new("UICorner")
@@ -942,7 +943,8 @@ function(a,b)
 
 end)
 
-	for _,srv in pairs(servers) do
+	
+for _,srv in pairs(servers) do
 
 	local holder =
 	Instance.new("Frame")
@@ -951,34 +953,30 @@ end)
 	List
 
 	holder.Size =
-	UDim2.new(
-	1,
-	0,
-	0,
-	40
-	)
+	UDim2.new(1,0,0,40)
 
 	holder.BackgroundTransparency =
 	1
 
 
-	-- ТЕКСТ ИГРОКОВ
+	-- Игроки
 
 	local players =
-	Instance.new(
-	"TextLabel"
-	)
+	Instance.new("TextLabel")
 
 	players.Parent =
 	holder
 
 	players.Size =
 	UDim2.new(
-	0.5,
+	0.6,
 	0,
 	1,
 	0
 	)
+
+	players.BackgroundTransparency =
+	1
 
 	players.Text =
 	srv.playing..
@@ -993,9 +991,6 @@ end)
 	1
 	)
 
-	players.BackgroundTransparency =
-	1
-
 	players.Font =
 	Enum.Font.GothamBold
 
@@ -1004,7 +999,7 @@ end)
 
 
 
-	-- КНОПКА JOIN
+	-- Join кнопка
 
 	local join =
 	Instance.new(
@@ -1017,17 +1012,17 @@ end)
 	join.Size =
 	UDim2.new(
 	0,
-	80,
+	75,
 	0,
-	28
+	26
 	)
 
 	join.Position =
 	UDim2.new(
 	1,
-	-90,
+	-80,
 	0.5,
-	-14
+	-13
 	)
 
 	join.Text =
@@ -1035,6 +1030,9 @@ end)
 
 	join.Font =
 	Enum.Font.GothamBold
+
+	join.TextSize =
+	13
 
 	join.TextColor3 =
 	Color3.fromRGB(
@@ -1050,16 +1048,15 @@ end)
 	255
 	)
 
-
-	local corner =
+	local c =
 	Instance.new(
 	"UICorner"
 	)
 
-	corner.Parent =
+	c.Parent =
 	join
 
-	corner.CornerRadius =
+	c.CornerRadius =
 	UDim.new(
 	0,
 	8
@@ -1072,57 +1069,15 @@ end)
 		"TeleportService"
 		):TeleportToPlaceInstance(
 
-		game.PlaceId,
-
-		srv.id,
-
-		player
+			game.PlaceId,
+			srv.id,
+			player
 
 		)
 
 	end)
 
 end
-
-		local btn =
-		Instance.new(
-		"TextButton"
-		)
-
-		btn.Parent =
-		List
-
-		btn.BackgroundColor3 =
-		Color3.fromRGB(
-		40,
-		40,
-		50
-		)
-
-		Instance.new(
-		"UICorner",
-		btn
-		)
-
-
-		btn.MouseButton1Click:Connect(function()
-
-			game:GetService(
-			"TeleportService"
-			):TeleportToPlaceInstance(
-
-			game.PlaceId,
-
-			srv.id,
-
-			player
-
-			)
-
-		end)
-
-	end
-
 
 	task.wait()
 
