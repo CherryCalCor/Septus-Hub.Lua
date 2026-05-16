@@ -804,6 +804,8 @@ ServerMin.MouseButton1Click:Connect(function()
 
 	if serverMinimized then
 
+	List.Visible = false
+
 		ServerMenu:TweenSize(
 
 			UDim2.new(
@@ -824,6 +826,8 @@ ServerMin.MouseButton1Click:Connect(function()
 
 
 	else
+
+	List.Visible = true
 
 		ServerMenu:TweenSize(
 
