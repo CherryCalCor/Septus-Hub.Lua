@@ -402,6 +402,7 @@ ScreenGui
 ServerWidget.Visible =
 false
 
+local enabled = false
 
 -- размер кнопки
 ServerWidget.Size =
@@ -541,7 +542,6 @@ false
 
 end
 
-end)
 
 local ServerMenu =
 Instance.new("Frame")
@@ -679,9 +679,6 @@ ServerClose.MouseButton1Click:Connect(function()
 	false
 
 end)
-
-
-
 
 -- КНОПКА -
 
@@ -897,15 +894,6 @@ Sort.MouseButton1Click:Connect(function()
 end)
 
 -- ОТКРЫТИЕ МЕНЮ
-
-ServerWidget.MouseButton1Click:Connect(function()
-
-	ServerMenu.Visible =
-	not ServerMenu.Visible
-
-end)
-
-local enabled = false
 
 ListBtn.MouseButton1Click:Connect(function()
 
