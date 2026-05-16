@@ -910,6 +910,7 @@ end)
 local NameToggle,
 NameCircle =
 createToggle(
+ESPMenu,
 "ESP Name",
 0
 )
@@ -917,6 +918,7 @@ createToggle(
 local OutlineToggle,
 OutlineCircle =
 createToggle(
+ESPMenu,
 "ESP Outline",
 40
 )
