@@ -431,6 +431,9 @@ Color3.fromRGB(
 30
 )
 
+ServerWidget.BackgroundTransparency =
+0.2
+
 ServerWidget.Text =
 "● Servers"
 
@@ -472,42 +475,38 @@ Color3.fromRGB(
 )
 
 widgetStroke.Thickness =
-1.3
+1.6
 
-local dragging =
-false
+widgetStroke.Transparency =
+0.15
 
+local dragging = false
 local dragStart
 local startPos
-local dragInput
-
 
 ServerWidget.InputBegan:Connect(function(input)
 
 	if input.UserInputType ==
-	Enum.UserInputType.MouseButton1 then
+	Enum.UserInputType.MouseButton1
+	or input.UserInputType ==
+	Enum.UserInputType.Touch then
 
-		dragging =
-		true
-
-		dragStart =
-		input.Position
-
-		startPos =
-		ServerWidget.Position
-
-	end
-
-end)
+		dragging = true
+		dragStart = input.Position
+		startPos = ServerWidget.Position
 
 
-ServerWidget.InputChanged:Connect(function(input)
+		input.Changed:Connect(function()
 
-	if input.UserInputType ==
-	Enum.UserInputType.MouseMovement then
+			if input.UserInputState ==
+			Enum.UserInputState.End then
 
-		dragInput =
-		input
+				dragging =
+				false
+
+			end
+
+		end)
 
 	end
 
@@ -516,10 +515,7 @@ end)
 
 UIS.InputChanged:Connect(function(input)
 
-	if dragging and
-	input ==
-	dragInput then
-
+	if dragging then
 
 		local delta =
 		input.Position -
@@ -530,10 +526,12 @@ UIS.InputChanged:Connect(function(input)
 		UDim2.new(
 
 			startPos.X.Scale,
+
 			startPos.X.Offset +
 			delta.X,
 
 			startPos.Y.Scale,
+
 			startPos.Y.Offset +
 			delta.Y
 
@@ -1056,8 +1054,58 @@ servers
 	)
 
 	join.Text =
-	"Join"
+"Join"
 
+join.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+join.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+join.BorderSizePixel =
+0
+
+
+local c =
+Instance.new(
+"UICorner"
+)
+
+c.Parent =
+join
+
+c.CornerRadius =
+UDim.new(
+1,
+0
+)
+
+
+local stroke =
+Instance.new(
+"UIStroke"
+)
+
+stroke.Parent =
+join
+
+stroke.Color =
+Color3.fromRGB(
+240,
+220,
+255
+)
+
+stroke.Thickness =
+1
 
 	join.MouseButton1Click:Connect(function()
 
