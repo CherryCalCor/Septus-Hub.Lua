@@ -196,6 +196,308 @@ TopBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
 TopBar.BackgroundTransparency = 0.35
 TopBar.BorderSizePixel = 0
 
+-- HOME BUTTON
+local HomeBtn = Instance.new("TextButton")
+local HomeCorner = Instance.new("UICorner")
+
+HomeBtn.Parent = Frame
+HomeBtn.Size = UDim2.new(0,80,0,28)
+HomeBtn.Position = UDim2.new(0,10,0,40)
+HomeBtn.Text = "Home"
+HomeBtn.Font = Enum.Font.GothamBold
+HomeBtn.TextSize = 14
+HomeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+HomeBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+HomeBtn.BorderSizePixel = 0
+
+HomeCorner.Parent = HomeBtn
+HomeCorner.CornerRadius = UDim.new(0,8)
+
+
+-- SCROLL
+local HomePage = Instance.new("ScrollingFrame")
+HomePage.Parent = Frame
+HomePage.Position = UDim2.new(0,10,0,75)
+HomePage.Size = UDim2.new(1,-20,1,-85)
+HomePage.CanvasSize = UDim2.new(0,0,0,500)
+HomePage.ScrollBarThickness = 3
+HomePage.BackgroundTransparency = 1
+HomePage.Visible = true
+HomePage.BorderSizePixel = 0
+
+
+-- PLAYER CARD
+local PlayerCard = Instance.new("Frame")
+local PlayerCorner = Instance.new("UICorner")
+
+PlayerCard.Parent = HomePage
+PlayerCard.Size = UDim2.new(1,-10,0,80)
+PlayerCard.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+PlayerCard.BackgroundTransparency=.15
+PlayerCard.BorderSizePixel=0
+
+PlayerCorner.Parent=PlayerCard
+PlayerCorner.CornerRadius=
+UDim.new(0,12)
+
+
+-- avatar
+local Avatar = Instance.new("ImageLabel")
+Avatar.Parent=PlayerCard
+Avatar.Size=UDim2.new(0,55,0,55)
+Avatar.Position=UDim2.new(0,10,0.5,-27)
+
+Avatar.BackgroundTransparency=1
+
+local player=
+game.Players.LocalPlayer
+
+Avatar.Image=
+game.Players:GetUserThumbnailAsync(
+player.UserId,
+Enum.ThumbnailType.HeadShot,
+Enum.ThumbnailSize.Size420x420
+)
+
+
+-- welcome text
+local Welcome=
+Instance.new("TextLabel")
+
+Welcome.Parent=
+PlayerCard
+
+Welcome.Position=
+UDim2.new(0,75,0,20)
+
+Welcome.Size=
+UDim2.new(1,-80,0,40)
+
+Welcome.BackgroundTransparency=1
+
+Welcome.Text=
+"Welcome, "..player.Name
+
+Welcome.TextColor3=
+Color3.fromRGB(255,255,255)
+
+Welcome.Font=
+Enum.Font.GothamBold
+
+Welcome.TextSize=18
+
+Welcome.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+-- STATUS MENU
+local Status=
+Instance.new("Frame")
+
+local StatusCorner=
+Instance.new("UICorner")
+
+Status.Parent=
+HomePage
+
+Status.Position=
+UDim2.new(0,0,0,100)
+
+Status.Size=
+UDim2.new(1,-10,0,170)
+
+Status.BackgroundColor3=
+Color3.fromRGB(220,190,255)
+
+Status.BackgroundTransparency=.15
+
+Status.BorderSizePixel=0
+
+StatusCorner.Parent=
+Status
+
+StatusCorner.CornerRadius=
+UDim.new(0,12)
+
+
+local StatusTitle=
+Instance.new("TextLabel")
+
+StatusTitle.Parent=
+Status
+
+StatusTitle.Text=
+"Status"
+
+StatusTitle.Position=
+UDim2.new(0,10,0,5)
+
+StatusTitle.Size=
+UDim2.new(1,0,0,25)
+
+StatusTitle.BackgroundTransparency=1
+
+StatusTitle.TextColor3=
+Color3.fromRGB(255,255,255)
+
+StatusTitle.Font=
+Enum.Font.GothamBold
+
+StatusTitle.TextSize=18
+
+StatusTitle.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+local GameLabel=
+Instance.new("TextLabel")
+
+GameLabel.Parent=
+Status
+
+GameLabel.Position=
+UDim2.new(0,10,0,40)
+
+GameLabel.Size=
+UDim2.new(1,-20,0,20)
+
+GameLabel.BackgroundTransparency=1
+
+GameLabel.Text=
+"Game      "..game:GetService(
+"MarketplaceService"
+):GetProductInfo(
+game.PlaceId
+).Name
+
+GameLabel.TextColor3=
+Color3.fromRGB(255,255,255)
+
+GameLabel.Font=
+Enum.Font.Gotham
+
+GameLabel.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+local FPS=
+Instance.new("TextLabel")
+
+FPS.Parent=Status
+
+FPS.Position=
+UDim2.new(0,10,0,70)
+
+FPS.Size=
+UDim2.new(1,-20,0,20)
+
+FPS.BackgroundTransparency=1
+
+FPS.TextColor3=
+Color3.fromRGB(255,255,255)
+
+FPS.Font=
+Enum.Font.Gotham
+
+FPS.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+local Ping=
+Instance.new("TextLabel")
+
+Ping.Parent=Status
+
+Ping.Position=
+UDim2.new(0,10,0,100)
+
+Ping.Size=
+UDim2.new(1,-20,0,20)
+
+Ping.BackgroundTransparency=1
+
+Ping.TextColor3=
+Color3.fromRGB(255,255,255)
+
+Ping.Font=
+Enum.Font.Gotham
+
+Ping.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+local Players=
+Instance.new("TextLabel")
+
+Players.Parent=
+Status
+
+Players.Position=
+UDim2.new(0,10,0,130)
+
+Players.Size=
+UDim2.new(1,-20,0,20)
+
+Players.BackgroundTransparency=1
+
+Players.Text=
+"Players      "
+..#game.Players:GetPlayers()
+
+Players.TextColor3=
+Color3.fromRGB(255,255,255)
+
+Players.Font=
+Enum.Font.Gotham
+
+Players.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+-- UPDATE FPS / PING
+task.spawn(function()
+
+while true do
+
+local ping=
+math.floor(
+game:GetService(
+"Stats"
+).Network.ServerStatsItem[
+"Data Ping"
+]:GetValue()
+)
+
+Ping.Text=
+"Ping      "..ping.." ms"
+
+
+FPS.Text=
+"FPS      "
+..
+math.floor(
+workspace:GetRealPhysicsFPS()
+)
+
+Players.Text=
+"Players      "
+..
+#game.Players:GetPlayers()
+
+task.wait(.5)
+
+end
+
+end)
+
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
