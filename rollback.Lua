@@ -337,13 +337,13 @@ ESPBtn.Position =
 UDim2.new(0,10,0,10)
 
 ESPBtn.BackgroundColor3 =
-Color3.fromRGB(30,30,35)
+Color3.fromRGB(200,190,255)
 
 ESPBtn.Text =
 "ESP"
 
 ESPBtn.TextColor3 =
-Color3.new(1,1,1)
+Color3.new(20,20,25)
 
 ESPBtn.Font =
 Enum.Font.GothamBold
@@ -432,10 +432,9 @@ ESPBtn.MouseButton1Click:Connect(function()
 
 
     Arrow.Text =
-    espOpened
-    and "▼"
-    or "▲"
-
+espOpened
+and "▼"
+or "▶"
 
     ESPMenu.Visible =
     espOpened
@@ -478,10 +477,10 @@ label.BackgroundTransparency =
 1
 
 label.TextColor3 =
-Color3.new(
-1,
-1,
-1
+Color3.fromRGB(
+220,
+190,
+255
 )
 
 label.Font =
@@ -492,6 +491,8 @@ local bg =
 Instance.new(
 "TextButton"
 )
+
+bg.Text = ""
 
 bg.Parent =
 ESPMenu
@@ -599,7 +600,6 @@ NameToggle.MouseButton1Click:Connect(function()
 nameESP =
 not nameESP
 
-
 TweenService:Create(
 NameCircle,
 TweenInfo.new(.2),
@@ -608,6 +608,25 @@ Position =
 nameESP
 and UDim2.new(1,-27,.5,-12)
 or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+NameToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+nameESP
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
 }
 ):Play()
 
@@ -620,7 +639,6 @@ OutlineToggle.MouseButton1Click:Connect(function()
 outlineESP =
 not outlineESP
 
-
 TweenService:Create(
 OutlineCircle,
 TweenInfo.new(.2),
@@ -629,6 +647,25 @@ Position =
 outlineESP
 and UDim2.new(1,-27,.5,-12)
 or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+OutlineToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+outlineESP
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
 }
 ):Play()
 
@@ -644,8 +681,7 @@ for _,plr in pairs(
 game.Players:GetPlayers()
 ) do
 
-if plr ==
-player then
+if plr == game.Players.LocalPlayer then
 continue
 end
 
@@ -783,20 +819,25 @@ end
 -- OUTLINE ESP
 if outlineESP then
 
-if not char:FindFirstChild(
-"Highlight"
-) then
-
 local hl =
-Instance.new(
-"Highlight"
-)
+char:FindFirstChild("ESPHighlight")
+
+if not hl then
+
+hl =
+Instance.new("Highlight")
+
+hl.Name =
+"ESPHighlight"
 
 hl.FillTransparency =
 1
 
 hl.OutlineTransparency =
 0
+
+hl.DepthMode =
+Enum.HighlightDepthMode.AlwaysOnTop
 
 hl.OutlineColor =
 Color3.fromRGB(
@@ -814,7 +855,7 @@ else
 
 local hl =
 char:FindFirstChild(
-"Highlight"
+"ESPHighlight"
 )
 
 if hl then
