@@ -884,134 +884,36 @@ end)
 for _,srv in pairs(servers) do
     local fill = srv.playing / srv.maxPlayers
 
-    -- пропускать всё кроме 70%-95%
     if fill < 0.7 or fill > 0.95 then
         continue
     end
 
-        
+    local holder = Instance.new("Frame")
+    holder.Parent = List
+    holder.Size = UDim2.new(1,0,0,40)
+    holder.BackgroundTransparency = 1
 
-	local holder =
-	Instance.new(
-	"Frame"
-	)
+    local players = Instance.new("TextLabel")
+    players.Parent = holder
+    players.Size = UDim2.new(0.6,0,1,0)
+    players.BackgroundTransparency = 1
+    players.Text =
+        srv.playing.."/"..srv.maxPlayers.." players
 
-	holder.Parent =
-	List
+    local join = Instance.new("TextButton")
+    join.Parent = holder
+    join.Size = UDim2.new(0,75,0,26)
+    join.Position = UDim2.new(1,-80,0.5,-13)
+    join.Text = "Join"
 
-	holder.Size =
-	UDim2.new(
-	1,
-	0,
-	0,
-	40
-	)
-
-	holder.BackgroundTransparency =
-	1
-
-
-	local players =
-	Instance.new(
-	"TextLabel"
-	)
-
-	players.Parent =
-	holder
-
-	players.Size =
-	UDim2.new(
-	0.6,
-	0,
-	1,
-	0
-	)
-
-	players.BackgroundTransparency =
-	1
-
-	players.Text =
-	srv.playing..
-	"/"..
-	srv.maxPlayers..
-	" players"
-
-players.TextColor3 =
-Color3.fromRGB(
-220,
-190,
-255
-)
-
-players.Font =
-Enum.Font.GothamBold
-
-players.TextSize =
-14
-
-players.TextXAlignment =
-Enum.TextXAlignment.Left
-
-
-local join =
-Instance.new(
-"TextButton"
-)
-
-join.Parent =
-holder
-
-join.Size =
-UDim2.new(
-0,
-75,
-0,
-26
-)
-
-join.Position =
-UDim2.new(
-1,
--80,
-0.5,
--13
-)
-
-join.Text =
-"Join"
-
-join.BackgroundColor3 =
-Color3.fromRGB(
-220,
-190,
-255
-)
-
-join.TextColor3 =
-Color3.fromRGB(
-20,
-20,
-25
-)
-
-Instance.new(
-"UICorner",
-join
-)
-
-        join.MouseButton1Click:Connect(function()
-
-            game:GetService("TeleportService")
-            :TeleportToPlaceInstance(
-                game.PlaceId,
-                srv.id,
-                player
-            )
-
-        end)
-
-    end
-
+    join.MouseButton1Click:Connect(function()
+        game:GetService("TeleportService")
+        :TeleportToPlaceInstance(
+            game.PlaceId,
+            srv.id,
+            player
+        )
+    end)
 end
 
 List.CanvasSize =
