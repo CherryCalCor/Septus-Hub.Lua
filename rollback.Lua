@@ -885,10 +885,17 @@ end)
 
 for _,srv in pairs(servers) do
 
-    -- пропускаем только пустые и фулл
-    if srv.playing <= 1 or srv.playing >= srv.maxPlayers then
+    -- пропускаем только фулловые
+    if srv.playing >= srv.maxPlayers then
         continue
     end
+
+    print(
+        "Server:",
+        srv.id,
+        "Players:",
+        srv.playing.."/"..srv.maxPlayers
+    )
 
     local holder = Instance.new("Frame")
     holder.Parent = List
