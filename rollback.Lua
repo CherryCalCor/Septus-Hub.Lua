@@ -881,9 +881,14 @@ function(a,b)
 
 end)
 
-for _,srv in pairs(
-servers
-) do
+for _,srv in pairs(servers) do
+
+    local fill = srv.playing / srv.maxPlayers
+
+    -- показывать только 80%-90%
+    if fill < 0.8 or fill > 0.9 then
+        continue
+    end
 
 	local holder =
 	Instance.new(
