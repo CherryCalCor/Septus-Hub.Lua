@@ -386,8 +386,15 @@ end
 
 end)
 
+local UIS =
+game:GetService(
+"UserInputService"
+)
+
 local ServerWidget =
-Instance.new("TextButton")
+Instance.new(
+"TextButton"
+)
 
 ServerWidget.Parent =
 ScreenGui
@@ -395,34 +402,223 @@ ScreenGui
 ServerWidget.Visible =
 false
 
-ServerWidget.Size =
-UDim2.new(0,130,0,40)
 
-ServerWidget.Position =
+-- размер кнопки
+ServerWidget.Size =
 UDim2.new(
 0,
-500,
+180,
 0,
-200
+55
+)
+
+
+-- позиция сверху
+ServerWidget.Position =
+UDim2.new(
+0.5,
+-90,
+0,
+20
 )
 
 ServerWidget.BackgroundColor3 =
-Color3.fromRGB(25,25,30)
+Color3.fromRGB(
+25,
+25,
+30
+)
 
 ServerWidget.Text =
-"●     Servers"
+"● Servers"
+
+ServerWidget.TextSize =
+20
 
 ServerWidget.TextColor3 =
-Color3.fromRGB(220,190,255)
+Color3.fromRGB(
+220,
+190,
+255
+)
 
 Instance.new(
 "UICorner",
 ServerWidget
 )
 
+local dragging =
+false
+
+local dragStart
+local startPos
+
+
+ServerWidget.InputBegan:Connect(function(input)
+
+	if input.UserInputType ==
+	Enum.UserInputType.MouseButton1 then
+
+		dragging =
+		true
+
+		dragStart =
+		input.Position
+
+		startPos =
+		ServerWidget.Position
+
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState ==
+			Enum.UserInputState.End then
+
+				dragging =
+				false
+
+			end
+
+		end)
+
+	end
+
+end)
+
+
+
+UIS.InputChanged:Connect(function(input)
+
+	if dragging and
+	input.UserInputType ==
+	Enum.UserInputType.MouseMovement then
+
+
+		local delta =
+		input.Position -
+		dragStart
+
+
+		ServerWidget.Position =
+		UDim2.new(
+
+			startPos.X.Scale,
+
+			startPos.X.Offset
+			+
+			delta.X,
+
+
+			startPos.Y.Scale,
+
+			startPos.Y.Offset
+			+
+			delta.Y
+
+		)
+
+	end
+
+end)
+
 local enabled=false
 
 ListBtn.MouseButton1Click:Connect(function()
+
+	ServerMenu.Visible=true
+
+	for _,v in pairs(
+	List:GetChildren()
+	) do
+
+		if v:IsA(
+		"TextButton"
+		) then
+
+			v:Destroy()
+
+		end
+
+	end
+
+
+	local data=
+	game:GetService(
+	"HttpService"
+	):JSONDecode(
+
+	game:HttpGet(
+	"https://games.roblox.com/v1/games/"
+	..
+	game.PlaceId..
+	"/servers/Public?limit=50"
+
+	))
+
+	for _,srv in pairs(
+	data.data
+	) do
+
+		local btn=
+		Instance.new(
+		"TextButton"
+		)
+
+		btn.Parent=
+		List
+
+		btn.Size=
+		UDim2.new(
+		1,
+		0,
+		0,
+		40
+		)
+
+		btn.Text=
+		srv.playing
+		..
+		"/"
+		..
+		srv.maxPlayers
+
+		btn.BackgroundColor3=
+		Color3.fromRGB(
+		40,40,50
+		)
+
+		Instance.new(
+		"UICorner",
+		btn
+		)
+
+		btn.MouseButton1Click:Connect(function()
+
+			game:GetService(
+			"TeleportService"
+			):TeleportToPlaceInstance(
+
+			game.PlaceId,
+			srv.id,
+			player
+
+			)
+
+		end)
+
+	end
+
+	task.wait()
+
+	List.CanvasSize=
+	UDim2.new(
+	0,
+	0,
+	0,
+	layout.AbsoluteContentSize.Y
+	)
+
+end)
 
 enabled =
 not enabled
@@ -446,34 +642,47 @@ end
 
 end)
 
-local ServerMenu=
+local ServerMenu =
 Instance.new("Frame")
 
-ServerMenu.Parent=
+ServerMenu.Parent =
 ScreenGui
 
-ServerMenu.Visible=
-false
-
-ServerMenu.Size=
+ServerMenu.Size =
 UDim2.new(
 0,
-300,
+420,
 0,
-250
+300
 )
 
-ServerMenu.Position=
+ServerMenu.Position =
 UDim2.new(
 0.5,
--150,
+-210,
 0.5,
--125
+-150
 )
 
-ServerMenu.BackgroundColor3=
+ServerMenu.BackgroundColor3 =
 Color3.fromRGB(
 20,20,25
+)
+
+ServerMenu.Visible =
+false
+
+Instance.new(
+"UICorner",
+ServerMenu
+)
+
+Instance.new(
+"UIStroke",
+ServerMenu
+).Color=
+Color3.fromRGB(
+220,190,255
 )
 
 local menuStroke=
@@ -493,6 +702,190 @@ Instance.new(
 "UICorner",
 ServerMenu
 )
+
+-- КНОПКА ЗАКРЫТИЯ
+local ServerClose =
+Instance.new(
+"TextButton"
+)
+
+ServerClose.Parent =
+ServerMenu
+
+ServerClose.Size =
+UDim2.new(
+0,
+25,
+0,
+25
+)
+
+ServerClose.Position =
+UDim2.new(
+1,
+-30,
+0,
+5
+)
+
+ServerClose.BackgroundTransparency =
+1
+
+ServerClose.Text =
+"X"
+
+ServerClose.TextColor3 =
+Color3.new(
+1,1,1
+)
+
+ServerClose.Font =
+Enum.Font.GothamBold
+
+
+ServerClose.MouseButton1Click:Connect(function()
+
+	ServerMenu.Visible =
+	false
+
+end)
+
+
+
+-- КНОПКА СВОРАЧИВАНИЯ
+local ServerMin =
+Instance.new(
+"TextButton"
+)
+
+ServerMin.Parent =
+ServerMenu
+
+ServerMin.Size =
+UDim2.new(
+0,
+25,
+0,
+25
+)
+
+ServerMin.Position =
+UDim2.new(
+1,
+-60,
+0,
+5
+)
+
+ServerMin.BackgroundTransparency =
+1
+
+ServerMin.Text =
+"-"
+
+ServerMin.TextColor3 =
+Color3.new(
+1,1,1
+)
+
+ServerMin.Font =
+Enum.Font.GothamBold
+
+
+local serverMinimized =
+false
+
+
+ServerMin.MouseButton1Click:Connect(function()
+
+	serverMinimized =
+	not serverMinimized
+
+
+	if serverMinimized then
+
+		ServerMenu:TweenSize(
+
+			UDim2.new(
+			0,
+			300,
+			0,
+			35
+			),
+
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+
+			0.2,
+
+			true
+
+		)
+
+
+	else
+
+		ServerMenu:TweenSize(
+
+			UDim2.new(
+			0,
+			300,
+			0,
+			250
+			),
+
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+
+			0.2,
+
+			true
+
+		)
+
+	end
+
+end)
+
+local List=
+Instance.new("ScrollingFrame")
+
+List.Parent=
+ServerMenu
+
+List.Position=
+UDim2.new(
+0,
+10,
+0,
+45
+)
+
+List.Size=
+UDim2.new(
+1,
+-20,
+1,
+-55
+)
+
+List.CanvasSize=
+UDim2.new(
+0,
+0,
+0,
+0
+)
+
+List.BackgroundTransparency=1
+
+local layout=
+Instance.new(
+"UIListLayout"
+)
+
+layout.Parent=
+List
 
 ServerWidget.MouseButton1Click:Connect(function()
 
