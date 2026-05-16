@@ -343,6 +343,13 @@ ESPBtn.Text =
 "ESP"
 
 ESPBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+ESPBtn.TextColor3 =
 Color3.new(20,20,25)
 
 ESPBtn.Font =
@@ -433,8 +440,8 @@ ESPBtn.MouseButton1Click:Connect(function()
 
     Arrow.Text =
 espOpened
-and "▼"
-or "▶"
+and "▲"
+or "▼"
 
     ESPMenu.Visible =
     espOpened
@@ -681,6 +688,12 @@ for _,plr in pairs(
 game.Players:GetPlayers()
 ) do
 
+local NameToggle, NameCircle =
+createToggle("ESP Name",0)
+
+local OutlineToggle, OutlineCircle =
+createToggle("ESP Outline",40)
+
 if plr == game.Players.LocalPlayer then
 continue
 end
@@ -720,66 +733,60 @@ head:FindFirstChild(
 
 if not gui then
 
-gui =
-Instance.new(
-"BillboardGui"
-)
+	gui = Instance.new("BillboardGui")
 
-gui.Name =
-"ESP"
+	gui.Name = "ESP"
+	gui.Size = UDim2.new(0,100,0,40)
 
-gui.Size =
-UDim2.new(
-0,
-100,
-0,
-40
-)
+	gui.AlwaysOnTop = true
+	gui.StudsOffset = Vector3.new(0,2,0)
 
-gui.AlwaysOnTop =
-true
-
-gui.Parent =
-head
+	gui.Adornee = head
+	gui.Parent = head
 
 
-local txt =
-Instance.new(
-"TextLabel"
-)
+	local txt =
+	Instance.new("TextLabel")
 
-txt.Name =
-"TXT"
+	txt.Name = "TXT"
 
-txt.Parent =
-gui
+	txt.Parent = gui
 
-txt.Size =
-UDim2.new(
-1,
-0,
-1,
-0
-)
+	txt.Size =
+	UDim2.new(
+	1,
+	0,
+	1,
+	0
+	)
 
-txt.BackgroundTransparency =
-1
+	txt.BackgroundTransparency =
+	1
 
-txt.TextColor3 =
-Color3.fromRGB(
-220,
-190,
-255
-)
+	txt.TextColor3 =
+	Color3.fromRGB(
+	220,
+	190,
+	255
+	)
 
-txt.Font =
-Enum.Font.GothamBold
+	txt.TextStrokeTransparency =
+	0
 
-txt.TextScaled =
-true
+	txt.TextStrokeColor3 =
+	Color3.new(
+	0,
+	0,
+	0
+	)
+
+	txt.Font =
+	Enum.Font.GothamBold
+
+	txt.TextScaled =
+	true
 
 end
-
 
 local dist =
 math.floor(
@@ -830,11 +837,25 @@ Instance.new("Highlight")
 hl.Name =
 "ESPHighlight"
 
+hl.FillColor =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
 hl.FillTransparency =
-1
+0.7
 
 hl.OutlineTransparency =
 0
+
+hl.OutlineColor =
+Color3.fromRGB(
+220,
+190,
+255
+)
 
 hl.DepthMode =
 Enum.HighlightDepthMode.AlwaysOnTop
@@ -1978,7 +1999,18 @@ ServerBtn.MouseButton1Click:Connect(function()
 	-- закрывать Home при открытии Server
 	if serverOpened then
 		HomePage.Visible = false
-		opened = false
+		VisualsPage.Visible =
+false
+
+ESPMenu.Visible =
+false
+
+espOpened =
+false
+
+Arrow.Text =
+"▶"
+opened = false
 	end
 
 end)
@@ -2083,6 +2115,20 @@ MinBtn.MouseButton1Click:Connect(function()
 		opened = false
 ServerBtn.Visible=false
 ServerPage.Visible=false
+VisualsPage.Visible =
+false
+
+ESPMenu.Visible =
+false
+
+espOpened =
+false
+
+Arrow.Rotation =
+0
+
+Arrow.Text =
+"▶"
 VisualsBtn.Visible=false
 VisualsPage.Visible=false
 
