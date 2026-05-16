@@ -739,7 +739,31 @@ HomeBtn.MouseButton1Click:Connect(function()
 	if minimized then return end
 
 	opened = not opened
+
 	HomePage.Visible = opened
+
+	if opened then
+		ServerPage.Visible = false
+		serverOpened = false
+	end
+
+end)
+
+local serverOpened = false
+
+ServerBtn.MouseButton1Click:Connect(function()
+
+	if minimized then return end
+
+	serverOpened = not serverOpened
+
+	ServerPage.Visible = serverOpened
+
+	-- закрывать Home при открытии Server
+	if serverOpened then
+		HomePage.Visible = false
+		opened = false
+	end
 
 end)
 
