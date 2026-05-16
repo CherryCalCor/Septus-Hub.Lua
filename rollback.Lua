@@ -440,14 +440,38 @@ end)
 -- OPEN/CLOSE HOME
 local opened=false
 
-HomeBtn.MouseButton1Click:Connect(function()
+MinBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
 
-opened =
-not opened
+    if minimized then
 
-HomePage.Visible=
-opened
+        Frame:TweenSize(
+            UDim2.new(0,437,0,35),
+            Enum.EasingDirection.Out,
+            Enum.EasingStyle.Quad,
+            0.2,
+            true
+        )
 
+        HomeBtn.Visible = false
+        HomePage.Visible = false
+        opened = false
+        SideBar.Visible = false
+
+    else
+
+        Frame:TweenSize(
+            UDim2.new(0,437,0,238),
+            Enum.EasingDirection.Out,
+            Enum.EasingStyle.Quad,
+            0.2,
+            true
+        )
+
+        HomeBtn.Visible = true
+        SideBar.Visible = true
+
+    end
 end)
 
 local Title = Instance.new("TextLabel")
