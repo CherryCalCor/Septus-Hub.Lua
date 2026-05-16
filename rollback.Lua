@@ -350,7 +350,7 @@ Color3.fromRGB(
 )
 
 ESPBtn.TextColor3 =
-Color3.new(20,20,25)
+Color3.fromRGB(20,20,25)
 
 ESPBtn.Font =
 Enum.Font.GothamBold
