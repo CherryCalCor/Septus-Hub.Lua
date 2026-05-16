@@ -336,6 +336,104 @@ createBtn(
 100
 )
 
+-- TOGGLE SWITCH
+local ToggleBG = Instance.new("Frame")
+ToggleBG.Parent = ServerPage
+ToggleBG.Size = UDim2.new(0,60,0,30)
+ToggleBG.Position = UDim2.new(1,-75,0,102)
+ToggleBG.BackgroundColor3 =
+Color3.fromRGB(50,50,60)
+ToggleBG.BorderSizePixel = 0
+
+local ToggleCorner =
+Instance.new("UICorner")
+ToggleCorner.Parent =
+ToggleBG
+ToggleCorner.CornerRadius =
+UDim.new(1,0)
+
+local ToggleCircle =
+Instance.new("Frame")
+ToggleCircle.Parent =
+ToggleBG
+ToggleCircle.Size =
+UDim2.new(0,24,0,24)
+ToggleCircle.Position =
+UDim2.new(0,3,0.5,-12)
+ToggleCircle.BackgroundColor3 =
+Color3.new(1,1,1)
+ToggleCircle.BorderSizePixel =
+0
+
+local CircleCorner =
+Instance.new("UICorner")
+CircleCorner.Parent =
+ToggleCircle
+CircleCorner.CornerRadius =
+UDim.new(1,0)
+
+local toggleEnabled = false
+
+local function updateToggle()
+
+	if toggleEnabled then
+
+		ServerWidget.Visible = true
+
+		TweenService:Create(
+			ToggleCircle,
+			TweenInfo.new(.2),
+			{
+				Position =
+				UDim2.new(
+					1,-27,
+					0.5,-12
+				)
+			}
+		):Play()
+
+		TweenService:Create(
+			ToggleBG,
+			TweenInfo.new(.2),
+			{
+				BackgroundColor3 =
+				Color3.fromRGB(
+					220,190,255
+				)
+			}
+		):Play()
+
+	else
+
+		ServerWidget.Visible = false
+		ServerMenu.Visible = false
+
+		TweenService:Create(
+			ToggleCircle,
+			TweenInfo.new(.2),
+			{
+				Position =
+				UDim2.new(
+					0,3,
+					0.5,-12
+				)
+			}
+		):Play()
+
+		TweenService:Create(
+			ToggleBG,
+			TweenInfo.new(.2),
+			{
+				BackgroundColor3 =
+				Color3.fromRGB(
+					50,50,60
+				)
+			}
+		):Play()
+
+	end
+
+end
 
 
 ToggleBG.InputBegan:Connect(function(input)
@@ -692,119 +790,6 @@ ServerWidget.MouseButton1Click:Connect(function()
 
 end)
 
--- TOGGLE SWITCH
-local ToggleBG = Instance.new("Frame")
-ToggleBG.Parent = ServerPage
-ToggleBG.Size = UDim2.new(0,60,0,30)
-ToggleBG.Position = UDim2.new(1,-75,0,102)
-ToggleBG.BackgroundColor3 =
-Color3.fromRGB(50,50,60)
-ToggleBG.BorderSizePixel = 0
-
-local ToggleCorner =
-Instance.new("UICorner")
-ToggleCorner.Parent =
-ToggleBG
-ToggleCorner.CornerRadius =
-UDim.new(1,0)
-
-local ToggleCircle =
-Instance.new("Frame")
-ToggleCircle.Parent =
-ToggleBG
-ToggleCircle.Size =
-UDim2.new(0,24,0,24)
-ToggleCircle.Position =
-UDim2.new(0,3,0.5,-12)
-ToggleCircle.BackgroundColor3 =
-Color3.new(1,1,1)
-ToggleCircle.BorderSizePixel =
-0
-
-local CircleCorner =
-Instance.new("UICorner")
-CircleCorner.Parent =
-ToggleCircle
-CircleCorner.CornerRadius =
-UDim.new(1,0)
-
-local toggleEnabled = false
-
-local function updateToggle()
-
-	if toggleEnabled then
-
-		ServerWidget.Visible = true
-
-		TweenService:Create(
-			ToggleCircle,
-			TweenInfo.new(.2),
-			{
-				Position =
-				UDim2.new(
-					1,-27,
-					0.5,-12
-				)
-			}
-		):Play()
-
-		TweenService:Create(
-			ToggleBG,
-			TweenInfo.new(.2),
-			{
-				BackgroundColor3 =
-				Color3.fromRGB(
-					220,190,255
-				)
-			}
-		):Play()
-
-	else
-
-		ServerWidget.Visible = false
-		ServerMenu.Visible = false
-
-		TweenService:Create(
-			ToggleCircle,
-			TweenInfo.new(.2),
-			{
-				Position =
-				UDim2.new(
-					0,3,
-					0.5,-12
-				)
-			}
-		):Play()
-
-		TweenService:Create(
-			ToggleBG,
-			TweenInfo.new(.2),
-			{
-				BackgroundColor3 =
-				Color3.fromRGB(
-					50,50,60
-				)
-			}
-		):Play()
-
-	end
-
-end
-
-
-ToggleBG.InputBegan:Connect(function(input)
-
-	if input.UserInputType ==
-	Enum.UserInputType.MouseButton1 then
-
-		toggleEnabled =
-		not toggleEnabled
-
-		updateToggle()
-
-	end
-
-end)
 
 local sortLow=true
 
@@ -1314,9 +1299,9 @@ UDim2.new(
 
 0,
 layout.AbsoluteContentSize.Y
-
 )
 
+end)
 
 -- PLAYER CARD
 local PlayerCard = Instance.new("Frame")
