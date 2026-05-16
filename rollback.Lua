@@ -1,0 +1,369 @@
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Stroke = Instance.new("UIStroke")
+local Corner = Instance.new("UICorner")
+local TopBar = Instance.new("Frame")
+
+local CloseBtn = Instance.new("TextButton")
+local MinBtn = Instance.new("TextButton")
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "MainGUI"
+
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 437, 0, 238)
+Frame.Position = UDim2.new(0.5, -218.5, 0.5, -119)
+Frame.BackgroundColor3 = Color3.fromRGB(18,18,22)
+Frame.BackgroundTransparency = 0.1
+Frame.BorderSizePixel = 0
+Frame.Visible = false
+
+-- Загрузочный экран
+local LoadingFrame = Instance.new("Frame")
+local LoadingTitle = Instance.new("TextLabel")
+local LoadingBarBG = Instance.new("Frame")
+local LoadingBar = Instance.new("Frame")
+local LoadingCorner1 = Instance.new("UICorner")
+local LoadingCorner2 = Instance.new("UICorner")
+
+LoadingFrame.Parent = ScreenGui
+LoadingFrame.Size = UDim2.new(0,500,0,300)
+LoadingFrame.Position = UDim2.new(0.5,-250,0.5,-150)
+LoadingFrame.BackgroundColor3 = Color3.fromRGB(10,10,15)
+LoadingFrame.BackgroundTransparency = 0.15
+LoadingFrame.BorderSizePixel = 0
+
+local LoadingCorner = Instance.new("UICorner")
+LoadingCorner.Parent = LoadingFrame
+LoadingCorner.CornerRadius = UDim.new(0,20)
+LoadingFrame.ZIndex = 999
+
+local LoadingStroke = Instance.new("UIStroke")
+LoadingStroke.Parent = LoadingFrame
+LoadingStroke.Color = Color3.fromRGB(220,190,255)
+LoadingStroke.Thickness = 1.5
+
+LoadingTitle.Parent = LoadingFrame
+LoadingTitle.Size = UDim2.new(1,0,0,60)
+LoadingTitle.Position = UDim2.new(0,0,0.4,0)
+LoadingTitle.BackgroundTransparency = 1
+LoadingTitle.Text = "SEPTUS HUB"
+LoadingTitle.Font = Enum.Font.GothamBlack
+LoadingTitle.TextSize = 34
+LoadingTitle.TextColor3 = Color3.fromRGB(220,190,255)
+LoadingTitle.ZIndex = 1000
+
+local LoadingStar = Instance.new("TextLabel")
+
+LoadingStar.Parent = LoadingFrame
+LoadingStar.Size = UDim2.new(0,80,0,80)
+LoadingStar.Position = UDim2.new(0.5,-40,0.3,-40)
+LoadingStar.BackgroundTransparency = 1
+LoadingStar.Text = "★"
+LoadingStar.TextSize = 65
+LoadingStar.Font = Enum.Font.SourceSansBold
+LoadingStar.TextColor3 = Color3.fromRGB(220,190,255)
+LoadingStar.Rotation = 0
+LoadingStar.ZIndex = 1000
+
+-- лёгкое свечение
+local StarStroke = Instance.new("UIStroke")
+StarStroke.Parent = LoadingStar
+StarStroke.Color = Color3.fromRGB(235,215,255)
+StarStroke.Thickness = 1.5
+
+local TweenService = game:GetService("TweenService")
+
+-- бесконечное вращение
+task.spawn(function()
+	while LoadingStar.Parent do
+		local rotate = TweenService:Create(
+			LoadingStar,
+			TweenInfo.new(
+				2,
+				Enum.EasingStyle.Linear
+			),
+			{Rotation = LoadingStar.Rotation + 360}
+		)
+
+		rotate:Play()
+		rotate.Completed:Wait()
+	end
+end)
+
+-- лёгкая пульсация
+task.spawn(function()
+	while LoadingStar.Parent do
+		TweenService:Create(
+			LoadingStar,
+			TweenInfo.new(1),
+			{TextTransparency = 0.2}
+		):Play()
+
+		task.wait(1)
+
+		TweenService:Create(
+			LoadingStar,
+			TweenInfo.new(1),
+			{TextTransparency = 0}
+		):Play()
+
+		task.wait(1)
+	end
+end)
+
+LoadingBarBG.Parent = LoadingFrame
+LoadingBarBG.Size = UDim2.new(0,250,0,10)
+LoadingBarBG.Position = UDim2.new(0.5,-125,0.55,0)
+LoadingBarBG.BackgroundColor3 = Color3.fromRGB(40,40,50)
+LoadingBarBG.BorderSizePixel = 0
+LoadingBarBG.ZIndex = 1000
+LoadingCorner1.Parent = LoadingBarBG
+
+LoadingBar.Parent = LoadingBarBG
+LoadingBar.Size = UDim2.new(0,0,1,0)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(210,180,255)
+LoadingBar.BorderSizePixel = 0
+LoadingBar.ZIndex = 1001
+LoadingCorner2.Parent = LoadingBar
+
+local TweenService = game:GetService("TweenService")
+
+-- анимация загрузки (7 сек)
+TweenService:Create(
+    LoadingBar,
+    TweenInfo.new(7, Enum.EasingStyle.Linear),
+    {Size = UDim2.new(1,0,1,0)}
+):Play()
+
+task.wait(7)
+
+-- плавное исчезновение
+TweenService:Create(
+    LoadingFrame,
+    TweenInfo.new(0.8),
+    {BackgroundTransparency = 1}
+):Play()
+
+TweenService:Create(
+    LoadingTitle,
+    TweenInfo.new(0.8),
+    {TextTransparency = 1}
+):Play()
+
+TweenService:Create(
+    LoadingBarBG,
+    TweenInfo.new(0.8),
+    {BackgroundTransparency = 1}
+):Play()
+
+TweenService:Create(
+    LoadingBar,
+    TweenInfo.new(0.8),
+    {BackgroundTransparency = 1}
+):Play()
+
+task.wait(1)
+
+TweenService:Create(
+	LoadingStar,
+	TweenInfo.new(0.8),
+	{
+		TextTransparency = 1,
+		Rotation = LoadingStar.Rotation + 90
+	}
+):Play()
+
+task.wait(0.8)
+
+LoadingFrame:Destroy()
+Frame.Visible = true
+
+Corner.Parent = Frame
+Corner.CornerRadius = UDim.new(0,10)
+
+Stroke.Parent = Frame
+Stroke.Color = Color3.fromRGB(210,180,255)
+Stroke.Thickness = 1.2
+Stroke.Transparency = 0
+
+-- тонкая серая полоска
+TopBar.Parent = Frame
+TopBar.Size = UDim2.new(1, -2, 0, 1)
+TopBar.Position = UDim2.new(0, 1, 0.12, 0)
+TopBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
+TopBar.BackgroundTransparency = 0.35
+TopBar.BorderSizePixel = 0
+
+local Title = Instance.new("TextLabel")
+
+local InjectorTag = Instance.new("TextLabel")
+local InjectorCorner = Instance.new("UICorner")
+
+local executor = "Unknown"
+
+pcall(function()
+    if identifyexecutor then
+        executor = identifyexecutor()
+    elseif getexecutorname then
+        executor = getexecutorname()
+    end
+end)
+
+InjectorTag.Parent = Frame
+InjectorTag.Size = UDim2.new(0, 90, 0, 20)
+InjectorTag.Position = UDim2.new(1, -145, 0, 6) -- рядом с "-"
+InjectorTag.BackgroundColor3 = Color3.fromRGB(220,190,255)
+InjectorTag.BorderSizePixel = 0
+InjectorTag.Text = executor
+InjectorTag.TextColor3 = Color3.fromRGB(20,20,25)
+InjectorTag.TextSize = 11
+InjectorTag.Font = Enum.Font.GothamBold
+
+InjectorCorner.Parent = InjectorTag
+InjectorCorner.CornerRadius = UDim.new(0,8)
+
+Title.Parent = Frame
+Title.Size = UDim2.new(0, 180, 0, 30)
+Title.Position = UDim2.new(0, 12, 0, 4)
+Title.BackgroundTransparency = 1
+Title.Text = "SEPTUS HUB"
+Title.TextColor3 = Color3.fromRGB(220, 190, 255) -- светло-фиолетовый
+Title.TextSize = 20
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- кнопка сворачивания
+MinBtn.Parent = Frame
+MinBtn.Size = UDim2.new(0, 20, 0, 20)
+MinBtn.Position = UDim2.new(1, -50, 0, 6)
+MinBtn.Text = "-"
+MinBtn.TextColor3 = Color3.fromRGB(255,255,255)
+MinBtn.TextSize = 18
+MinBtn.Font = Enum.Font.Gotham
+MinBtn.BackgroundTransparency = 1
+MinBtn.BorderSizePixel = 0
+
+-- кнопка закрытия
+CloseBtn.Parent = Frame
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.Position = UDim2.new(1, -25, 0, 6)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255,255,255)
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.Gotham
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.BorderSizePixel = 0
+
+-- закрыть GUI
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- свернуть GUI
+local minimized = false
+
+MinBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+
+    if minimized then
+        Frame:TweenSize(
+            UDim2.new(0,437,0,35),
+            Enum.EasingDirection.Out,
+            Enum.EasingStyle.Quad,
+            0.2,
+            true
+        )
+    else
+        Frame:TweenSize(
+            UDim2.new(0,437,0,238),
+            Enum.EasingDirection.Out,
+            Enum.EasingStyle.Quad,
+            0.2,
+            true
+        )
+    end
+end)
+
+-- Кнопка SH (отдельно от GUI)
+local UserInputService = game:GetService("UserInputService")
+
+local ToggleBtn = Instance.new("TextButton")
+local ToggleCorner = Instance.new("UICorner")
+local ToggleStroke = Instance.new("UIStroke")
+
+ToggleBtn.Parent = ScreenGui
+ToggleBtn.Size = UDim2.new(0,50,0,50)
+ToggleBtn.Position = UDim2.new(0,50,0.5,-25)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+ToggleBtn.Text = "SH"
+ToggleBtn.TextColor3 = Color3.fromRGB(20,20,25)
+ToggleBtn.TextSize = 20
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Visible = false
+ToggleBtn.BorderSizePixel = 0
+
+ToggleCorner.Parent = ToggleBtn
+ToggleCorner.CornerRadius = UDim.new(0,12)
+
+ToggleStroke.Parent = ToggleBtn
+ToggleStroke.Color = Color3.fromRGB(240,220,255)
+ToggleStroke.Thickness = 1.2
+
+-- показать кнопку после загрузки
+task.spawn(function()
+	repeat task.wait() until Frame.Visible
+	ToggleBtn.Visible = true
+end)
+
+-- скрыть / показать GUI
+local guiVisible = true
+
+ToggleBtn.MouseButton1Click:Connect(function()
+	guiVisible = not guiVisible
+	Frame.Visible = guiVisible
+end)
+
+-- перетаскивание кнопки
+local dragging = false
+local dragStart
+local startPos
+local dragInput
+
+ToggleBtn.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = ToggleBtn.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+ToggleBtn.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+
+		local delta = input.Position - dragStart
+
+		ToggleBtn.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
