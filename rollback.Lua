@@ -1293,15 +1293,11 @@ end
 
 List.CanvasSize =
 UDim2.new(
-
-0,
-0,
-
-0,
-layout.AbsoluteContentSize.Y
+    0,
+    0,
+    0,
+    layout.AbsoluteContentSize.Y
 )
-
-end)
 
 -- PLAYER CARD
 local PlayerCard = Instance.new("Frame")
