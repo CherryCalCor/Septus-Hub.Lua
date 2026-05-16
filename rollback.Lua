@@ -883,25 +883,16 @@ end)
 
 ListBtn.MouseButton1Click:Connect(function()
 
-	enabled =
-	not enabled
+	enabled = not enabled
+ServerWidget.Visible = enabled
 
-	ServerWidget.Visible =
-	enabled
+if not enabled then
+	ServerMenu.Visible = false
+	return
+end
 
-
-	if not enabled then
-
-		ServerMenu.Visible =
-		false
-
-		return
-
-	end
-
-
-	ServerMenu.Visible =
-	true
+-- НЕ открываем меню сразу
+ServerMenu.Visible = false
 
 
 	for _,v in pairs(
@@ -951,9 +942,147 @@ function(a,b)
 
 end)
 
-	for _,srv in pairs(
-servers
-) do
+	for _,srv in pairs(servers) do
+
+	local holder =
+	Instance.new("Frame")
+
+	holder.Parent =
+	List
+
+	holder.Size =
+	UDim2.new(
+	1,
+	0,
+	0,
+	40
+	)
+
+	holder.BackgroundTransparency =
+	1
+
+
+	-- ТЕКСТ ИГРОКОВ
+
+	local players =
+	Instance.new(
+	"TextLabel"
+	)
+
+	players.Parent =
+	holder
+
+	players.Size =
+	UDim2.new(
+	0.5,
+	0,
+	1,
+	0
+	)
+
+	players.Text =
+	srv.playing..
+	"/"..
+	srv.maxPlayers..
+	" players"
+
+	players.TextColor3 =
+	Color3.new(
+	1,
+	1,
+	1
+	)
+
+	players.BackgroundTransparency =
+	1
+
+	players.Font =
+	Enum.Font.GothamBold
+
+	players.TextXAlignment =
+	Enum.TextXAlignment.Left
+
+
+
+	-- КНОПКА JOIN
+
+	local join =
+	Instance.new(
+	"TextButton"
+	)
+
+	join.Parent =
+	holder
+
+	join.Size =
+	UDim2.new(
+	0,
+	80,
+	0,
+	28
+	)
+
+	join.Position =
+	UDim2.new(
+	1,
+	-90,
+	0.5,
+	-14
+	)
+
+	join.Text =
+	"Join"
+
+	join.Font =
+	Enum.Font.GothamBold
+
+	join.TextColor3 =
+	Color3.fromRGB(
+	20,
+	20,
+	25
+	)
+
+	join.BackgroundColor3 =
+	Color3.fromRGB(
+	220,
+	190,
+	255
+	)
+
+
+	local corner =
+	Instance.new(
+	"UICorner"
+	)
+
+	corner.Parent =
+	join
+
+	corner.CornerRadius =
+	UDim.new(
+	0,
+	8
+	)
+
+
+	join.MouseButton1Click:Connect(function()
+
+		game:GetService(
+		"TeleportService"
+		):TeleportToPlaceInstance(
+
+		game.PlaceId,
+
+		srv.id,
+
+		player
+
+		)
+
+	end)
+
+end
 
 		local btn =
 		Instance.new(
@@ -962,22 +1091,6 @@ servers
 
 		btn.Parent =
 		List
-
-		btn.Size =
-		UDim2.new(
-		1,
-		0,
-		0,
-		40
-		)
-
-		btn.Text =
-		srv.playing
-		..
-		"/"
-		..
-		srv.maxPlayers
-
 
 		btn.BackgroundColor3 =
 		Color3.fromRGB(
