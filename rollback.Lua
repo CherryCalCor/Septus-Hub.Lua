@@ -408,9 +408,9 @@ local enabled = false
 ServerWidget.Size =
 UDim2.new(
 0,
-180,
+120,
 0,
-55
+35
 )
 
 
@@ -443,9 +443,16 @@ Color3.fromRGB(
 255
 )
 
-Instance.new(
-"UICorner",
+local ServerCorner =
+Instance.new("UICorner")
+
+ServerCorner.Parent =
 ServerWidget
+
+ServerCorner.CornerRadius =
+UDim.new(
+1,
+0
 )
 
 local dragging =
@@ -521,27 +528,6 @@ UIS.InputChanged:Connect(function(input)
 	end
 
 end)
-
-enabled =
-not enabled
-
-if enabled then
-
-ListBtn.BackgroundColor3 =
-Color3.fromRGB(
-220,190,255
-)
-
-ServerWidget.Visible =
-true
-
-else
-
-ServerWidget.Visible =
-false
-
-end
-
 
 local ServerMenu =
 Instance.new("Frame")
