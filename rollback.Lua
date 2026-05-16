@@ -383,6 +383,40 @@ end
 
 end)
 
+local ServerWidget =
+Instance.new("TextButton")
+
+ServerWidget.Parent =
+ScreenGui
+
+ServerWidget.Visible =
+false
+
+ServerWidget.Size =
+UDim2.new(0,130,0,40)
+
+ServerWidget.Position =
+UDim2.new(
+0,
+500,
+0,
+200
+)
+
+ServerWidget.BackgroundColor3 =
+Color3.fromRGB(25,25,30)
+
+ServerWidget.Text =
+"●     Servers"
+
+ServerWidget.TextColor3 =
+Color3.fromRGB(220,190,255)
+
+Instance.new(
+"UICorner",
+ServerWidget
+)
+
 local enabled=false
 
 ListBtn.MouseButton1Click:Connect(function()
@@ -408,44 +442,6 @@ false
 end
 
 end)
-
-local ServerWidget =
-Instance.new("TextButton")
-
-ServerWidget.Parent =
-ScreenGui
-
-ServerWidget.Visible =
-false
-
-ServerWidget.Size =
-UDim2.new(0,130,0,40)
-
-ServerWidget.Position =
-UDim2.new(
-0,
-500,
-0,
-200
-)
-
-ServerWidget.BackgroundColor3=
-Color3.fromRGB(
-25,25,30
-)
-
-ServerWidget.Text=
-"●     Servers"
-
-ServerWidget.TextColor3=
-Color3.fromRGB(
-220,190,255
-)
-
-local sw=
-Instance.new(
-"UICorner"
-)
 
 sw.Parent=
 ServerWidget
