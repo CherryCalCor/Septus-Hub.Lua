@@ -201,7 +201,7 @@ local SideBar = Instance.new("Frame")
 
 SideBar.Parent = Frame
 SideBar.Size = UDim2.new(0, 1, 1, -30) -- высота без верхней полоски
-SideBar.Position = UDim2.new(0, 90, 0, 30) -- начинается ниже верхней полоски
+SideBar.Position = UDim2.new(0, 100, 0, 30) -- начинается ниже верхней полоски
 SideBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
 SideBar.BackgroundTransparency = 0.35
 SideBar.BorderSizePixel = 0
