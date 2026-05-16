@@ -882,14 +882,14 @@ function(a,b)
 end)
 
 for _,srv in pairs(servers) do
-
     local fill = srv.playing / srv.maxPlayers
 
-    -- показывать сервера 70%-95%
-    if fill >= 0.7 and fill <= 0.95 then
-
+    -- пропускать всё кроме 70%-95%
+    if fill < 0.7 or fill > 0.95 then
         continue
     end
+
+        
 
 	local holder =
 	Instance.new(
@@ -998,26 +998,6 @@ Instance.new(
 "UICorner",
 join
 )
-
-for _,srv in pairs(servers) do
-
-    local fill = srv.playing / srv.maxPlayers
-
-    if fill >= 0.7 and fill <= 0.95 then
-
-        local holder = Instance.new("Frame")
-        holder.Parent = List
-        holder.Size = UDim2.new(1,0,0,40)
-        holder.BackgroundTransparency = 1
-
-        local players = Instance.new("TextLabel")
-        players.Parent = holder
-        players.Size = UDim2.new(0.6,0,1,0)
-        players.BackgroundTransparency = 1
-        players.Text =
-            srv.playing.."/"..srv.maxPlayers.." players"
-
-        -- остальной код сервера
 
         join.MouseButton1Click:Connect(function()
 
