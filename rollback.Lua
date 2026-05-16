@@ -884,6 +884,11 @@ end)
 
 for _,srv in pairs(servers) do
 
+    -- пропускаем только пустые и фулл
+    if srv.playing <= 1 or srv.playing >= srv.maxPlayers then
+        continue
+    end
+
     local holder = Instance.new("Frame")
     holder.Parent = List
     holder.Size = UDim2.new(1,0,0,40)
@@ -894,22 +899,73 @@ for _,srv in pairs(servers) do
     players.Size = UDim2.new(0.6,0,1,0)
     players.BackgroundTransparency = 1
     players.Text =
-        srv.playing.."/"..srv.maxPlayers.." players"
+        srv.playing.." / "..srv.maxPlayers.." players"
 
-    local join = Instance.new("TextButton")
-    join.Parent = holder
-    join.Size = UDim2.new(0,75,0,26)
-    join.Position = UDim2.new(1,-80,0.5,-13)
-    join.Text = "Join"
+    players.Font =
+        Enum.Font.GothamBold
+
+    players.TextColor3 =
+        Color3.fromRGB(255,255,255)
+
+    players.TextSize =
+        14
+
+    players.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+
+    local join =
+        Instance.new("TextButton")
+
+    join.Parent =
+        holder
+
+    join.Size =
+        UDim2.new(0,75,0,26)
+
+    join.Position =
+        UDim2.new(1,-80,0.5,-13)
+
+    join.Text =
+        "Join"
+
+    join.Font =
+        Enum.Font.GothamBold
+
+    join.TextColor3 =
+        Color3.new(1,1,1)
+
+    join.BackgroundColor3 =
+        Color3.fromRGB(220,190,255)
+
+    join.BackgroundTransparency =
+        .15
+
+    join.BorderSizePixel =
+        0
+
+
+    local corner =
+        Instance.new("UICorner")
+
+    corner.Parent =
+        join
+
+    corner.CornerRadius =
+        UDim.new(0,8)
+
 
     join.MouseButton1Click:Connect(function()
+
         game:GetService("TeleportService")
         :TeleportToPlaceInstance(
             game.PlaceId,
             srv.id,
             player
         )
+
     end)
+
 end
 
 List.CanvasSize =
