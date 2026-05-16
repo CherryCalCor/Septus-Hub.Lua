@@ -436,44 +436,6 @@ end
 end)
 
 
-
--- OPEN/CLOSE HOME
-local opened=false
-
-MinBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-
-    if minimized then
-
-        Frame:TweenSize(
-            UDim2.new(0,437,0,35),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.2,
-            true
-        )
-
-        HomeBtn.Visible = false
-        HomePage.Visible = false
-        opened = false
-        SideBar.Visible = false
-
-    else
-
-        Frame:TweenSize(
-            UDim2.new(0,437,0,238),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.2,
-            true
-        )
-
-        HomeBtn.Visible = true
-        SideBar.Visible = true
-
-    end
-end)
-
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
@@ -523,6 +485,44 @@ MinBtn.Font = Enum.Font.Gotham
 MinBtn.BackgroundTransparency = 1
 MinBtn.BorderSizePixel = 0
 
+local minimized = false
+
+MinBtn.MouseButton1Click:Connect(function()
+
+	minimized = not minimized
+
+	if minimized then
+
+		Frame:TweenSize(
+			UDim2.new(0,437,0,35),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.2,
+			true
+		)
+
+		HomeBtn.Visible = false
+		HomePage.Visible = false
+		SideBar.Visible = false
+		opened = false
+
+	else
+
+		Frame:TweenSize(
+			UDim2.new(0,437,0,238),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.2,
+			true
+		)
+
+		HomeBtn.Visible = true
+		SideBar.Visible = true
+
+	end
+
+end)
+
 -- кнопка закрытия
 CloseBtn.Parent = Frame
 CloseBtn.Size = UDim2.new(0, 20, 0, 20)
@@ -537,31 +537,6 @@ CloseBtn.BorderSizePixel = 0
 -- закрыть GUI
 CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
-end)
-
--- свернуть GUI
-local minimized = false
-
-MinBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-
-    if minimized then
-        Frame:TweenSize(
-            UDim2.new(0,437,0,35),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.2,
-            true
-        )
-    else
-        Frame:TweenSize(
-            UDim2.new(0,437,0,238),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.2,
-            true
-        )
-    end
 end)
 
 -- Кнопка SH (отдельно от GUI)
