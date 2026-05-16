@@ -213,6 +213,22 @@ HomeBtn.BorderSizePixel = 0
 HomeCorner.Parent = HomeBtn
 HomeCorner.CornerRadius = UDim.new(0,8)
 
+-- открытие/закрытие Home
+local homeOpened = false
+
+HomeBtn.MouseButton1Click:Connect(function()
+	homeOpened = not homeOpened
+	HomePage.Visible = homeOpened
+
+	-- подсветка кнопки
+	if homeOpened then
+		HomeBtn.BackgroundColor3 =
+			Color3.fromRGB(235,210,255)
+	else
+		HomeBtn.BackgroundColor3 =
+			Color3.fromRGB(220,190,255)
+	end
+end)
 
 -- SCROLL
 local HomePage = Instance.new("ScrollingFrame")
@@ -222,7 +238,7 @@ HomePage.Size = UDim2.new(1,-20,1,-85)
 HomePage.CanvasSize = UDim2.new(0,0,0,500)
 HomePage.ScrollBarThickness = 3
 HomePage.BackgroundTransparency = 1
-HomePage.Visible = true
+HomePage.Visible = false
 HomePage.BorderSizePixel = 0
 
 
