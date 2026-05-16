@@ -337,7 +337,9 @@ createBtn(
 )
 
 -- TOGGLE SWITCH
-local ToggleBG = Instance.new("Frame")
+local ToggleBG = Instance.new("TextButton")
+ToggleBG.Text = ""
+ToggleBG.AutoButtonColor = false
 ToggleBG.Parent = ServerPage
 ToggleBG.Size = UDim2.new(0,60,0,30)
 ToggleBG.Position = UDim2.new(1,-75,0,102)
@@ -378,17 +380,15 @@ local function updateToggle()
 
 	if toggleEnabled then
 
-		ServerWidget.Visible = true
+		if ServerWidget then
+			ServerWidget.Visible = true
+		end
 
 		TweenService:Create(
 			ToggleCircle,
 			TweenInfo.new(.2),
 			{
-				Position =
-				UDim2.new(
-					1,-27,
-					0.5,-12
-				)
+				Position = UDim2.new(1,-27,0.5,-12)
 			}
 		):Play()
 
@@ -397,26 +397,25 @@ local function updateToggle()
 			TweenInfo.new(.2),
 			{
 				BackgroundColor3 =
-				Color3.fromRGB(
-					220,190,255
-				)
+				Color3.fromRGB(220,190,255)
 			}
 		):Play()
 
 	else
 
-		ServerWidget.Visible = false
-		ServerMenu.Visible = false
+		if ServerWidget then
+			ServerWidget.Visible = false
+		end
+
+		if ServerMenu then
+			ServerMenu.Visible = false
+		end
 
 		TweenService:Create(
 			ToggleCircle,
 			TweenInfo.new(.2),
 			{
-				Position =
-				UDim2.new(
-					0,3,
-					0.5,-12
-				)
+				Position = UDim2.new(0,3,0.5,-12)
 			}
 		):Play()
 
@@ -425,9 +424,7 @@ local function updateToggle()
 			TweenInfo.new(.2),
 			{
 				BackgroundColor3 =
-				Color3.fromRGB(
-					50,50,60
-				)
+				Color3.fromRGB(50,50,60)
 			}
 		):Play()
 
@@ -435,19 +432,9 @@ local function updateToggle()
 
 end
 
-
-ToggleBG.InputBegan:Connect(function(input)
-
-	if input.UserInputType ==
-	Enum.UserInputType.MouseButton1 then
-
-		toggleEnabled =
-		not toggleEnabled
-
-		updateToggle()
-
-	end
-
+ToggleBG.MouseButton1Click:Connect(function()
+	toggleEnabled = not toggleEnabled
+	updateToggle()
 end)
 
 local player =
