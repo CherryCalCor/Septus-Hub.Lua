@@ -849,25 +849,26 @@ ServerMin.MouseButton1Click:Connect(function()
 
 end)
 
-local data =
-game:GetService(
-"HttpService"
-):JSONDecode(
+local success,data = pcall(function()
 
-game:HttpGet(
+    return game:GetService("HttpService"):JSONDecode(
+        game:HttpGet(
+            "https://games.roblox.com/v1/games/"
+            ..game.PlaceId..
+            "/servers/Public?limit=50"
+        )
+    )
 
-"https://games.roblox.com/v1/games/"
-..
-game.PlaceId
-..
-"/servers/Public?limit=50"
+end)
 
-))
+local servers = {}
 
-local servers =
-data.data
-
-print("Всего серверов:", #servers)
+if success and data and data.data then
+    servers = data.data
+    print("Всего серверов:", #servers)
+else
+    warn("Не удалось загрузить сервера")
+end
 
 table.sort(
 servers,
