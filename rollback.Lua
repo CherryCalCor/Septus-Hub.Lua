@@ -206,6 +206,250 @@ SideBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
 SideBar.BackgroundTransparency = 0.35
 SideBar.BorderSizePixel = 0
 
+-- HOME BUTTON
+local HomeBtn = Instance.new("TextButton")
+local HomeCorner = Instance.new("UICorner")
+
+HomeBtn.Parent = Frame
+HomeBtn.Size = UDim2.new(0,80,0,28)
+HomeBtn.Position = UDim2.new(0,10,0,40) -- под верхней полоской
+HomeBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+HomeBtn.Text = "Home"
+HomeBtn.TextColor3 = Color3.fromRGB(20,20,25)
+HomeBtn.Font = Enum.Font.GothamBold
+HomeBtn.TextSize = 14
+HomeBtn.BorderSizePixel = 0
+
+HomeCorner.Parent = HomeBtn
+HomeCorner.CornerRadius = UDim.new(0,8)
+
+
+-- HOME PAGE
+local HomePage = Instance.new("ScrollingFrame")
+
+HomePage.Parent = Frame
+HomePage.Position = UDim2.new(0,110,0,40) -- начинается после левой полоски
+HomePage.Size = UDim2.new(1,-120,1,-50)
+HomePage.CanvasSize = UDim2.new(0,0,0,400)
+HomePage.ScrollBarThickness = 4
+HomePage.BackgroundTransparency = 1
+HomePage.Visible = false -- НЕ показывать сразу
+HomePage.BorderSizePixel = 0
+
+
+-- PLAYER CARD
+local PlayerCard = Instance.new("Frame")
+PlayerCard.Parent = HomePage
+PlayerCard.Size = UDim2.new(1,-10,0,80)
+PlayerCard.BackgroundColor3 = Color3.fromRGB(220,190,255)
+PlayerCard.BackgroundTransparency = .15
+PlayerCard.BorderSizePixel = 0
+
+local PCCorner = Instance.new("UICorner")
+PCCorner.Parent = PlayerCard
+PCCorner.CornerRadius = UDim.new(0,10)
+
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.Parent = PlayerCard
+Avatar.Size = UDim2.new(0,55,0,55)
+Avatar.Position = UDim2.new(0,10,0.5,-27)
+Avatar.BackgroundTransparency = 1
+
+local player = game.Players.LocalPlayer
+
+Avatar.Image =
+game.Players:GetUserThumbnailAsync(
+player.UserId,
+Enum.ThumbnailType.HeadShot,
+Enum.ThumbnailSize.Size420x420
+)
+
+
+local Welcome = Instance.new("TextLabel")
+Welcome.Parent = PlayerCard
+Welcome.Position = UDim2.new(0,75,0,20)
+Welcome.Size = UDim2.new(1,-80,0,30)
+Welcome.BackgroundTransparency = 1
+Welcome.Text =
+"Welcome, "..player.Name
+
+Welcome.Font =
+Enum.Font.GothamBold
+
+Welcome.TextColor3 =
+Color3.fromRGB(255,255,255)
+
+Welcome.TextXAlignment =
+Enum.TextXAlignment.Left
+
+Welcome.TextSize = 18
+
+
+
+-- STATUS MENU
+local Status = Instance.new("Frame")
+Status.Parent = HomePage
+Status.Position = UDim2.new(0,0,0,95)
+Status.Size = UDim2.new(1,-10,0,160)
+Status.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+Status.BackgroundTransparency=.15
+Status.BorderSizePixel=0
+
+
+local SCorner =
+Instance.new("UICorner")
+
+SCorner.Parent=
+Status
+
+SCorner.CornerRadius=
+UDim.new(0,10)
+
+
+local StatusTitle =
+Instance.new("TextLabel")
+
+StatusTitle.Parent=
+Status
+
+StatusTitle.Text="Status"
+
+StatusTitle.Position=
+UDim2.new(0,10,0,5)
+
+StatusTitle.Size=
+UDim2.new(1,0,0,20)
+
+StatusTitle.BackgroundTransparency=1
+
+StatusTitle.TextColor3=
+Color3.fromRGB(255,255,255)
+
+StatusTitle.Font=
+Enum.Font.GothamBold
+
+StatusTitle.TextXAlignment=
+Enum.TextXAlignment.Left
+
+
+
+local Game =
+Instance.new("TextLabel")
+
+local FPS =
+Instance.new("TextLabel")
+
+local Ping =
+Instance.new("TextLabel")
+
+local Players =
+Instance.new("TextLabel")
+
+
+local labels={
+Game,FPS,Ping,Players
+}
+
+for i,v in pairs(labels) do
+
+v.Parent=Status
+
+v.Position=
+UDim2.new(
+0,
+10,
+0,
+30+(i*25)
+)
+
+v.Size=
+UDim2.new(
+1,-20,
+0,20
+)
+
+v.BackgroundTransparency=1
+
+v.TextColor3=
+Color3.fromRGB(
+255,255,255
+)
+
+v.Font=
+Enum.Font.Gotham
+
+v.TextXAlignment=
+Enum.TextXAlignment.Left
+
+end
+
+
+Game.Text=
+"Game     "
+..
+game:GetService(
+"MarketplaceService"
+):GetProductInfo(
+game.PlaceId
+).Name
+
+
+
+task.spawn(function()
+
+while true do
+
+FPS.Text=
+"FPS     "
+..
+math.floor(
+workspace:GetRealPhysicsFPS()
+)
+
+local ping=
+math.floor(
+game:GetService(
+"Stats"
+).Network.ServerStatsItem[
+"Data Ping"
+]:GetValue()
+)
+
+Ping.Text=
+"Ping     "
+..
+ping.." ms"
+
+
+Players.Text=
+"Players     "
+..
+#game.Players:GetPlayers()
+
+task.wait(.5)
+
+end
+
+end)
+
+
+
+-- OPEN/CLOSE HOME
+local opened=false
+
+HomeBtn.MouseButton1Click:Connect(function()
+
+opened =
+not opened
+
+HomePage.Visible=
+opened
+
+end)
+
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
