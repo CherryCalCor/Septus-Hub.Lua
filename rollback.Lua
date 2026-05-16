@@ -431,9 +431,6 @@ Color3.fromRGB(
 30
 )
 
-ServerMenu.BackgroundTransparency =
-0.15
-
 ServerWidget.Text =
 "● Servers"
 
@@ -590,6 +587,9 @@ Color3.fromRGB(
 20,
 25
 )
+
+ServerMenu.BackgroundTransparency =
+0.15
 
 Instance.new(
 "UICorner",
@@ -924,57 +924,44 @@ if not enabled then
 
 	ServerMenu.Visible =
 	false
+	return
 
 end
 
-end)
+
+ServerMenu.Visible =
+false
 
 
-
-ServerWidget.MouseButton1Click:Connect(function()
-
-	if enabled then
-
-		ServerMenu.Visible =
-		not ServerMenu.Visible
-
-	end
-
-end)
-
--- НЕ открываем меню сразу
-ServerMenu.Visible = false
-
-
-	for _,v in pairs(
+for _,v in pairs(
 	List:GetChildren()
-	) do
+) do
 
-		if v:IsA(
-		"TextButton"
-		) then
+	if v:IsA(
+	"Frame"
+	) then
 
-			v:Destroy()
-
-		end
+		v:Destroy()
 
 	end
 
+end
 
-	local data =
-	game:GetService(
-	"HttpService"
-	):JSONDecode(
 
-	game:HttpGet(
+local data =
+game:GetService(
+"HttpService"
+):JSONDecode(
 
-	"https://games.roblox.com/v1/games/"
-	..
-	game.PlaceId
-	..
-	"/servers/Public?limit=50"
+game:HttpGet(
 
-	))
+"https://games.roblox.com/v1/games/"
+..
+game.PlaceId
+..
+"/servers/Public?limit=50"
+
+))
 
 local servers =
 data.data
@@ -993,26 +980,35 @@ function(a,b)
 
 end)
 
-	
-for _,srv in pairs(servers) do
+
+for _,srv in pairs(
+servers
+) do
 
 	local holder =
-	Instance.new("Frame")
+	Instance.new(
+	"Frame"
+	)
 
 	holder.Parent =
 	List
 
 	holder.Size =
-	UDim2.new(1,0,0,40)
+	UDim2.new(
+	1,
+	0,
+	0,
+	40
+	)
 
 	holder.BackgroundTransparency =
 	1
 
 
-	-- Игроки
-
 	local players =
-	Instance.new("TextLabel")
+	Instance.new(
+	"TextLabel"
+	)
 
 	players.Parent =
 	holder
@@ -1034,22 +1030,6 @@ for _,srv in pairs(servers) do
 	srv.maxPlayers..
 	" players"
 
-	players.TextColor3 =
-	Color3.new(
-	1,
-	1,
-	1
-	)
-
-	players.Font =
-	Enum.Font.GothamBold
-
-	players.TextXAlignment =
-	Enum.TextXAlignment.Left
-
-
-
-	-- Join кнопка
 
 	local join =
 	Instance.new(
@@ -1078,40 +1058,6 @@ for _,srv in pairs(servers) do
 	join.Text =
 	"Join"
 
-	join.Font =
-	Enum.Font.GothamBold
-
-	join.TextSize =
-	13
-
-	join.TextColor3 =
-	Color3.fromRGB(
-	20,
-	20,
-	25
-	)
-
-	join.BackgroundColor3 =
-	Color3.fromRGB(
-	220,
-	190,
-	255
-	)
-
-	local c =
-	Instance.new(
-	"UICorner"
-	)
-
-	c.Parent =
-	join
-
-	c.CornerRadius =
-	UDim.new(
-	0,
-	8
-	)
-
 
 	join.MouseButton1Click:Connect(function()
 
@@ -1129,21 +1075,17 @@ for _,srv in pairs(servers) do
 
 end
 
-	task.wait()
 
+List.CanvasSize =
+UDim2.new(
 
-	List.CanvasSize =
-	UDim2.new(
+0,
+0,
 
-	0,
+0,
+layout.AbsoluteContentSize.Y
 
-	0,
-
-	0,
-
-	layout.AbsoluteContentSize.Y
-
-	)
+)
 
 end)
 
