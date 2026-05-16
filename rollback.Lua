@@ -416,6 +416,103 @@ UDim2.new(
 ESPMenu.BackgroundTransparency =
 1
 
+-- BOOST FPS BUTTON
+local BoostBtn =
+Instance.new("TextButton")
+
+BoostBtn.Parent =
+VisualsPage
+
+BoostBtn.Size =
+UDim2.new(1,-20,0,35)
+
+BoostBtn.Position =
+UDim2.new(0,10,0,55) -- под ESP
+
+BoostBtn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+BoostBtn.Text =
+"Boostfps"
+
+BoostBtn.TextColor3 =
+Color3.fromRGB(20,20,25)
+
+BoostBtn.Font =
+Enum.Font.GothamBold
+
+Instance.new(
+"UICorner",
+BoostBtn
+)
+
+local BoostArrow =
+Instance.new("TextLabel")
+
+BoostArrow.Parent =
+BoostBtn
+
+BoostArrow.Size =
+UDim2.new(0,20,1,0)
+
+BoostArrow.Position =
+UDim2.new(1,-25,0,0)
+
+BoostArrow.BackgroundTransparency =
+1
+
+BoostArrow.Text =
+"▼"
+
+BoostArrow.Font =
+Enum.Font.GothamBold
+
+BoostArrow.TextColor3 =
+Color3.fromRGB(220,190,255)
+
+
+local BoostMenu =
+Instance.new("Frame")
+
+BoostMenu.Parent =
+VisualsPage
+
+BoostMenu.Visible =
+false
+
+BoostMenu.Position =
+UDim2.new(0,10,0,95)
+
+BoostMenu.Size =
+UDim2.new(1,-20,0,80)
+
+BoostMenu.BackgroundTransparency =
+1
+
+
+local boostOpened =
+false
+
+BoostBtn.MouseButton1Click:Connect(function()
+
+boostOpened =
+not boostOpened
+
+BoostMenu.Visible =
+boostOpened
+
+TweenService:Create(
+BoostArrow,
+TweenInfo.new(.2),
+{
+Rotation =
+boostOpened
+and 180
+or 0
+}
+):Play()
+
+end)
 
 local espOpened =
 false
@@ -445,6 +542,29 @@ or "▼"
 
     ESPMenu.Visible =
     espOpened
+
+TweenService:Create(
+BoostBtn,
+TweenInfo.new(.2),
+{
+Position =
+espOpened
+and UDim2.new(0,10,0,145)
+or UDim2.new(0,10,0,55)
+}
+):Play()
+
+
+TweenService:Create(
+BoostMenu,
+TweenInfo.new(.2),
+{
+Position =
+espOpened
+and UDim2.new(0,10,0,185)
+or UDim2.new(0,10,0,95)
+}
+):Play()
 
 end)
 
@@ -580,6 +700,148 @@ return bg,circle
 
 end
 
+local BoostToggle,
+BoostCircle =
+createToggle(
+"Boostfps",
+0
+)
+
+BoostToggle.Parent =
+BoostMenu
+
+
+local SkinToggle,
+SkinCircle =
+createToggle(
+"Skin Replacement",
+40
+)
+
+SkinToggle.Parent =
+BoostMenu
+
+
+local boostFPS =
+false
+
+local skinReplace =
+false
+
+BoostToggle.MouseButton1Click:Connect(function()
+
+boostFPS =
+not boostFPS
+
+
+TweenService:Create(
+BoostCircle,
+TweenInfo.new(.2),
+{
+Position =
+boostFPS
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+
+if boostFPS then
+
+for _,obj in pairs(
+workspace:GetDescendants()
+) do
+
+if obj:IsA("Texture")
+or obj:IsA("Decal") then
+
+obj.Transparency =
+1
+
+end
+
+
+if obj:IsA("BasePart") then
+
+obj.Material =
+Enum.Material.Plastic
+
+obj.Reflectance =
+0
+
+end
+
+end
+
+end
+
+end)
+
+SkinToggle.MouseButton1Click:Connect(function()
+
+skinReplace =
+not skinReplace
+
+
+TweenService:Create(
+SkinCircle,
+TweenInfo.new(.2),
+{
+Position =
+skinReplace
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+
+for _,plr in pairs(
+game.Players:GetPlayers()
+) do
+
+if plr ==
+game.Players.LocalPlayer then
+continue
+end
+
+
+local char =
+plr.Character
+
+if not char then
+continue
+end
+
+
+if skinReplace then
+
+for _,v in pairs(
+char:GetDescendants()
+) do
+
+if v:IsA(
+"MeshPart"
+) then
+
+v.MeshId =
+""
+
+v.Size =
+Vector3.new(
+1,
+1,
+1
+)
+
+end
+
+end
+
+end
+
+end
+
+end)
 
 local NameToggle,
 NameCircle =
