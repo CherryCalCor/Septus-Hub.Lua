@@ -885,8 +885,9 @@ for _,srv in pairs(servers) do
 
     local fill = srv.playing / srv.maxPlayers
 
-    -- показывать только 80%-90%
-    if fill < 0.8 or fill > 0.9 then
+    -- показывать сервера 70%-95%
+    if fill >= 0.7 and fill <= 0.95 then
+
         continue
     end
 
@@ -998,22 +999,40 @@ Instance.new(
 join
 )
 
-join.MouseButton1Click:Connect(function()
+for _,srv in pairs(servers) do
 
-	game:GetService(
-	"TeleportService"
-	):TeleportToPlaceInstance(
+    local fill = srv.playing / srv.maxPlayers
 
-		game.PlaceId,
-		srv.id,
-		player
+    if fill >= 0.7 and fill <= 0.95 then
 
-	)
+        local holder = Instance.new("Frame")
+        holder.Parent = List
+        holder.Size = UDim2.new(1,0,0,40)
+        holder.BackgroundTransparency = 1
 
-end)
+        local players = Instance.new("TextLabel")
+        players.Parent = holder
+        players.Size = UDim2.new(0.6,0,1,0)
+        players.BackgroundTransparency = 1
+        players.Text =
+            srv.playing.."/"..srv.maxPlayers.." players"
+
+        -- остальной код сервера
+
+        join.MouseButton1Click:Connect(function()
+
+            game:GetService("TeleportService")
+            :TeleportToPlaceInstance(
+                game.PlaceId,
+                srv.id,
+                player
+            )
+
+        end)
+
+    end
 
 end
-
 
 List.CanvasSize =
 UDim2.new(
