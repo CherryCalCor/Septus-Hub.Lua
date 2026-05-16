@@ -336,158 +336,6 @@ createBtn(
 100
 )
 
--- TOGGLE SWITCH
-local ToggleBG = Instance.new("TextButton")
-ToggleBG.Text = ""
-ToggleBG.AutoButtonColor = false
-ToggleBG.Parent = ServerPage
-ToggleBG.Size = UDim2.new(0,60,0,30)
-ToggleBG.Position = UDim2.new(1,-75,0,102)
-ToggleBG.BackgroundColor3 =
-Color3.fromRGB(50,50,60)
-ToggleBG.BorderSizePixel = 0
-
-local ToggleCorner =
-Instance.new("UICorner")
-ToggleCorner.Parent =
-ToggleBG
-ToggleCorner.CornerRadius =
-UDim.new(1,0)
-
-local ToggleCircle =
-Instance.new("Frame")
-ToggleCircle.Parent =
-ToggleBG
-ToggleCircle.Size =
-UDim2.new(0,24,0,24)
-ToggleCircle.Position =
-UDim2.new(0,3,0.5,-12)
-ToggleCircle.BackgroundColor3 =
-Color3.new(1,1,1)
-ToggleCircle.BorderSizePixel =
-0
-
-local CircleCorner =
-Instance.new("UICorner")
-CircleCorner.Parent =
-ToggleCircle
-CircleCorner.CornerRadius =
-UDim.new(1,0)
-
-local toggleEnabled = false
-
-local function updateToggle()
-
-	if toggleEnabled then
-
-		if ServerWidget then
-			ServerWidget.Visible = true
-		end
-
-		TweenService:Create(
-			ToggleCircle,
-			TweenInfo.new(.2),
-			{
-				Position = UDim2.new(1,-27,0.5,-12)
-			}
-		):Play()
-
-		TweenService:Create(
-			ToggleBG,
-			TweenInfo.new(.2),
-			{
-				BackgroundColor3 =
-				Color3.fromRGB(220,190,255)
-			}
-		):Play()
-
-	else
-
-		if ServerWidget then
-			ServerWidget.Visible = false
-		end
-
-		if ServerMenu then
-			ServerMenu.Visible = false
-		end
-
-		TweenService:Create(
-			ToggleCircle,
-			TweenInfo.new(.2),
-			{
-				Position = UDim2.new(0,3,0.5,-12)
-			}
-		):Play()
-
-		TweenService:Create(
-			ToggleBG,
-			TweenInfo.new(.2),
-			{
-				BackgroundColor3 =
-				Color3.fromRGB(50,50,60)
-			}
-		):Play()
-
-	end
-
-end
-
-ToggleBG.MouseButton1Click:Connect(function()
-	toggleEnabled = not toggleEnabled
-	updateToggle()
-end)
-
-local player =
-game.Players.LocalPlayer
-
-RejoinBtn.MouseButton1Click:Connect(function()
-
-game:GetService(
-"TeleportService"
-):Teleport(
-game.PlaceId,
-player
-)
-
-end)
-
-
-
-HopBtn.MouseButton1Click:Connect(function()
-
-local servers=
-game:GetService(
-"HttpService"
-):JSONDecode(
-game:HttpGet(
-"https://games.roblox.com/v1/games/"
-..game.PlaceId..
-"/servers/Public?limit=100"
-)
-)
-
-for _,v in pairs(
-servers.data
-) do
-
-if v.playing <
-v.maxPlayers then
-
-game:GetService(
-"TeleportService"
-):TeleportToPlaceInstance(
-game.PlaceId,
-v.id,
-player
-)
-
-break
-end
-
-end
-
-end)
-
 local UIS =
 game:GetService(
 "UserInputService"
@@ -504,7 +352,6 @@ ScreenGui
 ServerWidget.Visible =
 false
 
--- размер кнопки
 ServerWidget.Size =
 UDim2.new(
 0,
@@ -513,8 +360,6 @@ UDim2.new(
 30
 )
 
-
--- позиция сверху
 ServerWidget.Position =
 UDim2.new(
 0.5,
@@ -709,8 +554,6 @@ Color3.fromRGB(
 255
 )
 
--- ПЕРЕТАСКИВАНИЕ ServerMenu
-
 local menuDragging = false
 local menuDragStart
 local menuStartPos
@@ -777,7 +620,6 @@ ServerWidget.MouseButton1Click:Connect(function()
 
 end)
 
-
 local sortLow=true
 
 local Sort=
@@ -806,7 +648,6 @@ not sortLow
 
 end)
 
--- КНОПКА X
 
 local ServerClose =
 Instance.new(
@@ -856,7 +697,7 @@ ServerClose.MouseButton1Click:Connect(function()
 
 end)
 
--- КНОПКА -
+
 
 local ServerMin =
 Instance.new(
@@ -898,12 +739,8 @@ Color3.new(
 ServerMin.Font =
 Enum.Font.GothamBold
 
-
 local serverMinimized =
 false
-
-
--- СПИСОК
 
 local List =
 Instance.new(
@@ -944,7 +781,6 @@ List.ScrollBarThickness =
 4
 
 
-
 local layout =
 Instance.new(
 "UIListLayout"
@@ -952,7 +788,6 @@ Instance.new(
 
 layout.Parent =
 List
-
 
 
 ServerMin.MouseButton1Click:Connect(function()
@@ -965,7 +800,6 @@ ServerMin.MouseButton1Click:Connect(function()
 
 		List.Visible =
 		false
-
 
 		ServerMenu:TweenSize(
 
@@ -1015,76 +849,6 @@ ServerMin.MouseButton1Click:Connect(function()
 
 end)
 
-
-
-
--- СОРТИРОВКА
-
-local sortLow =
-true
-
-
-local Sort =
-Instance.new(
-"TextButton"
-)
-
-Sort.Parent =
-ServerMenu
-
-Sort.Size =
-UDim2.new(
-0,
-30,
-0,
-25
-)
-
-Sort.Position =
-UDim2.new(
-1,
--95,
-0,
-5
-)
-
-Sort.Text =
-"↓↑"
-
-Sort.BackgroundTransparency =
-1
-
-Sort.TextColor3 =
-Color3.new(
-1,
-1,
-1
-)
-
-
-Sort.MouseButton1Click:Connect(function()
-
-	sortLow =
-	not sortLow
-
-end)
-
-
-for _,v in pairs(
-	List:GetChildren()
-) do
-
-	if v:IsA(
-	"Frame"
-	) then
-
-		v:Destroy()
-
-	end
-
-end
-
-
 local data =
 game:GetService(
 "HttpService"
@@ -1116,7 +880,6 @@ function(a,b)
 	end
 
 end)
-
 
 for _,srv in pairs(
 servers
@@ -1183,31 +946,32 @@ players.TextSize =
 players.TextXAlignment =
 Enum.TextXAlignment.Left
 
-	local join =
-	Instance.new(
-	"TextButton"
-	)
 
-	join.Parent =
-	holder
+local join =
+Instance.new(
+"TextButton"
+)
 
-	join.Size =
-	UDim2.new(
-	0,
-	75,
-	0,
-	26
-	)
+join.Parent =
+holder
 
-	join.Position =
-	UDim2.new(
-	1,
-	-80,
-	0.5,
-	-13
-	)
+join.Size =
+UDim2.new(
+0,
+75,
+0,
+26
+)
 
-	join.Text =
+join.Position =
+UDim2.new(
+1,
+-80,
+0.5,
+-13
+)
+
+join.Text =
 "Join"
 
 join.BackgroundColor3 =
@@ -1224,67 +988,187 @@ Color3.fromRGB(
 25
 )
 
-join.BorderSizePixel =
-0
-
-
-local c =
 Instance.new(
-"UICorner"
-)
-
-c.Parent =
+"UICorner",
 join
-
-c.CornerRadius =
-UDim.new(
-1,
-0
 )
 
+join.MouseButton1Click:Connect(function()
 
-local stroke =
-Instance.new(
-"UIStroke"
-)
+	game:GetService(
+	"TeleportService"
+	):TeleportToPlaceInstance(
 
-stroke.Parent =
-join
+		game.PlaceId,
+		srv.id,
+		player
 
-stroke.Color =
-Color3.fromRGB(
-240,
-220,
-255
-)
+	)
 
-stroke.Thickness =
-1
-
-	join.MouseButton1Click:Connect(function()
-
-		game:GetService(
-		"TeleportService"
-		):TeleportToPlaceInstance(
-
-			game.PlaceId,
-			srv.id,
-			player
-
-		)
-
-	end)
+end)
 
 end
 
 
 List.CanvasSize =
 UDim2.new(
-    0,
-    0,
-    0,
-    layout.AbsoluteContentSize.Y
+0,
+0,
+0,
+layout.AbsoluteContentSize.Y
 )
+
+-- TOGGLE SWITCH
+local ToggleBG = Instance.new("TextButton")
+ToggleBG.Text = ""
+ToggleBG.AutoButtonColor = false
+ToggleBG.Parent = ServerPage
+ToggleBG.Size = UDim2.new(0,60,0,30)
+ToggleBG.Position = UDim2.new(1,-75,0,102)
+ToggleBG.BackgroundColor3 =
+Color3.fromRGB(50,50,60)
+ToggleBG.BorderSizePixel = 0
+
+local ToggleCorner =
+Instance.new("UICorner")
+ToggleCorner.Parent =
+ToggleBG
+ToggleCorner.CornerRadius =
+UDim.new(1,0)
+
+local ToggleCircle =
+Instance.new("Frame")
+ToggleCircle.Parent =
+ToggleBG
+ToggleCircle.Size =
+UDim2.new(0,24,0,24)
+ToggleCircle.Position =
+UDim2.new(0,3,0.5,-12)
+ToggleCircle.BackgroundColor3 =
+Color3.new(1,1,1)
+ToggleCircle.BorderSizePixel =
+0
+
+local CircleCorner =
+Instance.new("UICorner")
+CircleCorner.Parent =
+ToggleCircle
+CircleCorner.CornerRadius =
+UDim.new(1,0)
+
+local toggleEnabled = false
+
+local function updateToggle()
+
+	if toggleEnabled then
+
+		if ServerWidget then
+			ServerWidget.Visible = true
+		end
+
+		TweenService:Create(
+			ToggleCircle,
+			TweenInfo.new(.2),
+			{
+				Position = UDim2.new(1,-27,0.5,-12)
+			}
+		):Play()
+
+		TweenService:Create(
+			ToggleBG,
+			TweenInfo.new(.2),
+			{
+				BackgroundColor3 =
+				Color3.fromRGB(220,190,255)
+			}
+		):Play()
+
+	else
+
+		if ServerWidget then
+			ServerWidget.Visible = false
+		end
+
+		if ServerMenu then
+			ServerMenu.Visible = false
+		end
+
+		TweenService:Create(
+			ToggleCircle,
+			TweenInfo.new(.2),
+			{
+				Position = UDim2.new(0,3,0.5,-12)
+			}
+		):Play()
+
+		TweenService:Create(
+			ToggleBG,
+			TweenInfo.new(.2),
+			{
+				BackgroundColor3 =
+				Color3.fromRGB(50,50,60)
+			}
+		):Play()
+
+	end
+
+end
+
+ToggleBG.MouseButton1Click:Connect(function()
+	toggleEnabled = not toggleEnabled
+	updateToggle()
+end)
+
+local player =
+game.Players.LocalPlayer
+
+RejoinBtn.MouseButton1Click:Connect(function()
+
+game:GetService(
+"TeleportService"
+):Teleport(
+game.PlaceId,
+player
+)
+
+end)
+
+
+
+HopBtn.MouseButton1Click:Connect(function()
+
+local servers=
+game:GetService(
+"HttpService"
+):JSONDecode(
+game:HttpGet(
+"https://games.roblox.com/v1/games/"
+..game.PlaceId..
+"/servers/Public?limit=100"
+)
+)
+
+for _,v in pairs(
+servers.data
+) do
+
+if v.playing <
+v.maxPlayers then
+
+game:GetService(
+"TeleportService"
+):TeleportToPlaceInstance(
+game.PlaceId,
+v.id,
+player
+)
+
+break
+end
+
+end
+
+end)
 
 -- PLAYER CARD
 local PlayerCard = Instance.new("Frame")
