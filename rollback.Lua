@@ -223,6 +223,31 @@ HomeBtn.BorderSizePixel = 0
 HomeCorner.Parent = HomeBtn
 HomeCorner.CornerRadius = UDim.new(0,8)
 
+-- SERVER BUTTON
+local ServerBtn = Instance.new("TextButton")
+local ServerCorner = Instance.new("UICorner")
+
+ServerBtn.Parent = Frame
+ServerBtn.Size = UDim2.new(0,80,0,28)
+ServerBtn.Position = UDim2.new(0,10,0,75)
+ServerBtn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+ServerBtn.Text = "Server"
+ServerBtn.TextColor3 =
+Color3.fromRGB(20,20,25)
+
+ServerBtn.Font =
+Enum.Font.GothamBold
+
+ServerBtn.TextSize = 14
+ServerBtn.BorderSizePixel = 0
+
+ServerCorner.Parent =
+ServerBtn
+
+ServerCorner.CornerRadius =
+UDim.new(0,8)
 
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
@@ -236,6 +261,277 @@ HomePage.BackgroundTransparency = 1
 HomePage.Visible = false -- НЕ показывать сразу
 HomePage.BorderSizePixel = 0
 
+local ServerPage =
+Instance.new("Frame")
+
+ServerPage.Parent =
+Frame
+
+ServerPage.Visible =
+false
+
+ServerPage.Position =
+UDim2.new(0,110,0,40)
+
+ServerPage.Size =
+UDim2.new(1,-120,1,-50)
+
+ServerPage.BackgroundTransparency =
+1
+
+local function createBtn(name,posY)
+
+local btn =
+Instance.new("TextButton")
+
+btn.Parent =
+ServerPage
+
+btn.Size =
+UDim2.new(1,-20,0,35)
+
+btn.Position =
+UDim2.new(0,10,0,posY)
+
+btn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+btn.BackgroundTransparency =
+0.15
+
+btn.Text =
+"🖱 "..name
+
+btn.Font =
+Enum.Font.GothamBold
+
+btn.TextColor3 =
+Color3.new(1,1,1)
+
+local c =
+Instance.new("UICorner")
+c.Parent = btn
+
+return btn
+
+end
+
+
+local RejoinBtn =
+createBtn(
+"Rejoin",
+10
+)
+
+local HopBtn =
+createBtn(
+"Server Hop",
+55
+)
+
+local ListBtn =
+createBtn(
+"Server List",
+100
+)
+
+RejoinBtn.MouseButton1Click:Connect(function()
+
+game:GetService(
+"TeleportService"
+):Teleport(
+game.PlaceId,
+player
+)
+
+end)
+
+
+
+HopBtn.MouseButton1Click:Connect(function()
+
+local servers=
+game:GetService(
+"HttpService"
+):JSONDecode(
+game:HttpGet(
+"https://games.roblox.com/v1/games/"
+..game.PlaceId..
+"/servers/Public?limit=100"
+)
+)
+
+for _,v in pairs(
+servers.data
+) do
+
+if v.playing <
+v.maxPlayers then
+
+game:GetService(
+"TeleportService"
+):TeleportToPlaceInstance(
+game.PlaceId,
+v.id,
+player
+)
+
+break
+end
+
+end
+
+end)
+
+local enabled=false
+
+ListBtn.MouseButton1Click:Connect(function()
+
+enabled =
+not enabled
+
+if enabled then
+
+ListBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,190,255
+)
+
+ServerWidget.Visible =
+true
+
+else
+
+ServerWidget.Visible =
+false
+
+end
+
+end)
+
+local ServerWidget =
+Instance.new("TextButton")
+
+ServerWidget.Parent =
+ScreenGui
+
+ServerWidget.Visible =
+false
+
+ServerWidget.Size =
+UDim2.new(0,130,0,40)
+
+ServerWidget.Position =
+UDim2.new(
+0,
+500,
+0,
+200
+)
+
+ServerWidget.BackgroundColor3=
+Color3.fromRGB(
+25,25,30
+)
+
+ServerWidget.Text=
+"●     Servers"
+
+ServerWidget.TextColor3=
+Color3.fromRGB(
+220,190,255
+)
+
+local sw=
+Instance.new(
+"UICorner"
+)
+
+sw.Parent=
+ServerWidget
+
+local ServerMenu=
+Instance.new("Frame")
+
+ServerMenu.Parent=
+ScreenGui
+
+ServerMenu.Visible=
+false
+
+ServerMenu.Size=
+UDim2.new(
+0,
+300,
+0,
+250
+)
+
+ServerMenu.Position=
+UDim2.new(
+0.5,
+-150,
+0.5,
+-125
+)
+
+ServerMenu.BackgroundColor3=
+Color3.fromRGB(
+20,20,25
+)
+
+local menuStroke=
+Instance.new(
+"UIStroke"
+)
+
+menuStroke.Parent=
+ServerMenu
+
+menuStroke.Color=
+Color3.fromRGB(
+220,190,255
+)
+
+Instance.new(
+"UICorner",
+ServerMenu
+)
+
+ServerWidget.MouseButton1Click:Connect(function()
+
+	ServerMenu.Visible =
+	not ServerMenu.Visible
+
+end)
+
+local sortLow=true
+
+local Sort=
+Instance.new(
+"TextButton"
+)
+
+Sort.Parent=
+ServerMenu
+
+Sort.Text=
+"↓↑"
+
+Sort.Position=
+UDim2.new(
+1,
+-90,
+0,
+5
+)
+
+Sort.MouseButton1Click:Connect(function()
+
+sortLow=
+not sortLow
+
+end)
 
 -- PLAYER CARD
 local PlayerCard = Instance.new("Frame")
@@ -516,6 +812,8 @@ MinBtn.MouseButton1Click:Connect(function()
 		HomePage.Visible = false
 		SideBar.Visible = false
 		opened = false
+ServerBtn.Visible=false
+ServerPage.Visible=false
 
 	else
 
@@ -529,6 +827,7 @@ MinBtn.MouseButton1Click:Connect(function()
 
 		HomeBtn.Visible = true
 		SideBar.Visible = true
+ServerBtn.Visible=true
 
 	end
 
