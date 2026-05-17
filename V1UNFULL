@@ -678,28 +678,29 @@ BoostBtn.MouseButton1Click:Connect(function()
         }
     ):Play()
 
+    TweenService:Create(
+        BoostBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+                espOpened
+                and UDim2.new(0,10,0,225)
+                or UDim2.new(0,10,0,55)
+        }
+    ):Play()
 
     TweenService:Create(
-    BoostBtn,
-    TweenInfo.new(.2),
-    {
-        Position =
-            espOpened
-            and UDim2.new(0,10,0,225)
-            or UDim2.new(0,10,0,55)
-    }
-):Play()
+        BoostMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+                espOpened
+                and UDim2.new(0,10,0,265)
+                or UDim2.new(0,10,0,95)
+        }
+    ):Play()
 
-TweenService:Create(
-    BoostMenu,
-    TweenInfo.new(.2),
-    {
-        Position =
-            espOpened
-            and UDim2.new(0,10,0,265)
-            or UDim2.new(0,10,0,95)
-    }
-):Play()
+end)
 
 }
 ):Play()
