@@ -590,7 +590,7 @@ MiscMenu.Position =
 UDim2.new(0,10,0,135)
 
 MiscMenu.Size =
-UDim2.new(1,-20,0,120)
+UDim2.new(1,-20,0,200)
 
 MiscMenu.BackgroundTransparency =
 1
@@ -600,6 +600,372 @@ true
 
 MiscMenu.Size =
 UDim2.new(1,-20,0,0)
+
+-- FOV CHANGER
+local FOVLabel =
+Instance.new("TextLabel")
+
+FOVLabel.Parent =
+MiscMenu
+
+FOVLabel.Position =
+UDim2.new(0,0,0,10)
+
+FOVLabel.Size =
+UDim2.new(1,0,0,25)
+
+FOVLabel.BackgroundTransparency =
+1
+
+FOVLabel.Text =
+"FOV: 70"
+
+FOVLabel.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+FOVLabel.Font =
+Enum.Font.GothamBold
+
+FOVLabel.TextXAlignment =
+Enum.TextXAlignment.Left
+
+
+local SliderBG =
+Instance.new("Frame")
+
+SliderBG.Parent =
+MiscMenu
+
+SliderBG.Size =
+UDim2.new(
+1,
+-20,
+0,
+8
+)
+
+SliderBG.Position =
+UDim2.new(
+0,
+10,
+0,
+40
+)
+
+SliderBG.BackgroundColor3 =
+Color3.fromRGB(
+50,
+50,
+60
+)
+
+Instance.new(
+"UICorner",
+SliderBG
+)
+
+
+local Fill =
+Instance.new("Frame")
+
+Fill.Parent =
+SliderBG
+
+Fill.Size =
+UDim2.new(
+0,
+0,
+1,
+0
+)
+
+Fill.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+Instance.new(
+"UICorner",
+Fill
+)
+
+
+local Knob =
+Instance.new("Frame")
+
+Knob.Parent =
+SliderBG
+
+Knob.Size =
+UDim2.new(
+0,
+16,
+0,
+16
+)
+
+Knob.Position =
+UDim2.new(
+0,
+-8,
+0.5,
+-8
+)
+
+Knob.BackgroundColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+Instance.new(
+"UICorner",
+Knob
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
+
+local UIS =
+game:GetService(
+"UserInputService"
+)
+
+local Camera =
+workspace.CurrentCamera
+
+local dragging =
+false
+
+local minFOV =
+70
+
+local maxFOV =
+120
+
+local currentFOV =
+70
+
+
+local function updateSlider(x)
+
+local percent =
+math.clamp(
+(
+x -
+SliderBG.AbsolutePosition.X
+)
+/
+SliderBG.AbsoluteSize.X,
+0,
+1
+)
+
+Fill.Size =
+UDim2.new(
+percent,
+0,
+1,
+0
+)
+
+Knob.Position =
+UDim2.new(
+percent,
+-8,
+0.5,
+-8
+)
+
+currentFOV =
+math.floor(
+minFOV +
+(
+(maxFOV-minFOV)
+*
+percent
+)
+)
+
+Camera.FieldOfView =
+currentFOV
+
+FOVLabel.Text =
+"FOV: "
+..
+currentFOV
+
+end
+
+
+Knob.InputBegan:Connect(function(input)
+
+if input.UserInputType ==
+Enum.UserInputType.MouseButton1
+or input.UserInputType ==
+Enum.UserInputType.Touch then
+
+dragging =
+true
+
+end
+
+end)
+
+
+UIS.InputEnded:Connect(function(input)
+
+if input.UserInputType ==
+Enum.UserInputType.MouseButton1
+or input.UserInputType ==
+Enum.UserInputType.Touch then
+
+dragging =
+false
+
+end
+
+end)
+
+
+UIS.InputChanged:Connect(function(input)
+
+if dragging
+and (
+input.UserInputType ==
+Enum.UserInputType.MouseMovement
+or
+input.UserInputType ==
+Enum.UserInputType.Touch
+) then
+
+updateSlider(
+input.Position.X
+)
+
+end
+
+end)
+
+local HeadlessToggle,
+HeadlessCircle =
+createToggle(
+	MiscMenu,
+	"Headless",
+	55
+)
+
+local headless =
+false
+
+HeadlessToggle.MouseButton1Click:Connect(function()
+
+headless =
+not headless
+
+TweenService:Create(
+HeadlessCircle,
+TweenInfo.new(.2),
+{
+Position =
+headless
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+local char =
+game.Players.LocalPlayer.Character
+
+if char then
+
+local head =
+char:FindFirstChild("Head")
+
+if head then
+
+head.Transparency =
+headless and 1 or 0
+
+for _,v in pairs(
+head:GetChildren()
+) do
+
+if v:IsA("Decal") then
+
+v.Transparency =
+headless and 1 or 0
+
+end
+
+end
+
+end
+
+end
+
+end)
+
+local KorbloxToggle,
+KorbloxCircle =
+createToggle(
+	MiscMenu,
+	"Korblox",
+	100
+)
+
+local korblox =
+false
+
+KorbloxToggle.MouseButton1Click:Connect(function()
+
+korblox =
+not korblox
+
+TweenService:Create(
+KorbloxCircle,
+TweenInfo.new(.2),
+{
+Position =
+korblox
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+local char =
+game.Players.LocalPlayer.Character
+
+if not char then
+return
+end
+
+local leg =
+char:FindFirstChild(
+"Right Leg"
+)
+or
+char:FindFirstChild(
+"RightLowerLeg"
+)
+
+if leg then
+
+leg.Transparency =
+korblox and 1 or 0
+
+end
+
+end)
 
 local miscOpened =
 false
@@ -631,7 +997,7 @@ TweenInfo.new(.2),
 {
 Size =
 miscOpened
-and UDim2.new(1,-20,0,120)
+and UDim2.new(1,-20,0,200)
 or UDim2.new(1,-20,0,0)
 }
 ):Play()
