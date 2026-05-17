@@ -2142,74 +2142,42 @@ end
 
 if healthESP then
 
-local gui =
-head:FindFirstChild(
-"HealthESP"
-)
+    local gui = head:FindFirstChild("HealthESP")
 
-if not gui then
+    if not gui then
+        gui = Instance.new("BillboardGui")
+        gui.Name = "HealthESP"
+        gui.Size = UDim2.new(0,100,0,30)
+        gui.StudsOffset = Vector3.new(0,3,0)
+        gui.AlwaysOnTop = true
+        gui.Parent = head
 
-gui =
-Instance.new(
-"BillboardGui"
-)
+        local txt = Instance.new("TextLabel")
+        txt.Name = "TXT"
+        txt.Parent = gui
+        txt.Size = UDim2.new(1,0,1,0)
+        txt.BackgroundTransparency = 1
+        txt.TextScaled = true
+        txt.TextColor3 = Color3.fromRGB(0,255,0)
+    end
 
-gui.Name =
-"HealthESP"
+    local humanoid =
+    char:FindFirstChild("Humanoid")
 
-gui.Size =
-UDim2.new(
-0,
-100,
-0,
-30
-)
+    if humanoid then
+        gui.TXT.Text =
+        math.floor(humanoid.Health)
+        .." HP"
+    end
 
-gui.StudsOffset =
-Vector3.new(
-0,
-3,
-0
-)
+else
 
-gui.AlwaysOnTop =
-true
+    local gui =
+    head:FindFirstChild("HealthESP")
 
-gui.Parent =
-head
-
-
-local txt =
-Instance.new(
-"TextLabel"
-)
-
-txt.Name =
-"TXT"
-
-txt.Parent =
-gui
-
-txt.Size =
-UDim2.new(
-1,
-0,
-1,
-0
-)
-
-txt.BackgroundTransparency =
-1
-
-txt.TextScaled =
-true
-
-txt.TextColor3 =
-Color3.fromRGB(
-0,
-255,
-0
-)
+    if gui then
+        gui:Destroy()
+    end
 
 end
 
