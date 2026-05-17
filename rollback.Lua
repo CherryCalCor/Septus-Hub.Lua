@@ -333,21 +333,6 @@ VisualsPage.ScrollBarThickness =
 VisualsPage.BorderSizePixel =
 0
 
-VisualsPage.Parent =
-Frame
-
-VisualsPage.Visible =
-false
-
-VisualsPage.Position =
-UDim2.new(0,110,0,40)
-
-VisualsPage.Size =
-UDim2.new(1,-120,1,-50)
-
-VisualsPage.BackgroundTransparency =
-1
-
 local ESPBtn =
 Instance.new("TextButton")
 
@@ -1868,9 +1853,29 @@ end
 
 end
 
+
+local char =
+plr.Character
+
+if not char then
+continue
 end
 
 
+local head =
+char:FindFirstChild(
+"Head"
+)
+
+local hrp =
+char:FindFirstChild(
+"HumanoidRootPart"
+)
+
+if not head
+or not hrp then
+continue
+end
 
 -- PLAYER RADAR
 
@@ -1888,7 +1893,6 @@ hrp.Position
 
 RadarGui.Visible =
 true
-
 
 local txt =
 Instance.new(
@@ -1921,30 +1925,6 @@ Color3.new(
 )
 
 end
-
-local char =
-plr.Character
-
-if not char then
-continue
-end
-
-
-local head =
-char:FindFirstChild(
-"Head"
-)
-
-local hrp =
-char:FindFirstChild(
-"HumanoidRootPart"
-)
-
-if not head
-or not hrp then
-continue
-end
-
 
 -- NAME ESP
 if nameESP then
