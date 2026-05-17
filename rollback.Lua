@@ -434,7 +434,7 @@ UDim2.new(
 1,
 -20,
 0,
-80
+160
 )
 
 ESPMenu.BackgroundTransparency =
@@ -508,7 +508,7 @@ BoostMenu.Position =
 UDim2.new(0,10,0,95)
 
 BoostMenu.Size =
-UDim2.new(1,-20,0,160)
+UDim2.new(1,-20,0,260)
 
 BoostMenu.BackgroundTransparency =
 1
@@ -541,7 +541,7 @@ BoostBtn.MouseButton1Click:Connect(function()
 		{
 			Size =
 			boostOpened
-			and UDim2.new(1,-20,0,160)
+			and UDim2.new(1,-20,0,260)
 			or UDim2.new(1,-20,0,0)
 		}
 	):Play()
@@ -1188,6 +1188,165 @@ end
 
 end)
 
+-- FULLBRIGHT
+local FullBrightToggle, FullBrightCircle =
+createToggle(
+    BoostMenu,
+    "FullBright",
+    160
+)
+
+local fullbright = false
+local oldLighting = {}
+
+FullBrightToggle.MouseButton1Click:Connect(function()
+
+    fullbright = not fullbright
+
+    TweenService:Create(
+        FullBrightCircle,
+        TweenInfo.new(.2),
+        {
+            Position =
+            fullbright
+            and UDim2.new(1,-27,.5,-12)
+            or UDim2.new(0,3,.5,-12)
+        }
+    ):Play()
+
+    TweenService:Create(
+        FullBrightToggle,
+        TweenInfo.new(.2),
+        {
+            BackgroundColor3 =
+            fullbright
+            and Color3.fromRGB(220,190,255)
+            or Color3.fromRGB(50,50,60)
+        }
+    ):Play()
+
+    local Lighting =
+    game:GetService("Lighting")
+
+    if fullbright then
+
+        oldLighting.Brightness =
+        Lighting.Brightness
+
+        oldLighting.ClockTime =
+        Lighting.ClockTime
+
+        oldLighting.GlobalShadows =
+        Lighting.GlobalShadows
+
+        oldLighting.FogEnd =
+        Lighting.FogEnd
+
+        Lighting.Brightness = 3
+        Lighting.ClockTime = 14
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 999999
+
+    else
+
+        Lighting.Brightness =
+        oldLighting.Brightness or 1
+
+        Lighting.ClockTime =
+        oldLighting.ClockTime or 14
+
+        Lighting.GlobalShadows =
+        oldLighting.GlobalShadows
+
+        Lighting.FogEnd =
+        oldLighting.FogEnd or 1000
+
+    end
+
+end)
+
+
+
+-- REMOVE EFFECTS
+local EffectsToggle, EffectsCircle =
+createToggle(
+    BoostMenu,
+    "Remove Effects",
+    200
+)
+
+local effectsEnabled =
+false
+
+EffectsToggle.MouseButton1Click:Connect(function()
+
+effectsEnabled =
+not effectsEnabled
+
+TweenService:Create(
+EffectsCircle,
+TweenInfo.new(.2),
+{
+Position =
+effectsEnabled
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+
+TweenService:Create(
+EffectsToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+effectsEnabled
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+
+for _,v in pairs(
+game.Lighting:GetChildren()
+) do
+
+if v:IsA(
+"BlurEffect"
+)
+or v:IsA(
+"BloomEffect"
+)
+or v:IsA(
+"ColorCorrectionEffect"
+)
+or v:IsA(
+"SunRaysEffect"
+)
+or v:IsA(
+"DepthOfFieldEffect"
+)
+or v:IsA(
+"Atmosphere"
+) then
+
+v.Enabled =
+not effectsEnabled
+
+end
+
+end
+
+end)
+
 local NameToggle,
 NameCircle =
 createToggle(
@@ -1287,7 +1446,121 @@ or Color3.fromRGB(
 
 end)
 
+-- ITEM ESP
+local ItemToggle,
+ItemCircle =
+createToggle(
+ESPMenu,
+"Item ESP",
+80
+)
 
+local itemESP =
+false
+
+
+ItemToggle.MouseButton1Click:Connect(function()
+
+itemESP =
+not itemESP
+
+
+TweenService:Create(
+ItemCircle,
+TweenInfo.new(.2),
+{
+Position =
+itemESP
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+
+TweenService:Create(
+ItemToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+itemESP
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+end)
+
+
+
+-- PLAYER RADAR
+local RadarToggle,
+RadarCircle =
+createToggle(
+ESPMenu,
+"Player Radar",
+120
+)
+
+local radar =
+false
+
+
+RadarToggle.MouseButton1Click:Connect(function()
+
+radar =
+not radar
+
+
+TweenService:Create(
+RadarCircle,
+TweenInfo.new(.2),
+{
+Position =
+radar
+and UDim2.new(
+1,
+-27,
+.5,
+-12
+)
+or UDim2.new(
+0,
+3,
+.5,
+-12
+)
+}
+):Play()
+
+
+TweenService:Create(
+RadarToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+radar
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+end)
 
 task.spawn(function()
 
@@ -1301,6 +1574,108 @@ if plr == game.Players.LocalPlayer then
 continue
 end
 
+-- ITEM ESP
+
+if itemESP then
+
+for _,obj in pairs(
+workspace:GetDescendants()
+) do
+
+if obj:IsA("Tool")
+or obj.Name:lower():find("gun")
+or obj.Name:lower():find("key")
+then
+
+if not obj:FindFirstChild(
+"ItemESP"
+) then
+
+local bb =
+Instance.new(
+"BillboardGui"
+)
+
+bb.Name =
+"ItemESP"
+
+bb.Size =
+UDim2.new(
+0,
+100,
+0,
+30
+)
+
+bb.AlwaysOnTop =
+true
+
+bb.Adornee =
+obj:FindFirstChildWhichIsA(
+"BasePart"
+)
+
+bb.Parent =
+obj
+
+
+local txt =
+Instance.new(
+"TextLabel"
+)
+
+txt.Parent =
+bb
+
+txt.Size =
+UDim2.new(1,0,1,0)
+
+txt.BackgroundTransparency =
+1
+
+txt.Text =
+obj.Name
+
+txt.TextScaled =
+true
+
+txt.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+end
+
+end
+
+end
+
+end
+
+
+
+-- PLAYER RADAR
+
+if radar then
+
+local dist =
+math.floor(
+(
+game.Players.LocalPlayer.Character
+.HumanoidRootPart.Position
+-
+hrp.Position
+).Magnitude
+)
+
+print(
+plr.Name,
+dist.."m"
+)
+
+end
 
 local char =
 plr.Character
