@@ -1463,65 +1463,6 @@ or Color3.fromRGB(
 
 end)
 
--- PLAYER RADAR
-local RadarToggle,
-RadarCircle =
-createToggle(
-ESPMenu,
-"Player Radar",
-120
-)
-
-local radar =
-false
-
-RadarToggle.MouseButton1Click:Connect(function()
-
-radar =
-not radar
-
-TweenService:Create(
-RadarCircle,
-TweenInfo.new(.2),
-{
-Position =
-radar
-and UDim2.new(
-1,
--27,
-.5,
--12
-)
-or UDim2.new(
-0,
-3,
-.5,
--12
-)
-}
-):Play()
-
-TweenService:Create(
-RadarToggle,
-TweenInfo.new(.2),
-{
-BackgroundColor3 =
-radar
-and Color3.fromRGB(
-220,
-190,
-255
-)
-or Color3.fromRGB(
-50,
-50,
-60
-)
-}
-):Play()
-
-end)
-
 task.spawn(function()
 
 while task.wait(.5) do
@@ -1610,27 +1551,6 @@ end
 end
 
 end
-
-end
-
--- PLAYER RADAR
-
-if radar then
-
-local dist =
-math.floor(
-(
-game.Players.LocalPlayer.Character
-.HumanoidRootPart.Position
-
-hrp.Position
-).Magnitude
-)
-
-print(
-plr.Name,
-dist.."m"
-)
 
 end
 
