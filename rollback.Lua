@@ -514,27 +514,86 @@ BoostMenu.BackgroundTransparency =
 1
 
 
-local boostOpened =
-false
+local boostOpened = false
+
+BoostMenu.Size =
+UDim2.new(1,-20,0,0) -- закрыто
 
 BoostBtn.MouseButton1Click:Connect(function()
 
-boostOpened =
-not boostOpened
+	boostOpened =
+	not boostOpened
 
-BoostMenu.Visible =
-boostOpened
 
-TweenService:Create(
-BoostArrow,
-TweenInfo.new(.2),
-{
-Rotation =
-boostOpened
-and 180
-or 0
-}
-):Play()
+	TweenService:Create(
+		BoostArrow,
+		TweenInfo.new(.2),
+		{
+			Rotation =
+			boostOpened
+			and 180
+			or 0
+		}
+	):Play()
+
+
+	if boostOpened then
+
+		BoostMenu.Visible =
+		true
+
+
+		TweenService:Create(
+			BoostMenu,
+			TweenInfo.new(
+				0.25,
+				Enum.EasingStyle.Quad
+			),
+			{
+				Size =
+				UDim2.new(
+					1,
+					-20,
+					0,
+					180
+				)
+			}
+		):Play()
+
+	else
+
+		local tween =
+		TweenService:Create(
+			BoostMenu,
+			TweenInfo.new(
+				0.25,
+				Enum.EasingStyle.Quad
+			),
+			{
+				Size =
+				UDim2.new(
+					1,
+					-20,
+					0,
+					0
+				)
+			}
+		)
+
+		tween:Play()
+
+		tween.Completed:Connect(function()
+
+			if not boostOpened then
+
+				BoostMenu.Visible =
+				false
+
+			end
+
+		end)
+
+	end
 
 end)
 
