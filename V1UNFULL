@@ -840,74 +840,120 @@ PlayersMenu.BackgroundTransparency =
 local playersOpen =
 false
 
-local playersOpen = 
-false
+local playersOpen = false
+
+local function refreshPlayers()
+
+PlayersMenu:ClearAllChildren()
+
+local layout =
+Instance.new("UIListLayout")
+
+layout.Parent =
+PlayersMenu
+
+layout.Padding =
+UDim.new(0,5)
+
+for _,plr in ipairs(game.Players:GetPlayers()) do
+
+if plr == game.Players.LocalPlayer then
+continue
+end
+
+local btn =
+Instance.new("TextButton")
+
+btn.Parent =
+PlayersMenu
+
+btn.Size =
+UDim2.new(1,0,0,35)
+
+btn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+btn.TextColor3 =
+Color3.fromRGB(20,20,25)
+
+btn.Font =
+Enum.Font.GothamBold
+
+btn.Text =
+plr.Name
+
+Instance.new("UICorner",btn)
+
+btn.MouseButton1Click:Connect(function()
+
+TPPlayer =
+plr
+
+SelectedName.Text =
+plr.Name
+
+SelectedAvatar.Image =
+game.Players:GetUserThumbnailAsync(
+plr.UserId,
+Enum.ThumbnailType.HeadShot,
+Enum.ThumbnailSize.Size420x420
+)
+
+end)
+
+end
+
+PlayersMenu.CanvasSize =
+UDim2.new(
+0,
+0,
+0,
+layout.AbsoluteContentSize.Y
+)
+
+end
+
 
 PlayersBtn.MouseButton1Click:Connect(function()
 
 playersOpen =
 not playersOpen
 
+refreshPlayers()
+
 PlayersMenu.Visible =
 true
 
+local menuHeight =
+playersOpen and 200 or 0
+
 TweenService:Create(
-
 PlayersMenu,
-
 TweenInfo.new(.2),
-
 {
-
-Size=
-
-playersOpen
-
-and UDim2.new(
+Size =
+UDim2.new(
 1,
 -20,
 0,
-200
+menuHeight
 )
-
-or UDim2.new(
-1,
--20,
-0,
-0
-)
-
 }
-
 ):Play()
 
+
 TweenService:Create(
-
 ToolBtn,
-
 TweenInfo.new(.2),
-
 {
-
-Position=
-
-playersOpen
-and UDim2.new(
+Position =
+UDim2.new(
 0,
 10,
 0,
-560
+150 + menuHeight + 10
 )
-
-or UDim2.new(
-0,
-10,
-0,
-360
-)
-
 }
-
 ):Play()
 
 end)
@@ -1014,7 +1060,7 @@ UDim2.new(
 0,
 10,
 0,
-360
+160
 )
 
 ToolBtn.BackgroundColor3 =
