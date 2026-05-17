@@ -650,6 +650,63 @@ end)
 local espOpened =
 false
 
+local function updatePositions()
+
+    local espHeight =
+        espOpened and 170 or 0
+
+    local boostHeight =
+        boostOpened and 260 or 0
+
+    -- BOOST
+    TweenService:Create(
+        BoostBtn,
+        TweenInfo.new(.2),
+        {
+            Position = UDim2.new(
+                0,10,0,
+                55 + espHeight
+            )
+        }
+    ):Play()
+
+    TweenService:Create(
+        BoostMenu,
+        TweenInfo.new(.2),
+        {
+            Position = UDim2.new(
+                0,10,0,
+                95 + espHeight
+            )
+        }
+    ):Play()
+
+
+    -- MISC
+    TweenService:Create(
+        MiscBtn,
+        TweenInfo.new(.2),
+        {
+            Position = UDim2.new(
+                0,10,0,
+                95 + espHeight + boostHeight
+            )
+        }
+    ):Play()
+
+    TweenService:Create(
+        MiscMenu,
+        TweenInfo.new(.2),
+        {
+            Position = UDim2.new(
+                0,10,0,
+                135 + espHeight + boostHeight
+            )
+        }
+    ):Play()
+
+end
+
 BoostBtn.MouseButton1Click:Connect(function()
 
     boostOpened = not boostOpened
@@ -704,76 +761,6 @@ updatePositions()
 
 end)
 
-local function updatePositions()
-
-    local espHeight =
-        espOpened and 170 or 0
-
-    local boostHeight =
-        boostOpened and 270 or 0
-
-
-    -- BOOST
-    TweenService:Create(
-        BoostBtn,
-        TweenInfo.new(.2),
-        {
-            Position =
-            UDim2.new(
-                0,
-                10,
-                0,
-                55 + espHeight
-            )
-        }
-    ):Play()
-
-    TweenService:Create(
-        BoostMenu,
-        TweenInfo.new(.2),
-        {
-            Position =
-            UDim2.new(
-                0,
-                10,
-                0,
-                95 + espHeight
-            )
-        }
-    ):Play()
-
-
-    -- MISC
-    TweenService:Create(
-        MiscBtn,
-        TweenInfo.new(.2),
-        {
-            Position =
-            UDim2.new(
-                0,
-                10,
-                0,
-                95 + espHeight + boostHeight
-            )
-        }
-    ):Play()
-
-    TweenService:Create(
-        MiscMenu,
-        TweenInfo.new(.2),
-        {
-            Position =
-            UDim2.new(
-                0,
-                10,
-                0,
-                135 + espHeight + boostHeight
-            )
-        }
-    ):Play()
-
-end
-
 ESPBtn.MouseButton1Click:Connect(function()
 
     espOpened = not espOpened
@@ -806,65 +793,6 @@ ESPBtn.MouseButton1Click:Connect(function()
             ESPMenu.Visible = false
         end
     end)
-
-
-    -- BOOST
-    TweenService:Create(
-        BoostBtn,
-        TweenInfo.new(.2),
-        {
-            Position =
-                espOpened
-                and UDim2.new(0,10,0,225)
-                or UDim2.new(0,10,0,55)
-        }
-    ):Play()
-
-    TweenService:Create(
-        BoostMenu,
-        TweenInfo.new(.2),
-        {
-            Position =
-                espOpened
-                and UDim2.new(0,10,0,265)
-                or UDim2.new(0,10,0,95)
-        }
-    ):Play()
-
-
-    -- MISC
-local miscPos =
-    (espOpened and 225 or 95)
-    +
-    (boostOpened and 310 or 0)
-
-TweenService:Create(
-    MiscBtn,
-    TweenInfo.new(.2),
-    {
-        Position =
-        UDim2.new(
-            0,
-            10,
-            0,
-            miscPos
-        )
-    }
-):Play()
-
-TweenService:Create(
-    MiscMenu,
-    TweenInfo.new(.2),
-    {
-        Position =
-        UDim2.new(
-            0,
-            10,
-            0,
-            miscPos + 40
-        )
-    }
-):Play()
 
 updatePositions()
 
