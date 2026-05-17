@@ -1881,50 +1881,32 @@ end
 
 if radar then
 
-    for _,v in pairs(RadarList:GetChildren()) do
-        if v:IsA("TextLabel") then
-            v:Destroy()
+    RadarGui.Visible = true
+
+    -- очистка только 1 раз
+    if plr == game.Players:GetPlayers()[2] then
+        for _,v in ipairs(RadarList:GetChildren()) do
+            if v:IsA("TextLabel") then
+                v:Destroy()
+            end
         end
     end
 
-    local dist =
-    math.floor(
+    local dist = math.floor(
         (
             game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-            -
-            hrp.Position
+            - hrp.Position
         ).Magnitude
     )
 
-    RadarGui.Visible = true
-
-    local txt =
-    Instance.new("TextLabel")
-
-    txt.Parent =
-    RadarList
-
-    txt.Size =
-    UDim2.new(1,0,0,20)
-
-    txt.BackgroundTransparency =
-    1
-
-    txt.Text =
-    plr.Name.." "..dist.."m"
-
-    txt.TextColor3 =
-    Color3.new(1,1,1)
-
-    txt.Font =
-    Enum.Font.Gotham
-
-    txt.TextSize =
-    14
-
-    txt.BackgroundTransparency =
-    1
-
+    local txt = Instance.new("TextLabel")
+    txt.Parent = RadarList
+    txt.Size = UDim2.new(1,0,0,20)
+    txt.BackgroundTransparency = 1
+    txt.Text = plr.Name.." "..dist.."m"
+    txt.TextColor3 = Color3.new(1,1,1)
+    txt.Font = Enum.Font.Gotham
+    txt.TextSize = 14
 end
 
 -- NAME ESP
@@ -3363,8 +3345,11 @@ end
 
 end)
 
--- Открыт ли раздел Home
+-- состояние меню
 local opened = false
+local serverOpened = false
+local visualsOpened = false
+local minimized = false
 
 HomeBtn.MouseButton1Click:Connect(function()
 
@@ -3377,7 +3362,7 @@ HomeBtn.MouseButton1Click:Connect(function()
 	if opened then
 		ServerPage.Visible = false
 		serverOpened = false
-	end
+end
 
 end)
 
@@ -3412,6 +3397,7 @@ end)
 
 local visualsOpened =
 false
+
 
 VisualsBtn.MouseButton1Click:Connect(function()
 
@@ -3488,7 +3474,6 @@ MinBtn.Font = Enum.Font.Gotham
 MinBtn.BackgroundTransparency = 1
 MinBtn.BorderSizePixel = 0
 
-local minimized = false
 
 MinBtn.MouseButton1Click:Connect(function()
 
