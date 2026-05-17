@@ -411,6 +411,67 @@ VisualsBtn
 VisualsCorner.CornerRadius =
 UDim.new(0,8)
 
+-- TELEPORT BUTTON
+local TeleportBtn =
+Instance.new("TextButton")
+
+local TeleportCorner =
+Instance.new("UICorner")
+
+TeleportBtn.Parent =
+Frame
+
+TeleportBtn.Size =
+UDim2.new(
+0,
+80,
+0,
+28
+)
+
+TeleportBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+145
+)
+
+TeleportBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+TeleportBtn.Text =
+"Teleport"
+
+TeleportBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+TeleportBtn.Font =
+Enum.Font.GothamBold
+
+TeleportBtn.TextSize =
+14
+
+TeleportBtn.BorderSizePixel =
+0
+
+TeleportCorner.Parent =
+TeleportBtn
+
+TeleportCorner.CornerRadius =
+UDim.new(
+0,
+8
+)
+
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
 
@@ -482,6 +543,562 @@ UDim2.new(1,-120,1,-50)
 
 VisualsPage.BackgroundTransparency =
 1
+
+local TeleportPage =
+Instance.new(
+"ScrollingFrame"
+)
+
+TeleportPage.Parent =
+Frame
+
+TeleportPage.Visible =
+false
+
+TeleportPage.Position =
+UDim2.new(
+0,
+110,
+0,
+40
+)
+
+TeleportPage.Size =
+UDim2.new(
+1,
+-120,
+1,
+-50
+)
+
+TeleportPage.CanvasSize =
+UDim2.new(
+0,
+0,
+0,
+700
+)
+
+TeleportPage.ScrollBarThickness =
+4
+
+TeleportPage.BackgroundTransparency =
+1
+
+TeleportPage.BorderSizePixel =
+0
+
+local TPCard =
+Instance.new("Frame")
+
+TPCard.Parent =
+TeleportPage
+
+TPCard.Size =
+UDim2.new(
+1,
+-10,
+0,
+90
+)
+
+TPCard.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+TPCard.BackgroundTransparency =
+.15
+
+Instance.new(
+"UICorner",
+TPCard
+)
+
+local SelectedAvatar =
+Instance.new(
+"ImageLabel"
+)
+
+SelectedAvatar.Parent =
+TPCard
+
+SelectedAvatar.Size =
+UDim2.new(
+0,
+60,
+0,
+60
+)
+
+SelectedAvatar.Position =
+UDim2.new(
+0,
+10,
+0.5,
+-30
+)
+
+SelectedAvatar.BackgroundTransparency =
+1
+
+
+local SelectedName =
+Instance.new(
+"TextLabel"
+)
+
+SelectedName.Parent =
+TPCard
+
+SelectedName.Position =
+UDim2.new(
+0,
+80,
+0,
+15
+)
+
+SelectedName.Size =
+UDim2.new(
+1,
+-90,
+0,
+20
+)
+
+SelectedName.BackgroundTransparency =
+1
+
+SelectedName.Text =
+"Player"
+
+SelectedName.Font =
+Enum.Font.GothamBold
+
+SelectedName.TextColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+local TPPlayer = nil
+
+local function makeTPBtn(
+text,
+x
+)
+
+local b=
+Instance.new(
+"TextButton"
+)
+
+b.Parent=
+TPCard
+
+b.Size=
+UDim2.new(
+0,
+100,
+0,
+30
+)
+
+b.Position=
+UDim2.new(
+0,
+x,
+0,
+50
+)
+
+b.BackgroundColor3=
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+b.Text=text
+
+b.TextColor3=
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+Instance.new(
+"UICorner",
+b
+)
+
+return b
+
+end
+
+local TPBtn =
+makeTPBtn(
+"Teleport",
+80
+)
+
+local SpectateBtn =
+makeTPBtn(
+"Spectate",
+190
+)
+
+local PlayersBtn =
+Instance.new(
+"TextButton"
+)
+
+PlayersBtn.Parent =
+TeleportPage
+
+PlayersBtn.Size =
+UDim2.new(
+1,
+-20,
+0,
+35
+)
+
+PlayersBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+110
+)
+
+PlayersBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+PlayersBtn.Text =
+"Players"
+
+PlayersBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+Instance.new(
+"UICorner",
+PlayersBtn
+)
+
+local PlayersMenu =
+Instance.new(
+"ScrollingFrame"
+)
+
+PlayersMenu.Parent =
+TeleportPage
+
+PlayersMenu.Position =
+UDim2.new(
+0,
+10,
+0,
+150
+)
+
+PlayersMenu.Size =
+UDim2.new(
+1,
+-20,
+0,
+0
+)
+
+PlayersMenu.Visible =
+false
+
+PlayersMenu.CanvasSize =
+UDim2.new(
+0,
+0,
+0,
+500
+)
+
+PlayersMenu.BackgroundTransparency =
+1
+
+local playersOpen =
+false
+
+local playersOpen = 
+false
+
+PlayersBtn.MouseButton1Click:Connect(function()
+
+playersOpen =
+not playersOpen
+
+PlayersMenu.Visible =
+true
+
+TweenService:Create(
+
+PlayersMenu,
+
+TweenInfo.new(.2),
+
+{
+
+Size=
+
+playersOpen
+
+and UDim2.new(
+1,
+-20,
+0,
+200
+)
+
+or UDim2.new(
+1,
+-20,
+0,
+0
+)
+
+}
+
+):Play()
+
+TweenService:Create(
+
+ToolBtn,
+
+TweenInfo.new(.2),
+
+{
+
+Position=
+
+opened
+and UDim2.new(
+0,
+10,
+0,
+560
+)
+
+or UDim2.new(
+0,
+10,
+0,
+360
+)
+
+}
+
+):Play()
+
+end)
+
+for _,plr in pairs(
+game.Players:GetPlayers()
+) do
+
+if plr ==
+game.Players.LocalPlayer then
+continue
+end
+
+local btn=
+Instance.new(
+"TextButton"
+)
+
+btn.Parent=
+PlayersMenu
+
+btn.Size=
+UDim2.new(
+1,
+0,
+0,
+35
+)
+
+btn.Text=
+plr.Name
+
+btn.BackgroundColor3=
+Color3.fromRGB(
+50,
+50,
+60
+)
+
+btn.TextColor3=
+Color3.new(
+1,
+1,
+1
+)
+
+btn.MouseButton1Click:Connect(function()
+
+TPPlayer=
+plr
+
+SelectedName.Text=
+plr.Name
+
+SelectedAvatar.Image=
+game.Players:
+GetUserThumbnailAsync(
+
+plr.UserId,
+
+Enum.ThumbnailType.HeadShot,
+
+Enum.ThumbnailSize.Size420x420
+
+)
+
+end)
+
+end
+
+local ToolBtn =
+Instance.new(
+"TextButton"
+)
+
+ToolBtn.Parent =
+TeleportPage
+
+ToolBtn.Size =
+UDim2.new(
+1,
+-20,
+0,
+35
+)
+
+ToolBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+360
+)
+
+ToolBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+ToolBtn.Text =
+"Teleport Tool"
+
+ToolBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+Instance.new(
+"UICorner",
+ToolBtn
+)
+
+ToolBtn.MouseButton1Click:Connect(function()
+
+local tool=
+Instance.new(
+"Tool"
+)
+
+tool.Name=
+"Teleport Tool"
+
+tool.RequiresHandle=
+false
+
+tool.Parent=
+game.Players.LocalPlayer.Backpack
+
+
+tool.Activated:Connect(function()
+
+local mouse=
+game.Players.LocalPlayer:
+GetMouse()
+
+if mouse.Hit then
+
+game.Players.LocalPlayer.Character:
+MoveTo(
+mouse.Hit.Position
+)
+
+end
+
+end)
+
+end)
+
+TPBtn.MouseButton1Click:Connect(function()
+
+if not TPPlayer then
+return
+end
+
+local my =
+game.Players.LocalPlayer.Character
+
+local target =
+TPPlayer.Character
+
+if my
+and target
+and target:FindFirstChild(
+"HumanoidRootPart"
+) then
+
+my:
+MoveTo(
+
+target.HumanoidRootPart.Position
+
+)
+
+end
+
+end)
+
+SpectateBtn.MouseButton1Click:Connect(function()
+
+if not TPPlayer then
+return
+end
+
+workspace.CurrentCamera.CameraSubject =
+TPPlayer.Character.Humanoid
+
+end)
 
 local ESPBtn =
 Instance.new("TextButton")
@@ -3424,6 +4041,28 @@ serverOpened =
 false
 
 end
+
+end)
+
+local tpOpened =
+false
+
+TeleportBtn.MouseButton1Click:Connect(function()
+
+tpOpened =
+not tpOpened
+
+TeleportPage.Visible =
+tpOpened
+
+HomePage.Visible =
+false
+
+ServerPage.Visible =
+false
+
+VisualsPage.Visible =
+false
 
 end)
 
