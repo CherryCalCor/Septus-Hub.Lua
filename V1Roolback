@@ -2064,27 +2064,6 @@ end
 
 -- PLAYER RADAR
 
-if radar then
-
-local dist =
-math.floor(
-(
-game.Players.LocalPlayer.Character
-.HumanoidRootPart.Position
-
--
-
-hrp.Position
-).Magnitude
-)
-
-print(
-plr.Name,
-dist.."m"
-)
-
-end
-
 local char =
 plr.Character
 
@@ -2105,6 +2084,27 @@ char:FindFirstChild(
 if not head
 or not hrp then
 continue
+end
+
+if radar then
+
+local dist =
+math.floor(
+(
+game.Players.LocalPlayer.Character
+.HumanoidRootPart.Position
+
+-
+
+hrp.Position
+).Magnitude
+)
+
+print(
+plr.Name,
+dist.."m"
+)
+
 end
 
 -- BOX ESP
