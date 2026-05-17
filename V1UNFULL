@@ -793,6 +793,44 @@ or UDim2.new(0,10,0,95)
 }
 ):Play()
 
+TweenService:Create(
+MiscBtn,
+TweenInfo.new(.2),
+{
+Position =
+espOpened
+and (
+	boostOpened
+	and UDim2.new(0,10,0,535)
+	or UDim2.new(0,10,0,225)
+)
+or (
+	boostOpened
+	and UDim2.new(0,10,0,365)
+	or UDim2.new(0,10,0,95)
+)
+}
+):Play()
+
+TweenService:Create(
+MiscMenu,
+TweenInfo.new(.2),
+{
+Position =
+espOpened
+and (
+	boostOpened
+	and UDim2.new(0,10,0,575)
+	or UDim2.new(0,10,0,265)
+)
+or (
+	boostOpened
+	and UDim2.new(0,10,0,405)
+	or UDim2.new(0,10,0,135)
+)
+}
+):Play()
+
 end)
 
 local function createToggle(
