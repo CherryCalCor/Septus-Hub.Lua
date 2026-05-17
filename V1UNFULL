@@ -328,7 +328,7 @@ VisualsPage.BackgroundTransparency =
 1
 
 VisualsPage.CanvasSize =
-UDim2.new(0,0,0,500)
+UDim2.new(0,0,0,900)
 
 VisualsPage.ScrollBarThickness =
 4
@@ -522,20 +522,27 @@ local boostOpened = false
 
 BoostBtn.MouseButton1Click:Connect(function()
 
-boostOpened = not boostOpened
+boostOpened =
+not boostOpened
 
 TweenService:Create(
 BoostArrow,
 TweenInfo.new(.2),
 {
-Rotation = boostOpened and 180 or 0
+Rotation =
+boostOpened
+and 180
+or 0
 }
 ):Play()
 
 BoostArrow.Text =
-boostOpened and "▲" or "▼"
+boostOpened
+and "▲"
+or "▼"
 
-BoostMenu.Visible = true
+BoostMenu.Visible =
+true
 
 TweenService:Create(
 BoostMenu,
@@ -543,15 +550,195 @@ TweenInfo.new(.2),
 {
 Size =
 boostOpened
-and UDim2.new(1,-20,0,260)
+and UDim2.new(
+1,
+-20,
+0,
+260
+)
+or UDim2.new(
+1,
+-20,
+0,
+0
+)
+}
+):Play()
+
+-- ДВИГАЕМ MISC НИЖЕ
+TweenService:Create(
+MiscBtn,
+TweenInfo.new(.2),
+{
+Position =
+boostOpened
+and UDim2.new(
+0,
+10,
+0,
+365
+)
+or UDim2.new(
+0,
+10,
+0,
+95
+)
+}
+):Play()
+
+TweenService:Create(
+MiscMenu,
+TweenInfo.new(.2),
+{
+Position =
+boostOpened
+and UDim2.new(
+0,
+10,
+0,
+405
+)
+or UDim2.new(
+0,
+10,
+0,
+135
+)
+}
+):Play()
+
+task.delay(.2,function()
+
+if not boostOpened then
+BoostMenu.Visible =
+false
+end
+
+end)
+
+end)
+
+-- MISC BUTTON
+local MiscBtn =
+Instance.new("TextButton")
+
+MiscBtn.Parent =
+VisualsPage
+
+MiscBtn.Size =
+UDim2.new(1,-20,0,35)
+
+MiscBtn.Position =
+UDim2.new(0,10,0,95)
+
+MiscBtn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+MiscBtn.Text =
+"Misc"
+
+MiscBtn.TextColor3 =
+Color3.fromRGB(20,20,25)
+
+MiscBtn.Font =
+Enum.Font.GothamBold
+
+Instance.new(
+"UICorner",
+MiscBtn
+)
+
+local MiscArrow =
+Instance.new("TextLabel")
+
+MiscArrow.Parent =
+MiscBtn
+
+MiscArrow.Size =
+UDim2.new(0,20,1,0)
+
+MiscArrow.Position =
+UDim2.new(1,-25,0,0)
+
+MiscArrow.BackgroundTransparency =
+1
+
+MiscArrow.Text =
+"▼"
+
+MiscArrow.Font =
+Enum.Font.GothamBold
+
+MiscArrow.TextColor3 =
+Color3.fromRGB(220,190,255)
+
+local MiscMenu =
+Instance.new("Frame")
+
+MiscMenu.Parent =
+VisualsPage
+
+MiscMenu.Visible =
+false
+
+MiscMenu.Position =
+UDim2.new(0,10,0,135)
+
+MiscMenu.Size =
+UDim2.new(1,-20,0,120)
+
+MiscMenu.BackgroundTransparency =
+1
+
+MiscMenu.ClipsDescendants =
+true
+
+MiscMenu.Size =
+UDim2.new(1,-20,0,0)
+
+local miscOpened =
+false
+
+MiscBtn.MouseButton1Click:Connect(function()
+
+miscOpened =
+not miscOpened
+
+TweenService:Create(
+MiscArrow,
+TweenInfo.new(.2),
+{
+Rotation =
+miscOpened and 180 or 0
+}
+):Play()
+
+MiscArrow.Text =
+miscOpened and "▲"
+or "▼"
+
+MiscMenu.Visible =
+true
+
+TweenService:Create(
+MiscMenu,
+TweenInfo.new(.2),
+{
+Size =
+miscOpened
+and UDim2.new(1,-20,0,120)
 or UDim2.new(1,-20,0,0)
 }
 ):Play()
 
 task.delay(.2,function()
-if not boostOpened then
-BoostMenu.Visible = false
+
+if not miscOpened then
+MiscMenu.Visible =
+false
 end
+
 end)
 
 end)
