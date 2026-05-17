@@ -639,24 +639,52 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local function getClosestPlayerToCenter()
-    local closest = nil
-    local shortestDistance = math.huge
+local closestPlayer = nil
 
-    for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild(targetPart) then
-            local pos, onScreen = Camera:WorldToViewportPoint(plr.Character[targetPart].Position)
-            if onScreen then
-                local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
-                if distance < shortestDistance then
-                    closest = plr
-                    shortestDistance = distance
+task.spawn(function()
+    while task.wait(0.1) do
+        if not silentAimActive then
+            closestPlayer = nil
+            continue
+        end
+
+        local shortest = math.huge
+        local target = nil
+
+        for _,plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer
+            and plr.Character
+            and plr.Character:FindFirstChild(targetPart)
+            and plr.Character:FindFirstChild("Humanoid")
+            and plr.Character.Humanoid.Health > 0 then
+
+                local pos, visible =
+                    Camera:WorldToViewportPoint(
+                        plr.Character[targetPart].Position
+                    )
+
+                if visible then
+                    local dist =
+                    (
+                        Vector2.new(
+                            pos.X,
+                            pos.Y
+                        )
+                        -
+                        Camera.ViewportSize/2
+                    ).Magnitude
+
+                    if dist < shortest then
+                        shortest = dist
+                        target = plr
+                    end
                 end
             end
         end
+
+        closestPlayer = target
     end
-    return closest
-end
+end)
 
 local mt = getrawmetatable(game)
 local oldNamecall = mt.__namecall
@@ -667,7 +695,6 @@ mt.__namecall = newcclosure(function(self, ...)
     local method = getnamecallmethod()
 
     if silentAimActive and not checkcaller() then
-        local closestPlayer = getClosestPlayerToCenter()
         if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild(targetPart) then
             if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" then
                 local origin = args[1].Origin
