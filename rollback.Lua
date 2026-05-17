@@ -516,8 +516,8 @@ BoostMenu.BackgroundTransparency =
 
 local boostOpened = false
 
-BoostMenu.Size =
-UDim2.new(1,-20,0,0) -- закрыто
+BoostMenu.ClipsDescendants = true
+BoostMenu.Size = UDim2.new(1,-20,0,0)
 
 BoostBtn.MouseButton1Click:Connect(function()
 
@@ -582,16 +582,11 @@ BoostBtn.MouseButton1Click:Connect(function()
 
 		tween:Play()
 
-		tween.Completed:Connect(function()
-
-			if not boostOpened then
-
-				BoostMenu.Visible =
-				false
-
-			end
-
-		end)
+		tween.Completed:Once(function()
+    if not boostOpened then
+        BoostMenu.Visible = false
+    end
+end)
 
 	end
 
