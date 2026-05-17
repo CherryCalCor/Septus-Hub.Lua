@@ -325,7 +325,7 @@ VisualsPage.BackgroundTransparency =
 1
 
 VisualsPage.CanvasSize =
-UDim2.new(0,0,0,500)
+UDim2.new(0,0,0,700)
 
 VisualsPage.ScrollBarThickness =
 4
@@ -434,7 +434,7 @@ UDim2.new(
 1,
 -20,
 0,
-220
+340
 )
 
 ESPMenu.BackgroundTransparency =
@@ -551,6 +551,102 @@ BoostBtn.MouseButton1Click:Connect(function()
 			BoostMenu.Visible = false
 		end
 	end)
+
+end)
+
+local MiscBtn =
+Instance.new(
+"TextButton"
+)
+
+MiscBtn.Parent =
+VisualsPage
+
+MiscBtn.Size =
+UDim2.new(
+1,
+-20,
+0,
+35
+)
+
+MiscBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+365
+)
+
+MiscBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+MiscBtn.Text =
+"Misc"
+
+Instance.new(
+"UICorner",
+MiscBtn
+)
+
+
+local MiscMenu =
+Instance.new(
+"Frame"
+)
+
+MiscMenu.Parent =
+VisualsPage
+
+MiscMenu.Visible =
+false
+
+MiscMenu.Position =
+UDim2.new(
+0,
+10,
+0,
+405
+)
+
+MiscMenu.Size =
+UDim2.new(
+1,
+-20,
+0,
+0
+)
+
+MiscMenu.ClipsDescendants =
+true
+
+local misc =
+false
+
+MiscBtn.MouseButton1Click:Connect(function()
+
+misc =
+not misc
+
+
+MiscMenu.Visible =
+true
+
+
+TweenService:Create(
+MiscMenu,
+TweenInfo.new(.2),
+{
+Size =
+misc
+and UDim2.new(1,-20,0,180)
+or UDim2.new(1,-20,0,0)
+}
+):Play()
 
 end)
 
@@ -1562,6 +1658,126 @@ or Color3.fromRGB(
 
 end)
 
+-- BOX ESP
+local BoxToggle, BoxCircle =
+createToggle(
+    ESPMenu,
+    "Box ESP",
+    160
+)
+
+local boxESP = false
+
+BoxToggle.MouseButton1Click:Connect(function()
+
+    boxESP = not boxESP
+
+    TweenService:Create(
+        BoxCircle,
+        TweenInfo.new(.2),
+        {
+            Position =
+            boxESP
+            and UDim2.new(1,-27,.5,-12)
+            or UDim2.new(0,3,.5,-12)
+        }
+    ):Play()
+
+    TweenService:Create(
+        BoxToggle,
+        TweenInfo.new(.2),
+        {
+            BackgroundColor3 =
+            boxESP
+            and Color3.fromRGB(220,190,255)
+            or Color3.fromRGB(50,50,60)
+        }
+    ):Play()
+
+end)
+
+
+-- TRACER ESP
+local TracerToggle, TracerCircle =
+createToggle(
+    ESPMenu,
+    "Tracer ESP",
+    200
+)
+
+local tracerESP = false
+
+TracerToggle.MouseButton1Click:Connect(function()
+
+    tracerESP =
+    not tracerESP
+
+    TweenService:Create(
+        TracerCircle,
+        TweenInfo.new(.2),
+        {
+            Position =
+            tracerESP
+            and UDim2.new(1,-27,.5,-12)
+            or UDim2.new(0,3,.5,-12)
+        }
+    ):Play()
+
+    TweenService:Create(
+        TracerToggle,
+        TweenInfo.new(.2),
+        {
+            BackgroundColor3 =
+            tracerESP
+            and Color3.fromRGB(220,190,255)
+            or Color3.fromRGB(50,50,60)
+        }
+    ):Play()
+
+end)
+
+
+
+-- HEALTH ESP
+local HealthToggle, HealthCircle =
+createToggle(
+    ESPMenu,
+    "Health ESP",
+    240
+)
+
+local healthESP = false
+
+HealthToggle.MouseButton1Click:Connect(function()
+
+healthESP =
+not healthESP
+
+
+TweenService:Create(
+HealthCircle,
+TweenInfo.new(.2),
+{
+Position =
+healthESP
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+HealthToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+healthESP
+and Color3.fromRGB(220,190,255)
+or Color3.fromRGB(50,50,60)
+}
+):Play()
+
+end)
+
 task.spawn(function()
 
 while task.wait(.5) do
@@ -1670,9 +1886,38 @@ hrp.Position
 ).Magnitude
 )
 
-print(
-plr.Name,
-dist.."m"
+RadarGui.Visible =
+true
+
+
+local txt =
+Instance.new(
+"TextLabel"
+)
+
+txt.Parent =
+RadarList
+
+txt.Size =
+UDim2.new(
+1,
+0,
+0,
+20
+)
+
+txt.BackgroundTransparency =
+1
+
+txt.Text =
+plr.Name..
+" "..dist.."m"
+
+txt.TextColor3 =
+Color3.new(
+1,
+1,
+1
 )
 
 end
@@ -1871,6 +2116,138 @@ end
 end
 
 end)
+
+-- BOX ESP
+if boxESP then
+
+local box =
+char:FindFirstChild("BoxESP")
+
+if not box then
+
+box =
+Instance.new("Highlight")
+
+box.Name =
+"BoxESP"
+
+box.FillTransparency =
+1
+
+box.OutlineColor =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+box.DepthMode =
+Enum.HighlightDepthMode.AlwaysOnTop
+
+box.Parent =
+char
+
+end
+
+else
+
+local box =
+char:FindFirstChild(
+"BoxESP"
+)
+
+if box then
+box:Destroy()
+end
+
+end
+
+
+
+-- HEALTH ESP
+
+if healthESP then
+
+local gui =
+head:FindFirstChild(
+"HealthESP"
+)
+
+if not gui then
+
+gui =
+Instance.new(
+"BillboardGui"
+)
+
+gui.Name =
+"HealthESP"
+
+gui.Size =
+UDim2.new(
+0,
+100,
+0,
+30
+)
+
+gui.StudsOffset =
+Vector3.new(
+0,
+3,
+0
+)
+
+gui.AlwaysOnTop =
+true
+
+gui.Parent =
+head
+
+
+local txt =
+Instance.new(
+"TextLabel"
+)
+
+txt.Name =
+"TXT"
+
+txt.Parent =
+gui
+
+txt.Size =
+UDim2.new(
+1,
+0,
+1,
+0
+)
+
+txt.BackgroundTransparency =
+1
+
+txt.TextScaled =
+true
+
+txt.TextColor3 =
+Color3.fromRGB(
+0,
+255,
+0
+)
+
+end
+
+
+gui.TXT.Text =
+math.floor(
+char.Humanoid.Health
+)
+..
+" HP"
+
+end
 
 local function createBtn(name,posY)
 
@@ -2453,6 +2830,106 @@ ServerMin.MouseButton1Click:Connect(function()
 		)
 
 	end
+
+end)
+
+local RadarGui =
+Instance.new("Frame")
+
+RadarGui.Parent =
+ScreenGui
+
+RadarGui.Size =
+UDim2.new(
+0,
+180,
+0,
+220
+)
+
+RadarGui.Position =
+UDim2.new(
+0,
+20,
+0.5,
+-100
+)
+
+RadarGui.Visible =
+false
+
+RadarGui.BackgroundColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+Instance.new(
+"UICorner",
+RadarGui
+)
+
+
+
+local RadarList =
+Instance.new(
+"ScrollingFrame"
+)
+
+RadarList.Parent =
+RadarGui
+
+RadarList.Size =
+UDim2.new(
+1,
+0,
+1,
+-30
+)
+
+RadarList.Position =
+UDim2.new(
+0,
+0,
+0,
+30
+)
+
+RadarList.BackgroundTransparency =
+1
+
+
+local Close =
+Instance.new(
+"TextButton"
+)
+
+Close.Parent =
+RadarGui
+
+Close.Text =
+"X"
+
+Close.Position =
+UDim2.new(
+1,
+-25,
+0,
+5
+)
+
+Close.BackgroundTransparency =
+1
+
+
+Close.MouseButton1Click:Connect(function()
+
+RadarGui.Visible =
+false
+
+radar =
+false
 
 end)
 
