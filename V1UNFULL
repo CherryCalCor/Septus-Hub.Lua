@@ -578,17 +578,21 @@ TweenService:Create(
     MiscBtn,
     TweenInfo.new(.2),
     {
+        local miscPos =
+    (espOpened and 225 or 95)
+    +
+    (boostOpened and 310 or 0)
+
+TweenService:Create(
+    MiscBtn,
+    TweenInfo.new(.2),
+    {
         Position =
-            espOpened
-            and (
-                boostOpened
-                and UDim2.new(0,10,0,535)
-                or UDim2.new(0,10,0,225)
-            )
-            or (
-                boostOpened
-                and UDim2.new(0,10,0,365)
-                or UDim2.new(0,10,0,95)
+            UDim2.new(
+                0,
+                10,
+                0,
+                miscPos
             )
     }
 ):Play()
@@ -598,16 +602,11 @@ TweenService:Create(
     TweenInfo.new(.2),
     {
         Position =
-            espOpened
-            and (
-                boostOpened
-                and UDim2.new(0,10,0,575)
-                or UDim2.new(0,10,0,265)
-            )
-            or (
-                boostOpened
-                and UDim2.new(0,10,0,405)
-                or UDim2.new(0,10,0,135)
+            UDim2.new(
+                0,
+                10,
+                0,
+                miscPos + 40
             )
     }
 ):Play()
@@ -770,104 +769,95 @@ false
 
 ESPBtn.MouseButton1Click:Connect(function()
 
-espOpened =
-not espOpened
+    espOpened = not espOpened
 
-TweenService:Create(
-Arrow,
-TweenInfo.new(.2),
-{
-Rotation =
-espOpened
-and 180
-or 0
-}
-):Play()
+    TweenService:Create(
+        Arrow,
+        TweenInfo.new(.2),
+        {Rotation = espOpened and 180 or 0}
+    ):Play()
 
-Arrow.Text =
+    Arrow.Text =
+        espOpened and "▲"
+        or "▼"
 
-espOpened
-and "▲"
-or "▼"
+    ESPMenu.Visible = true
 
-ESPMenu.Visible = true
+    TweenService:Create(
+        ESPMenu,
+        TweenInfo.new(.2),
+        {
+            Size =
+                espOpened
+                and UDim2.new(1,-20,0,160)
+                or UDim2.new(1,-20,0,0)
+        }
+    ):Play()
 
-TweenService:Create(
-    ESPMenu,
-    TweenInfo.new(.2),
-    {
-        Size =
-            espOpened
-            and UDim2.new(1,-20,0,160)
-            or UDim2.new(1,-20,0,0)
-    }
-):Play()
+    task.delay(.2,function()
+        if not espOpened then
+            ESPMenu.Visible = false
+        end
+    end)
 
-task.delay(.2,function()
-    if not espOpened then
-        ESPMenu.Visible = false
-    end
-end)
 
-TweenService:Create(
-BoostBtn,
-TweenInfo.new(.2),
-{
-Position =
-espOpened
-and UDim2.new(0,10,0,225)
-or UDim2.new(0,10,0,55)
-}
-):Play()
+    -- BOOST
+    TweenService:Create(
+        BoostBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+                espOpened
+                and UDim2.new(0,10,0,225)
+                or UDim2.new(0,10,0,55)
+        }
+    ):Play()
 
-TweenService:Create(
-BoostMenu,
-TweenInfo.new(.2),
-{
-Position =
-espOpened
-and UDim2.new(0,10,0,265)
-or UDim2.new(0,10,0,95)
-}
-):Play()
+    TweenService:Create(
+        BoostMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+                espOpened
+                and UDim2.new(0,10,0,265)
+                or UDim2.new(0,10,0,95)
+        }
+    ):Play()
 
-TweenService:Create(
-MiscBtn,
-TweenInfo.new(.2),
-{
-Position =
-espOpened
-and (
-	boostOpened
-	and UDim2.new(0,10,0,535)
-	or UDim2.new(0,10,0,225)
-)
-or (
-	boostOpened
-	and UDim2.new(0,10,0,365)
-	or UDim2.new(0,10,0,95)
-)
-}
-):Play()
 
-TweenService:Create(
-MiscMenu,
-TweenInfo.new(.2),
-{
-Position =
-espOpened
-and (
-	boostOpened
-	and UDim2.new(0,10,0,575)
-	or UDim2.new(0,10,0,265)
-)
-or (
-	boostOpened
-	and UDim2.new(0,10,0,405)
-	or UDim2.new(0,10,0,135)
-)
-}
-):Play()
+    -- MISC
+    local miscPos =
+        (espOpened and 225 or 95)
+        +
+        (boostOpened and 310 or 0)
+
+    TweenService:Create(
+        MiscBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+                UDim2.new(
+                    0,
+                    10,
+                    0,
+                    miscPos
+                )
+        }
+    ):Play()
+
+    TweenService:Create(
+        MiscMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+                UDim2.new(
+                    0,
+                    10,
+                    0,
+                    miscPos + 40
+                )
+        }
+    ):Play()
 
 end)
 
