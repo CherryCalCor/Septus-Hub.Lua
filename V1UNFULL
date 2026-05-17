@@ -700,7 +700,79 @@ BoostBtn.MouseButton1Click:Connect(function()
         }
     ):Play()
 
+updatePositions()
+
 end)
+
+local function updatePositions()
+
+    local espHeight =
+        espOpened and 170 or 0
+
+    local boostHeight =
+        boostOpened and 270 or 0
+
+
+    -- BOOST
+    TweenService:Create(
+        BoostBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+            UDim2.new(
+                0,
+                10,
+                0,
+                55 + espHeight
+            )
+        }
+    ):Play()
+
+    TweenService:Create(
+        BoostMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+            UDim2.new(
+                0,
+                10,
+                0,
+                95 + espHeight
+            )
+        }
+    ):Play()
+
+
+    -- MISC
+    TweenService:Create(
+        MiscBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+            UDim2.new(
+                0,
+                10,
+                0,
+                95 + espHeight + boostHeight
+            )
+        }
+    ):Play()
+
+    TweenService:Create(
+        MiscMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+            UDim2.new(
+                0,
+                10,
+                0,
+                135 + espHeight + boostHeight
+            )
+        }
+    ):Play()
+
+end
 
 ESPBtn.MouseButton1Click:Connect(function()
 
@@ -793,6 +865,8 @@ TweenService:Create(
         )
     }
 ):Play()
+
+updatePositions()
 
 end)
 
