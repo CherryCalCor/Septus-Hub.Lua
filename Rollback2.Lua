@@ -555,6 +555,175 @@ end)
 
 end)
 
+-- MISC BUTTON
+local MiscBtn =
+Instance.new("TextButton")
+
+MiscBtn.Parent =
+VisualsPage
+
+MiscBtn.Size =
+UDim2.new(
+1,
+-20,
+0,
+35
+)
+
+MiscBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+360
+)
+
+MiscBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+MiscBtn.Text =
+"Misc"
+
+MiscBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+MiscBtn.Font =
+Enum.Font.GothamBold
+
+Instance.new(
+"UICorner",
+MiscBtn
+)
+
+local MiscArrow =
+Instance.new(
+"TextLabel"
+)
+
+MiscArrow.Parent =
+MiscBtn
+
+MiscArrow.Size =
+UDim2.new(
+0,
+20,
+1,
+0
+)
+
+MiscArrow.Position =
+UDim2.new(
+1,
+-25,
+0,
+0
+)
+
+MiscArrow.BackgroundTransparency =
+1
+
+MiscArrow.Text =
+"▼"
+
+local MiscMenu =
+Instance.new(
+"Frame"
+)
+
+MiscMenu.Parent =
+VisualsPage
+
+MiscMenu.Visible =
+false
+
+MiscMenu.Position =
+UDim2.new(
+0,
+10,
+0,
+400
+)
+
+MiscMenu.Size =
+UDim2.new(
+1,
+-20,
+0,
+0
+)
+
+MiscMenu.ClipsDescendants =
+true
+
+MiscMenu.BackgroundTransparency =
+1
+
+
+local miscOpened =
+false
+
+
+MiscBtn.MouseButton1Click:Connect(function()
+
+miscOpened =
+not miscOpened
+
+
+MiscArrow.Text =
+miscOpened
+and "▲"
+or "▼"
+
+
+MiscMenu.Visible =
+true
+
+
+TweenService:Create(
+MiscMenu,
+TweenInfo.new(.2),
+{
+Size =
+miscOpened
+and UDim2.new(
+1,
+-20,
+0,
+200
+)
+or UDim2.new(
+1,
+-20,
+0,
+0
+)
+}
+):Play()
+
+
+task.delay(
+.2,
+function()
+
+if not miscOpened then
+
+MiscMenu.Visible =
+false
+
+end
+
+end)
+
+end)
+
 local espOpened =
 false
 
@@ -1319,6 +1488,77 @@ end
 
 end)
 
+-- HIDE PLAYERS
+local HideToggle,
+HideCircle =
+createToggle(
+BoostMenu,
+"Hide Players",
+240
+)
+
+local hidePlayers =
+false
+
+HideToggle.MouseButton1Click:Connect(function()
+
+hidePlayers =
+not hidePlayers
+
+TweenService:Create(
+HideCircle,
+TweenInfo.new(.2),
+{
+Position =
+hidePlayers
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+HideToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+hidePlayers
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+
+for _,plr in pairs(
+game.Players:GetPlayers()
+) do
+
+if plr ==
+game.Players.LocalPlayer then
+continue
+end
+
+
+if plr.Character then
+
+plr.Character.Parent =
+hidePlayers
+and nil
+or workspace
+
+end
+
+end
+
+end)
+
 local NameToggle,
 NameCircle =
 createToggle(
@@ -1508,6 +1748,53 @@ TweenInfo.new(.2),
 {
 BackgroundColor3 =
 radar
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+end)
+
+-- BOX PLAYER
+local BoxToggle,
+BoxCircle =
+createToggle(
+ESPMenu,
+"Box Player",
+160
+)
+
+local boxESP = false
+
+BoxToggle.MouseButton1Click:Connect(function()
+
+boxESP = not boxESP
+
+TweenService:Create(
+BoxCircle,
+TweenInfo.new(.2),
+{
+Position =
+boxESP
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+BoxToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+boxESP
 and Color3.fromRGB(
 220,
 190,
@@ -1817,6 +2104,58 @@ char:FindFirstChild(
 
 if hl then
 hl:Destroy()
+end
+
+end
+
+-- BOX ESP
+if boxESP then
+
+local box =
+char:FindFirstChild(
+"BoxESP"
+)
+
+if not box then
+
+box =
+Instance.new(
+"Highlight"
+)
+
+box.Name =
+"BoxESP"
+
+box.FillTransparency =
+1
+
+box.OutlineTransparency =
+0
+
+box.OutlineColor =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+box.DepthMode =
+Enum.HighlightDepthMode.AlwaysOnTop
+
+box.Parent =
+char
+
+end
+
+else
+
+local box =
+char:FindFirstChild(
+"BoxESP"
+)
+
+if box then
+box:Destroy()
 end
 
 end
