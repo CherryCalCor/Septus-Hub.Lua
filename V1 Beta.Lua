@@ -1878,7 +1878,7 @@ end
 
 -- PLAYER RADAR
 
-if radar then
+if radar and RadarGui then
 
     RadarGui.Visible = true
 
@@ -2972,6 +2972,9 @@ for _,srv in pairs(servers) do
 
 
     join.MouseButton1Click:Connect(function()
+
+local player =
+game.Players.LocalPlayer
 
         game:GetService("TeleportService")
         :TeleportToPlaceInstance(
