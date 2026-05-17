@@ -520,30 +520,37 @@ local boostOpened = false
 
 BoostBtn.MouseButton1Click:Connect(function()
 
-	boostOpened =
-	not boostOpened
-
+	boostOpened = not boostOpened
 
 	TweenService:Create(
 		BoostArrow,
 		TweenInfo.new(.2),
 		{
-			Rotation =
-			boostOpened
-			and 180
-			or 0
+			Rotation = boostOpened and 180 or 0
 		}
 	):Play()
 
-
 	BoostArrow.Text =
-	boostOpened
-	and "▲"
-	or "▼"
+	boostOpened and "▲" or "▼"
 
+	BoostMenu.Visible = true
 
-	BoostMenu.Visible =
-	boostOpened
+	TweenService:Create(
+		BoostMenu,
+		TweenInfo.new(.2),
+		{
+			Size =
+			boostOpened
+			and UDim2.new(1,-20,0,160)
+			or UDim2.new(1,-20,0,0)
+		}
+	):Play()
+
+	task.delay(.2,function()
+		if not boostOpened then
+			BoostMenu.Visible = false
+		end
+	end)
 
 end)
 
