@@ -76,6 +76,138 @@ StarStroke.Thickness = 1.5
 
 local TweenService = game:GetService("TweenService")
 
+local function createToggle(
+parent,
+name,
+y
+)
+
+local label =
+Instance.new(
+"TextLabel"
+)
+
+label.Parent =
+parent
+
+label.Text =
+name
+
+label.Size =
+UDim2.new(
+0,
+150,
+0,
+30
+)
+
+label.Position =
+UDim2.new(
+0,
+0,
+0,
+y
+)
+
+label.BackgroundTransparency =
+1
+
+label.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+label.Font =
+Enum.Font.Gotham
+
+local bg =
+Instance.new(
+"TextButton"
+)
+
+bg.Text = ""
+
+bg.Parent =
+parent
+
+bg.Size =
+UDim2.new(
+0,
+60,
+0,
+30
+)
+
+bg.Position =
+UDim2.new(
+1,
+-65,
+0,
+y
+)
+
+bg.BackgroundColor3 =
+Color3.fromRGB(
+50,
+50,
+60
+)
+
+Instance.new(
+"UICorner",
+bg
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
+local circle =
+Instance.new(
+"Frame"
+)
+
+circle.Parent =
+bg
+
+circle.Size =
+UDim2.new(
+0,
+24,
+0,
+24
+)
+
+circle.Position =
+UDim2.new(
+0,
+3,
+0.5,
+-12
+)
+
+circle.BackgroundColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+Instance.new(
+"UICorner",
+circle
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
+return bg,circle
+
+end
+
 -- бесконечное вращение
 task.spawn(function()
 while LoadingStar.Parent do
@@ -760,28 +892,6 @@ Color3.fromRGB(
 local cam =
 workspace.CurrentCamera
 
-knob.DragDetector.DragContinue:Connect(function(pos)
-
-local x =
-math.clamp(
-pos.X,
-0,
-180
-)
-
-knob.Position =
-UDim2.new(
-0,
-x,
-0.5,
--10
-)
-
-cam.FieldOfView =
-70 +
-(x/180)*50
-
-end)
 
 local espOpened =
 false
@@ -803,6 +913,57 @@ TweenService:Create(
     }  
 ):Play()  
 
+local UIS =
+game:GetService(
+"UserInputService"
+)
+
+local dragging =
+false
+
+knob.MouseButton1Down:Connect(function()
+dragging = true
+end)
+
+UIS.InputEnded:Connect(function(input)
+
+if input.UserInputType ==
+Enum.UserInputType.MouseButton1 then
+
+dragging =
+false
+
+end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+if dragging then
+
+local x =
+math.clamp(
+input.Position.X -
+slider.AbsolutePosition.X,
+0,
+180
+)
+
+knob.Position =
+UDim2.new(
+0,
+x,
+0.5,
+-10
+)
+
+cam.FieldOfView =
+70 +
+(x/180)*50
+
+end
+
+end)
 
 Arrow.Text =
 
@@ -1911,6 +2072,8 @@ math.floor(
 game.Players.LocalPlayer.Character
 .HumanoidRootPart.Position
 
+-
+
 hrp.Position
 ).Magnitude
 )
@@ -2010,13 +2173,24 @@ char:SetAttribute(
 true
 )
 
-char.BoxDrawing =
+char:SetAttribute(
+"HasBox",
+true
+)
+
+_G[
+char.Name..
+"_Box"
+] =
 square
 
 end
 
 local square =
-char.BoxDrawing
+_G[
+char.Name..
+"_Box"
+]
 
 square.Visible =
 true
@@ -2093,10 +2267,48 @@ Color3.fromRGB(
 line.Thickness =
 1.5
 
-char:SetAttribute(
-"Tracer",
+_G[
+char.Name..
+"_Tracer"
+] =
 line
+
+line.Visible =
+true
+
+line.From =
+Vector2.new(
+cam.ViewportSize.X/2,
+cam.ViewportSize.Y
 )
+
+line.To =
+Vector2.new(
+pos.X,
+pos.Y
+)
+
+end
+
+else
+
+local line =
+_G[
+char.Name..
+"_Tracer"
+]
+
+if line then
+
+line:Remove()
+
+_G[
+char.Name..
+"_Tracer"
+] =
+nil
+
+end
 
 end
 
