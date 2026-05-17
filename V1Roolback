@@ -327,7 +327,7 @@ VisualsPage.BackgroundTransparency =
 1
 
 VisualsPage.CanvasSize =
-UDim2.new(0,0,0,500)
+UDim2.new(0,0,0,900)
 
 VisualsPage.ScrollBarThickness =
 4
@@ -552,6 +552,234 @@ task.delay(.2,function()
 		BoostMenu.Visible = false  
 	end  
 end)
+
+end)
+
+local MiscBtn =
+Instance.new("TextButton")
+
+MiscBtn.Parent =
+VisualsPage
+
+MiscBtn.Size =
+UDim2.new(1,-20,0,35)
+
+MiscBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+530
+)
+
+MiscBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+MiscBtn.Text =
+"Misc"
+
+Instance.new(
+"UICorner",
+MiscBtn
+)
+
+local MiscMenu =
+Instance.new(
+"Frame"
+)
+
+MiscMenu.Parent =
+VisualsPage
+
+MiscMenu.Size =
+UDim2.new(
+1,
+-20,
+0,
+150
+)
+
+MiscMenu.Position =
+UDim2.new(
+0,
+10,
+0,
+570
+)
+
+MiscMenu.Visible =
+false
+
+MiscMenu.BackgroundTransparency =
+1
+
+local miscOpened =
+false
+
+MiscBtn.MouseButton1Click:Connect(function()
+
+miscOpened =
+not miscOpened
+
+MiscMenu.Visible =
+miscOpened
+
+end)
+
+local FreecamToggle,
+FreecamCircle =
+createToggle(
+MiscMenu,
+"Freecam",
+0
+)
+
+local freecam =
+false
+
+FreecamToggle.MouseButton1Click:Connect(function()
+
+freecam =
+not freecam
+
+TweenService:Create(
+FreecamCircle,
+TweenInfo.new(.2),
+{
+Position =
+freecam
+and UDim2.new(
+1,-27,.5,-12
+)
+or UDim2.new(
+0,3,.5,-12
+)
+}
+):Play()
+
+TweenService:Create(
+FreecamToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+freecam
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+workspace.CurrentCamera.CameraType =
+freecam
+and Enum.CameraType.Scriptable
+or Enum.CameraType.Custom
+
+end)
+
+local slider =
+Instance.new(
+"Frame"
+)
+
+slider.Parent =
+MiscMenu
+
+slider.Size =
+UDim2.new(
+0,
+180,
+0,
+8
+)
+
+slider.Position =
+UDim2.new(
+0,
+10,
+0,
+60
+)
+
+slider.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+Instance.new(
+"UICorner",
+slider
+)
+
+local knob =
+Instance.new(
+"TextButton"
+)
+
+knob.Parent =
+slider
+
+knob.Size =
+UDim2.new(
+0,
+20,
+0,
+20
+)
+
+knob.Position =
+UDim2.new(
+0,
+0,
+0.5,
+-10
+)
+
+knob.Text =
+""
+
+knob.BackgroundColor3 =
+Color3.fromRGB(
+255,
+255,
+255
+)
+
+local cam =
+workspace.CurrentCamera
+
+knob.DragDetector.DragContinue:Connect(function(pos)
+
+local x =
+math.clamp(
+pos.X,
+0,
+180
+)
+
+knob.Position =
+UDim2.new(
+0,
+x,
+0.5,
+-10
+)
+
+cam.FieldOfView =
+70 +
+(x/180)*50
 
 end)
 
@@ -1319,6 +1547,77 @@ end
 
 end)
 
+local HideToggle,
+HideCircle =
+createToggle(
+BoostMenu,
+"Hide Players",
+240
+)
+
+local hidePlayers =
+false
+
+HideToggle.MouseButton1Click:Connect(function()
+
+hidePlayers =
+not hidePlayers
+
+TweenService:Create(
+HideCircle,
+TweenInfo.new(.2),
+{
+Position =
+hidePlayers
+and UDim2.new(
+1,-27,.5,-12
+)
+or UDim2.new(
+0,3,.5,-12
+)
+}
+):Play()
+
+TweenService:Create(
+HideToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+hidePlayers
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+for _,plr in pairs(
+game.Players:GetPlayers()
+) do
+
+if plr ==
+game.Players.LocalPlayer
+then continue end
+
+if plr.Character then
+
+plr.Character.Parent =
+hidePlayers
+and nil
+or workspace
+
+end
+
+end
+
+end)
+
 local NameToggle,
 NameCircle =
 createToggle(
@@ -1523,6 +1822,126 @@ or Color3.fromRGB(
 
 end)
 
+-- BOX ESP
+local BoxToggle,
+BoxCircle =
+createToggle(
+ESPMenu,
+"BOX ESP",
+160
+)
+
+local boxESP =
+false
+
+BoxToggle.MouseButton1Click:Connect(function()
+
+boxESP =
+not boxESP
+
+TweenService:Create(
+BoxCircle,
+TweenInfo.new(.2),
+{
+Position =
+boxESP
+and UDim2.new(
+1,
+-27,
+.5,
+-12
+)
+or UDim2.new(
+0,
+3,
+.5,
+-12
+)
+}
+):Play()
+
+TweenService:Create(
+BoxToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+boxESP
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+end)
+
+local boxESP = false
+
+-- TRACER ESP
+local TracerToggle,
+TracerCircle =
+createToggle(
+ESPMenu,
+"Tracer ESP",
+200
+)
+
+local tracerESP =
+false
+
+TracerToggle.MouseButton1Click:Connect(function()
+
+tracerESP =
+not tracerESP
+
+TweenService:Create(
+TracerCircle,
+TweenInfo.new(.2),
+{
+Position =
+tracerESP
+and UDim2.new(
+1,
+-27,
+.5,
+-12
+)
+or UDim2.new(
+0,
+3,
+.5,
+-12
+)
+}
+):Play()
+
+TweenService:Create(
+TracerToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+tracerESP
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+end)
+
 task.spawn(function()
 
 while task.wait(.5) do
@@ -1655,6 +2074,166 @@ char:FindFirstChild(
 if not head
 or not hrp then
 continue
+end
+
+-- BOX ESP
+if boxESP then
+
+local camera =
+workspace.CurrentCamera
+
+local pos, visible =
+camera:WorldToViewportPoint(
+hrp.Position
+)
+
+if visible then
+
+local size =
+(
+camera:WorldToViewportPoint(
+hrp.Position +
+Vector3.new(
+0,
+3,
+0
+)
+).Y
+
+-
+
+camera:WorldToViewportPoint(
+hrp.Position -
+Vector3.new(
+0,
+3,
+0
+)
+).Y
+)
+
+local width =
+size / 2
+
+if not char:GetAttribute(
+"BoxESP"
+) then
+
+local square =
+Drawing.new(
+"Square"
+)
+
+square.Color =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+square.Thickness =
+1.5
+
+square.Filled =
+false
+
+char:SetAttribute(
+"BoxESP",
+true
+)
+
+char.BoxDrawing =
+square
+
+end
+
+local square =
+char.BoxDrawing
+
+square.Visible =
+true
+
+square.Size =
+Vector2.new(
+width,
+size
+)
+
+square.Position =
+Vector2.new(
+pos.X - width/2,
+pos.Y - size/2
+)
+
+else
+
+if char.BoxDrawing then
+
+char.BoxDrawing.Visible =
+false
+
+end
+
+end
+
+else
+
+if char.BoxDrawing then
+
+char.BoxDrawing:Remove()
+
+char.BoxDrawing =
+nil
+
+char:SetAttribute(
+"BoxESP",
+nil
+)
+
+end
+
+end
+
+if tracerESP then
+
+local cam =
+workspace.CurrentCamera
+
+local pos,onScreen =
+cam:WorldToViewportPoint(
+hrp.Position
+)
+
+if onScreen then
+
+if not char:FindFirstChild(
+"Tracer"
+) then
+
+local line =
+Drawing.new(
+"Line"
+)
+
+line.Color =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+line.Thickness =
+1.5
+
+char:SetAttribute(
+"Tracer",
+line
+)
+
+end
+
+end
+
 end
 
 -- NAME ESP
