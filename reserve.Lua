@@ -546,9 +546,9 @@ local AimBtn = Instance.new("TextButton")
 AimBtn.Parent = CombatPage
 AimBtn.Size = UDim2.new(1, -20, 0, 35)
 AimBtn.Position = UDim2.new(0, 10, 0, 10)
-AimBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255) -- Светло-фиолетовый
+AimBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
 AimBtn.Text = "AIM"
-AimBtn.TextColor3 = Color3.fromRGB(20, 20, 25) -- Черный/Тёмный текст
+AimBtn.TextColor3 = Color3.fromRGB(20, 20, 25)
 AimBtn.Font = Enum.Font.GothamBold
 AimBtn.TextSize = 14
 Instance.new("UICorner", AimBtn).CornerRadius = UDim.new(0, 8)
@@ -560,7 +560,7 @@ AimArrow.Position = UDim2.new(1, -25, 0, 0)
 AimArrow.BackgroundTransparency = 1
 AimArrow.Text = "▼"
 AimArrow.Font = Enum.Font.GothamBold
-AimArrow.TextColor3 = Color3.fromRGB(20, 20, 25) -- Стрелочка тоже темная
+AimArrow.TextColor3 = Color3.fromRGB(20, 20, 25)
 
 local AimMenu = Instance.new("Frame")
 AimMenu.Parent = CombatPage
@@ -571,19 +571,32 @@ AimMenu.BackgroundTransparency = 1
 AimMenu.ClipsDescendants = true
 
 local KillAuraToggle, KillAuraCircle = createToggle(AimMenu, "Kill aura", 5)
+local SilentAimToggle, SilentAimCircle = createToggle(AimMenu, "Silent Aim", 45)
+
+local TargetPartBtn = Instance.new("TextButton")
+TargetPartBtn.Parent = AimMenu
+TargetPartBtn.Size = UDim2.new(1, 0, 0, 30)
+TargetPartBtn.Position = UDim2.new(0, 0, 0, 85)
+TargetPartBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+TargetPartBtn.Text = "Target: Head"
+TargetPartBtn.TextColor3 = Color3.fromRGB(220, 190, 255)
+TargetPartBtn.Font = Enum.Font.GothamBold
+TargetPartBtn.BorderSizePixel = 0
+Instance.new("UICorner", TargetPartBtn).CornerRadius = UDim.new(0, 8)
 
 local aimOpened = false
 local killAuraActive = false
+local silentAimActive = false
+local targetPart = "Head"
 
 AimBtn.MouseButton1Click:Connect(function()
     aimOpened = not aimOpened
-    
     TweenService:Create(AimArrow, TweenInfo.new(.2), {Rotation = aimOpened and 180 or 0}):Play()
     AimArrow.Text = aimOpened and "▲" or "▼"
     
     if aimOpened then
         AimMenu.Visible = true
-        TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 45)}):Play()
+        TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 125)}):Play()
     else
         TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 0)}):Play()
         task.delay(.2, function()
@@ -594,19 +607,83 @@ end)
 
 KillAuraToggle.MouseButton1Click:Connect(function()
     killAuraActive = not killAuraActive
-    
-    -- Анимация кружка переключателя
     TweenService:Create(KillAuraCircle, TweenInfo.new(.2), {
         Position = killAuraActive and UDim2.new(1, -27, .5, -12) or UDim2.new(0, 3, .5, -12)
     }):Play()
-    
-    -- Анимация заднего фона кнопки
     TweenService:Create(KillAuraToggle, TweenInfo.new(.2), {
         BackgroundColor3 = killAuraActive and Color3.fromRGB(220, 190, 255) or Color3.fromRGB(50, 50, 60)
     }):Play()
-    
-    -- Здесь можно прописать саму логику киллауры, если потребуется
 end)
+
+SilentAimToggle.MouseButton1Click:Connect(function()
+    silentAimActive = not silentAimActive
+    TweenService:Create(SilentAimCircle, TweenInfo.new(.2), {
+        Position = silentAimActive and UDim2.new(1, -27, .5, -12) or UDim2.new(0, 3, .5, -12)
+    }):Play()
+    TweenService:Create(SilentAimToggle, TweenInfo.new(.2), {
+        BackgroundColor3 = silentAimActive and Color3.fromRGB(220, 190, 255) or Color3.fromRGB(50, 50, 60)
+    }):Play()
+end)
+
+TargetPartBtn.MouseButton1Click:Connect(function()
+    if targetPart == "Head" then
+        targetPart = "Torso"
+    else
+        targetPart = "Head"
+    end
+    TargetPartBtn.Text = "Target: " .. targetPart
+end)
+
+-- РАБОЧИЙ ХУК ДЛЯ SILENT AIM (Наведение пуль)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local function getClosestPlayerToCenter()
+    local closest = nil
+    local shortestDistance = math.huge
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild(targetPart) then
+            local pos, onScreen = Camera:WorldToViewportPoint(plr.Character[targetPart].Position)
+            if onScreen then
+                local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+                if distance < shortestDistance then
+                    closest = plr
+                    shortestDistance = distance
+                end
+            end
+        end
+    end
+    return closest
+end
+
+local mt = getrawmetatable(game)
+local oldNamecall = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+
+    if silentAimActive and not checkcaller() then
+        local closestPlayer = getClosestPlayerToCenter()
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild(targetPart) then
+            if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" then
+                local origin = args[1].Origin
+                local direction = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
+                args[1] = Ray.new(origin, direction)
+                return oldNamecall(self, unpack(args))
+            elseif method == "Raycast" then
+                local origin = args[1]
+                args[2] = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
+                return oldNamecall(self, unpack(args))
+            end
+        end
+    end
+    return oldNamecall(self, ...)
+end)
+setreadonly(mt, true)
 -- =================================================================
 
 -- HOME PAGE
