@@ -522,102 +522,82 @@ local boostOpened = false
 
 BoostBtn.MouseButton1Click:Connect(function()
 
-boostOpened =
-not boostOpened
+    boostOpened = not boostOpened
 
-TweenService:Create(
-BoostArrow,
-TweenInfo.new(.2),
-{
-Rotation =
-boostOpened
-and 180
-or 0
-}
-):Play()
+    TweenService:Create(
+        BoostArrow,
+        TweenInfo.new(.2),
+        {
+            Rotation = boostOpened and 180 or 0
+        }
+    ):Play()
 
-BoostArrow.Text =
-boostOpened
-and "▲"
-or "▼"
+    BoostArrow.Text =
+        boostOpened and "▲" or "▼"
 
-BoostMenu.Visible =
-true
+    BoostMenu.Visible = true
 
-TweenService:Create(
-BoostMenu,
-TweenInfo.new(.2),
-{
-Size =
-boostOpened
-and UDim2.new(
-1,
--20,
-0,
-260
-)
-or UDim2.new(
-1,
--20,
-0,
-0
-)
-}
-):Play()
+    TweenService:Create(
+        BoostMenu,
+        TweenInfo.new(.2),
+        {
+            Size =
+                boostOpened
+                and UDim2.new(1,-20,0,260)
+                or UDim2.new(1,-20,0,0)
+        }
+    ):Play()
 
--- ДВИГАЕМ MISC НИЖЕ
-TweenService:Create(
-MiscBtn,
-TweenInfo.new(.2),
-{
-Position =
-boostOpened
-and UDim2.new(
-0,
-10,
-0,
-365
-)
-or UDim2.new(
-0,
-10,
-0,
-95
-)
-}
-):Play()
 
-TweenService:Create(
-MiscMenu,
-TweenInfo.new(.2),
-{
-Position =
-boostOpened
-and UDim2.new(
-0,
-10,
-0,
-405
-)
-or UDim2.new(
-0,
-10,
-0,
-135
-)
-}
-):Play()
+    -- двигаем Misc
+    TweenService:Create(
+        MiscBtn,
+        TweenInfo.new(.2),
+        {
+            Position =
+                boostOpened
+                and (
+                    espOpened
+                    and UDim2.new(0,10,0,535)
+                    or UDim2.new(0,10,0,365)
+                )
+                or (
+                    espOpened
+                    and UDim2.new(0,10,0,225)
+                    or UDim2.new(0,10,0,95)
+                )
+        }
+    ):Play()
 
-task.delay(.2,function()
 
-if not boostOpened then
-BoostMenu.Visible =
-false
-end
+    TweenService:Create(
+        MiscMenu,
+        TweenInfo.new(.2),
+        {
+            Position =
+                boostOpened
+                and (
+                    espOpened
+                    and UDim2.new(0,10,0,575)
+                    or UDim2.new(0,10,0,405)
+                )
+                or (
+                    espOpened
+                    and UDim2.new(0,10,0,265)
+                    or UDim2.new(0,10,0,135)
+                )
+        }
+    ):Play()
+
+
+    task.delay(.2,function()
+        if not boostOpened then
+            BoostMenu.Visible = false
+        end
+    end)
 
 end)
 
-end)
 
 -- MISC BUTTON
 local MiscBtn =
