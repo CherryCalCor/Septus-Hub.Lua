@@ -572,6 +572,11 @@ AimMenu.ClipsDescendants = true
 
 local KillAuraToggle, KillAuraCircle = createToggle(AimMenu, "Kill aura", 5)
 local SilentAimToggle, SilentAimCircle = createToggle(AimMenu, "Silent Aim", 45)
+local WallCheckToggle, WallCheckCircle =
+createToggle(AimMenu, "Wall Check", 85)
+
+local DistanceToggle, DistanceCircle =
+createToggle(AimMenu, "Distance Limit", 125)
 
 local TargetPartBtn = Instance.new("TextButton")
 TargetPartBtn.Parent = AimMenu
@@ -589,6 +594,19 @@ local killAuraActive = false
 local silentAimActive = false
 local targetPart = "Head"
 
+local AimSettings = {
+    WallCheck = false,
+    DistanceLimit = false,
+    MaxDistance = 300
+}
+
+local WeaponSettings = {
+    NoRecoil = false,
+    NoSpread = false,
+    RapidFire = false,
+    InfAmmo = false
+}
+
 AimBtn.MouseButton1Click:Connect(function()
     aimOpened = not aimOpened
     TweenService:Create(AimArrow, TweenInfo.new(.2), {Rotation = aimOpened and 180 or 0}):Play()
@@ -596,7 +614,7 @@ AimBtn.MouseButton1Click:Connect(function()
     
     if aimOpened then
         AimMenu.Visible = true
-        TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 125)}):Play()
+        TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 170)}):Play()
     else
         TweenService:Create(AimMenu, TweenInfo.new(.2), {Size = UDim2.new(1, -20, 0, 0)}):Play()
         task.delay(.2, function()
@@ -623,6 +641,43 @@ SilentAimToggle.MouseButton1Click:Connect(function()
     TweenService:Create(SilentAimToggle, TweenInfo.new(.2), {
         BackgroundColor3 = silentAimActive and Color3.fromRGB(220, 190, 255) or Color3.fromRGB(50, 50, 60)
     }):Play()
+end)
+
+WallCheckToggle.MouseButton1Click:Connect(function()
+
+AimSettings.WallCheck =
+not AimSettings.WallCheck
+
+TweenService:Create(
+WallCheckCircle,
+TweenInfo.new(.2),
+{
+Position =
+AimSettings.WallCheck
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+end)
+
+
+DistanceToggle.MouseButton1Click:Connect(function()
+
+AimSettings.DistanceLimit =
+not AimSettings.DistanceLimit
+
+TweenService:Create(
+DistanceCircle,
+TweenInfo.new(.2),
+{
+Position =
+AimSettings.DistanceLimit
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
 end)
 
 TargetPartBtn.MouseButton1Click:Connect(function()
@@ -727,6 +782,126 @@ mt.__namecall = newcclosure(function(self, ...)
 end)
 setreadonly(mt, true)
 -- =================================================================
+
+local WeaponBtn =
+Instance.new("TextButton")
+
+WeaponBtn.Parent =
+CombatPage
+
+WeaponBtn.Size =
+UDim2.new(1,-20,0,35)
+
+WeaponBtn.Position =
+UDim2.new(0,10,0,180)
+
+WeaponBtn.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+
+WeaponBtn.Text =
+"WEAPON MODS"
+
+Instance.new(
+"UICorner",
+WeaponBtn
+)
+
+local WeaponMenu =
+Instance.new("Frame")
+
+WeaponMenu.Parent =
+CombatPage
+
+WeaponMenu.Position =
+UDim2.new(0,10,0,220)
+
+WeaponMenu.Size =
+UDim2.new(1,-20,0,0)
+
+WeaponMenu.Visible =
+false
+
+WeaponMenu.ClipsDescendants =
+true
+
+local NoRecoilToggle, NoRecoilCircle =
+createToggle(
+WeaponMenu,
+"No Recoil",
+0
+)
+
+local NoSpreadToggle, NoSpreadCircle =
+createToggle(
+WeaponMenu,
+"No Spread",
+40
+)
+
+local RapidFireToggle, RapidFireCircle =
+createToggle(
+WeaponMenu,
+"Rapid Fire",
+80
+)
+
+local AmmoToggle, AmmoCircle =
+createToggle(
+WeaponMenu,
+"Inf Ammo",
+120
+)
+
+local weaponOpen =
+false
+
+WeaponBtn.MouseButton1Click:Connect(function()
+
+weaponOpen =
+not weaponOpen
+
+WeaponMenu.Visible =
+true
+
+TweenService:Create(
+WeaponMenu,
+TweenInfo.new(.2),
+{
+Size =
+weaponOpen
+and UDim2.new(
+1,-20,
+0,170
+)
+or
+UDim2.new(
+1,-20,
+0,0
+)
+}
+):Play()
+
+end)
+
+NoRecoilToggle.MouseButton1Click:Connect(function()
+WeaponSettings.NoRecoil =
+not WeaponSettings.NoRecoil
+end)
+
+NoSpreadToggle.MouseButton1Click:Connect(function()
+WeaponSettings.NoSpread =
+not WeaponSettings.NoSpread
+end)
+
+RapidFireToggle.MouseButton1Click:Connect(function()
+WeaponSettings.RapidFire =
+not WeaponSettings.RapidFire
+end)
+
+AmmoToggle.MouseButton1Click:Connect(function()
+WeaponSettings.InfAmmo =
+not WeaponSettings.InfAmmo
+end)
 
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
