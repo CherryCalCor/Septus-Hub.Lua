@@ -2091,12 +2091,6 @@ end
 
 end
 
-end
-
-end
-
-end)
-
 -- BOX ESP
 if boxESP then
 
@@ -2141,8 +2135,6 @@ box:Destroy()
 end
 
 end
-
-
 
 -- HEALTH ESP
 
@@ -2218,6 +2210,14 @@ Color3.fromRGB(
 )
 
 end
+
+end
+
+end
+
+end)
+
+
 
 
 gui.TXT.Text =
