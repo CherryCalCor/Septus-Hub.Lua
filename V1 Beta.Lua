@@ -1,5 +1,4 @@
 local ScreenGui = Instance.new("ScreenGui")
-local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Stroke = Instance.new("UIStroke")
 local Corner = Instance.new("UICorner")
@@ -3366,8 +3365,6 @@ end
 
 end)
 
-local serverOpened = false
-
 ServerBtn.MouseButton1Click:Connect(function()
 
 	if minimized then return end
@@ -3395,8 +3392,6 @@ opened = false
 
 end)
 
-local visualsOpened =
-false
 
 
 VisualsBtn.MouseButton1Click:Connect(function()
