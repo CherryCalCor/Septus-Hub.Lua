@@ -1881,50 +1881,49 @@ end
 
 if radar then
 
-RadarList:ClearAllChildren()
+    for _,v in pairs(RadarList:GetChildren()) do
+        if v:IsA("TextLabel") then
+            v:Destroy()
+        end
+    end
 
-local dist =
-math.floor(
-(
-game.Players.LocalPlayer.Character
-.HumanoidRootPart.Position
--
-hrp.Position
-).Magnitude
-)
+    local dist =
+    math.floor(
+        (
+            game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+            -
+            hrp.Position
+        ).Magnitude
+    )
 
-RadarGui.Visible =
-true
+    RadarGui.Visible = true
 
-local txt =
-Instance.new(
-"TextLabel"
-)
+    local txt =
+    Instance.new("TextLabel")
 
-txt.Parent =
-RadarList
+    txt.Parent =
+    RadarList
 
-txt.Size =
-UDim2.new(
-1,
-0,
-0,
-20
-)
+    txt.Size =
+    UDim2.new(1,0,0,20)
 
-txt.BackgroundTransparency =
-1
+    txt.BackgroundTransparency =
+    1
 
-txt.Text =
-plr.Name..
-" "..dist.."m"
+    txt.Text =
+    plr.Name.." "..dist.."m"
 
-txt.TextColor3 =
-Color3.new(
-1,
-1,
-1
-)
+    txt.TextColor3 =
+    Color3.new(1,1,1)
+
+    txt.Font =
+    Enum.Font.Gotham
+
+    txt.TextSize =
+    14
+
+    txt.BackgroundTransparency =
+    1
 
 end
 
@@ -2186,18 +2185,6 @@ end
 end
 
 end)
-
-
-
-
-gui.TXT.Text =
-math.floor(
-char.Humanoid.Health
-)
-..
-" HP"
-
-end
 
 local function createBtn(name,posY)
 
