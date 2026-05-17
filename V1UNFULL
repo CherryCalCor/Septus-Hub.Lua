@@ -702,39 +702,6 @@ BoostBtn.MouseButton1Click:Connect(function()
 
 end)
 
-}
-):Play()
-
-MiscArrow.Text =
-miscOpened and "▲"
-or "▼"
-
-MiscMenu.Visible =
-true
-
-TweenService:Create(
-MiscMenu,
-TweenInfo.new(.2),
-{
-Size =
-miscOpened
-and UDim2.new(1,-20,0,120)
-or UDim2.new(1,-20,0,0)
-}
-):Play()
-
-task.delay(.2,function()
-
-if not miscOpened then
-MiscMenu.Visible =
-false
-end
-
-end)
-
-end)
-
-
 ESPBtn.MouseButton1Click:Connect(function()
 
     espOpened = not espOpened
