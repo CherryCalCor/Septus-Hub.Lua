@@ -1881,6 +1881,8 @@ end
 
 if radar then
 
+RadarList:ClearAllChildren()
+
 local dist =
 math.floor(
 (
