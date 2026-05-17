@@ -508,16 +508,15 @@ BoostMenu.Position =
 UDim2.new(0,10,0,95)
 
 BoostMenu.Size =
-UDim2.new(1,-20,0,180)
+UDim2.new(1,-20,0,160)
 
 BoostMenu.BackgroundTransparency =
 1
 
-
-local boostOpened = false
-
 BoostMenu.ClipsDescendants = true
 BoostMenu.Size = UDim2.new(1,-20,0,0)
+
+local boostOpened = false
 
 BoostBtn.MouseButton1Click:Connect(function()
 
@@ -537,58 +536,14 @@ BoostBtn.MouseButton1Click:Connect(function()
 	):Play()
 
 
-	if boostOpened then
+	BoostArrow.Text =
+	boostOpened
+	and "▲"
+	or "▼"
 
-		BoostMenu.Visible =
-		true
 
-
-		TweenService:Create(
-			BoostMenu,
-			TweenInfo.new(
-				0.25,
-				Enum.EasingStyle.Quad
-			),
-			{
-				Size =
-				UDim2.new(
-					1,
-					-20,
-					0,
-					180
-				)
-			}
-		):Play()
-
-	else
-
-		local tween =
-		TweenService:Create(
-			BoostMenu,
-			TweenInfo.new(
-				0.25,
-				Enum.EasingStyle.Quad
-			),
-			{
-				Size =
-				UDim2.new(
-					1,
-					-20,
-					0,
-					0
-				)
-			}
-		)
-
-		tween:Play()
-
-		tween.Completed:Once(function()
-    if not boostOpened then
-        BoostMenu.Visible = false
-    end
-end)
-
-	end
+	BoostMenu.Visible =
+	boostOpened
 
 end)
 
