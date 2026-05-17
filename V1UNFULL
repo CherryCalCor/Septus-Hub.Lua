@@ -913,51 +913,6 @@ layout.AbsoluteContentSize.Y
 
 end
 
-
-PlayersBtn.MouseButton1Click:Connect(function()
-
-playersOpen =
-not playersOpen
-
-refreshPlayers()
-
-PlayersMenu.Visible =
-true
-
-local menuHeight =
-playersOpen and 200 or 0
-
-TweenService:Create(
-PlayersMenu,
-TweenInfo.new(.2),
-{
-Size =
-UDim2.new(
-1,
--20,
-0,
-menuHeight
-)
-}
-):Play()
-
-
-TweenService:Create(
-ToolBtn,
-TweenInfo.new(.2),
-{
-Position =
-UDim2.new(
-0,
-10,
-0,
-150 + menuHeight + 10
-)
-}
-):Play()
-
-end)
-
 for i,plr in pairs(
 game.Players:GetPlayers()
 ) do
@@ -1118,6 +1073,47 @@ mouse.Hit.Position
 end
 
 end)
+
+end)
+
+PlayersBtn.MouseButton1Click:Connect(function()
+
+    playersOpen = not playersOpen
+
+    refreshPlayers()
+
+    PlayersMenu.Visible = true
+
+    local menuHeight =
+        playersOpen and 200 or 0
+
+    TweenService:Create(
+        PlayersMenu,
+        TweenInfo.new(0.2),
+        {
+            Size = UDim2.new(
+                1,
+                -20,
+                0,
+                menuHeight
+            )
+        }
+    ):Play()
+
+    -- двигаем кнопку ниже списка игроков
+    TweenService:Create(
+        ToolBtn,
+        TweenInfo.new(0.2),
+        {
+            Position =
+                UDim2.new(
+                    0,
+                    10,
+                    0,
+                    160 + menuHeight
+                )
+        }
+    ):Play()
 
 end)
 
