@@ -472,6 +472,98 @@ UDim.new(
 8
 )
 
+-- COMBAT BUTTON
+local CombatBtn =
+Instance.new("TextButton")
+
+local CombatCorner =
+Instance.new("UICorner")
+
+CombatBtn.Parent =
+Frame
+
+CombatBtn.Size =
+UDim2.new(
+0,
+80,
+0,
+28
+)
+
+CombatBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+180 -- ниже Teleport
+)
+
+CombatBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+CombatBtn.Text =
+"Combat"
+
+CombatBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+CombatBtn.Font =
+Enum.Font.GothamBold
+
+CombatBtn.TextSize =
+14
+
+CombatBtn.BorderSizePixel =
+0
+
+CombatCorner.Parent =
+CombatBtn
+
+CombatCorner.CornerRadius =
+UDim.new(
+0,
+8
+)
+
+-- COMBAT PAGE
+local CombatPage =
+Instance.new(
+"Frame"
+)
+
+CombatPage.Parent =
+Frame
+
+CombatPage.Visible =
+false
+
+CombatPage.Position =
+UDim2.new(
+0,
+110,
+0,
+40
+)
+
+CombatPage.Size =
+UDim2.new(
+1,
+-120,
+1,
+-50
+)
+
+CombatPage.BackgroundTransparency =
+1
+
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
 
@@ -4123,6 +4215,43 @@ false
 
 end)
 
+local combatOpened =
+false
+
+CombatBtn.MouseButton1Click:Connect(function()
+
+combatOpened =
+not combatOpened
+
+CombatPage.Visible =
+combatOpened
+
+HomePage.Visible =
+false
+
+ServerPage.Visible =
+false
+
+VisualsPage.Visible =
+false
+
+TeleportPage.Visible =
+false
+
+opened =
+false
+
+serverOpened =
+false
+
+visualsOpened =
+false
+
+tpOpened =
+false
+
+end)
+
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
@@ -4217,6 +4346,12 @@ false
 TeleportPage.Visible =
 false
 
+CombatBtn.Visible =
+false
+
+CombatPage.Visible =
+false
+
 else
 
 Frame:TweenSize(    
@@ -4233,6 +4368,8 @@ SideBar.Visible = true
 ServerBtn.Visible=true
 VisualsBtn.Visible=true
 TeleportBtn.Visible =
+true
+CombatBtn.Visible =
 true
 
 end
