@@ -508,7 +508,7 @@ BoostMenu.Position =
 UDim2.new(0,10,0,95)
 
 BoostMenu.Size =
-UDim2.new(1,-20,0,80)
+UDim2.new(1,-20,0,180)
 
 BoostMenu.BackgroundTransparency =
 1
@@ -900,6 +900,271 @@ Vector3.new(
 end
 
 end
+
+end
+
+end
+
+end)
+
+-- POTATO MODE
+local PotatoToggle,
+PotatoCircle =
+createToggle(
+    BoostMenu,
+    "Potato Mode",
+    80
+)
+
+local potatoEnabled =
+false
+
+PotatoToggle.MouseButton1Click:Connect(function()
+
+potatoEnabled =
+not potatoEnabled
+
+
+TweenService:Create(
+PotatoCircle,
+TweenInfo.new(.2),
+{
+Position =
+potatoEnabled
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+PotatoToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+potatoEnabled
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+
+if potatoEnabled then
+
+for _,obj in pairs(
+workspace:GetDescendants()
+) do
+
+
+if obj:IsA(
+"Texture"
+)
+or obj:IsA(
+"Decal"
+) then
+
+obj.Transparency =
+1
+
+end
+
+
+if obj:IsA(
+"BasePart"
+) then
+
+obj.Material =
+Enum.Material.SmoothPlastic
+
+obj.Reflectance =
+0
+
+obj.CastShadow =
+false
+
+end
+
+
+if obj:IsA(
+"MeshPart"
+) then
+
+obj.TextureID =
+""
+
+obj.Material =
+Enum.Material.Plastic
+
+end
+
+
+if obj:IsA(
+"ParticleEmitter"
+)
+or obj:IsA(
+"Trail"
+)
+or obj:IsA(
+"Smoke"
+)
+or obj:IsA(
+"Fire"
+) then
+
+obj.Enabled =
+false
+
+end
+
+end
+
+end
+
+end)
+
+
+
+-- REMOVING TEXTURES
+local RemoveToggle,
+RemoveCircle =
+createToggle(
+BoostMenu,
+"Removing Textures",
+120
+)
+
+local removeEnabled =
+false
+
+local RemoveTool
+
+RemoveToggle.MouseButton1Click:Connect(function()
+
+removeEnabled =
+not removeEnabled
+
+
+TweenService:Create(
+RemoveCircle,
+TweenInfo.new(.2),
+{
+Position =
+removeEnabled
+and UDim2.new(
+1,
+-27,
+.5,
+-12
+)
+or UDim2.new(
+0,
+3,
+.5,
+-12
+)
+}
+):Play()
+
+
+TweenService:Create(
+RemoveToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+removeEnabled
+and Color3.fromRGB(
+220,
+190,
+255
+)
+or Color3.fromRGB(
+50,
+50,
+60
+)
+}
+):Play()
+
+
+local player =
+game.Players.LocalPlayer
+
+
+if removeEnabled then
+
+RemoveTool =
+Instance.new(
+"Tool"
+)
+
+RemoveTool.Name =
+"Texture Remover"
+
+RemoveTool.RequiresHandle =
+false
+
+RemoveTool.Parent =
+player.Backpack
+
+
+RemoveTool.Activated:Connect(function()
+
+local mouse =
+player:GetMouse()
+
+local target =
+mouse.Target
+
+if not target then
+return
+end
+
+
+for _,v in pairs(
+target:GetDescendants()
+) do
+
+if v:IsA(
+"Texture"
+)
+or v:IsA(
+"Decal"
+) then
+
+v:Destroy()
+
+end
+
+end
+
+
+if target:IsA(
+"MeshPart"
+) then
+
+target.TextureID =
+""
+
+end
+
+end)
+
+
+else
+
+if RemoveTool then
+
+RemoveTool:Destroy()
+
+RemoveTool =
+nil
 
 end
 
