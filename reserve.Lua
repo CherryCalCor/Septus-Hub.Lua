@@ -690,24 +690,39 @@ local mt = getrawmetatable(game)
 local oldNamecall = mt.__namecall
 setreadonly(mt, false)
 
+local mt = getrawmetatable(game)
+local oldNamecall = mt.__namecall
+setreadonly(mt, false)
+
 mt.__namecall = newcclosure(function(self, ...)
-    local args = {...}
     local method = getnamecallmethod()
 
+    -- Сначала проверяем, активен ли аимбот и не мы ли вызываем функцию
     if silentAimActive and not checkcaller() then
-        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild(targetPart) then
-            if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" then
-                local origin = args[1].Origin
-                local direction = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
-                args[1] = Ray.new(origin, direction)
-                return oldNamecall(self, unpack(args))
-            elseif method == "Raycast" then
-                local origin = args[1]
-                args[2] = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
-                return oldNamecall(self, unpack(args))
+        -- Проверяем метод ДО того, как собирать аргументы в таблицу
+        if method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" or method == "FindPartOnRay" or method == "Raycast" then
+            
+            -- Проверяем, есть ли валидная цель
+            if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild(targetPart) then
+                
+                -- Вот теперь, когда мы уверены, что это нужный вызов, собираем аргументы
+                local args = {...}
+                
+                if method == "Raycast" then
+                    local origin = args[1]
+                    args[2] = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
+                    return oldNamecall(self, unpack(args))
+                else
+                    local origin = args[1].Origin
+                    local direction = (closestPlayer.Character[targetPart].Position - origin).Unit * 1000
+                    args[1] = Ray.new(origin, direction)
+                    return oldNamecall(self, unpack(args))
+                end
             end
         end
     end
+    
+    -- Если это не Raycast, просто возвращаем оригинальный вызов без создания таблиц
     return oldNamecall(self, ...)
 end)
 setreadonly(mt, true)
