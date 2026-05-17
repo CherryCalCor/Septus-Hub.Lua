@@ -891,7 +891,7 @@ TweenInfo.new(.2),
 
 Position=
 
-opened
+playersOpen
 and UDim2.new(
 0,
 10,
@@ -912,7 +912,7 @@ or UDim2.new(
 
 end)
 
-for _,plr in pairs(
+for i,plr in pairs(
 game.Players:GetPlayers()
 ) do
 
@@ -937,21 +937,37 @@ UDim2.new(
 35
 )
 
-btn.Text=
-plr.Name
+btn.Position=
+UDim2.new(
+0,
+0,
+0,
+(i-1)*40
+)
 
 btn.BackgroundColor3=
 Color3.fromRGB(
-50,
-50,
-60
+220,
+190,
+255
 )
 
 btn.TextColor3=
-Color3.new(
-1,
-1,
-1
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+btn.Font=
+Enum.Font.GothamBold
+
+btn.Text=
+plr.Name
+
+Instance.new(
+"UICorner",
+btn
 )
 
 btn.MouseButton1Click:Connect(function()
@@ -963,8 +979,7 @@ SelectedName.Text=
 plr.Name
 
 SelectedAvatar.Image=
-game.Players:
-GetUserThumbnailAsync(
+game.Players:GetUserThumbnailAsync(
 
 plr.UserId,
 
@@ -4154,6 +4169,11 @@ Arrow.Text =
 "▶"
 VisualsBtn.Visible=false
 VisualsPage.Visible=false
+TeleportBtn.Visible =
+false
+
+TeleportPage.Visible =
+false
 
 else
 
@@ -4170,6 +4190,8 @@ SideBar.Visible = true
 
 ServerBtn.Visible=true
 VisualsBtn.Visible=true
+TeleportBtn.Visible =
+true
 
 end
 
