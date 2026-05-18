@@ -1433,6 +1433,7 @@ task.spawn(function()
 end)
 
 -- ОБРАБОТКА ВКЛАДОК
+local minimized = false
 local opened = false
 HomeBtn.MouseButton1Click:Connect(function()
     if minimized then return end
@@ -1525,7 +1526,6 @@ MinBtn.Font = Enum.Font.Gotham
 MinBtn.BackgroundTransparency = 1
 MinBtn.BorderSizePixel = 0
 
-local minimized = false
 MinBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
