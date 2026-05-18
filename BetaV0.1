@@ -178,10 +178,19 @@ TopBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
 TopBar.BackgroundTransparency = 0.35
 TopBar.BorderSizePixel = 0
 
+local NavScroll = Instance.new("ScrollingFrame")
+NavScroll.Parent = Frame
+NavScroll.Position = UDim2.new(0,0,0,30)
+NavScroll.Size = UDim2.new(0,100,1,-30)
+NavScroll.CanvasSize = UDim2.new(0,0,0,300)
+NavScroll.ScrollBarThickness = 3
+NavScroll.BackgroundTransparency = 1
+NavScroll.BorderSizePixel = 0
+
 local SideBar = Instance.new("Frame")
 SideBar.Parent = Frame
-SideBar.Size = UDim2.new(0, 1, 1, -30)
-SideBar.Position = UDim2.new(0, 100, 0, 30)
+SideBar.Size = UDim2.new(0,1,1,-30)
+SideBar.Position = UDim2.new(0,100,0,30)
 SideBar.BackgroundColor3 = Color3.fromRGB(140,140,140)
 SideBar.BackgroundTransparency = 0.35
 SideBar.BorderSizePixel = 0
@@ -189,7 +198,7 @@ SideBar.BorderSizePixel = 0
 -- КНОПКИ НАВИГАЦИИ
 local HomeBtn = Instance.new("TextButton")
 local HomeCorner = Instance.new("UICorner")
-HomeBtn.Parent = Frame
+HomeBtn.Parent = NavScroll
 HomeBtn.Size = UDim2.new(0,80,0,28)
 HomeBtn.Position = UDim2.new(0,10,0,40)
 HomeBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
@@ -203,7 +212,7 @@ HomeCorner.CornerRadius = UDim.new(0,8)
 
 local ServerBtn = Instance.new("TextButton")
 local ServerCorner = Instance.new("UICorner")
-ServerBtn.Parent = Frame
+ServerBtn.Parent = NavScroll
 ServerBtn.Size = UDim2.new(0,80,0,28)
 ServerBtn.Position = UDim2.new(0,10,0,75)
 ServerBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
@@ -217,7 +226,7 @@ ServerCorner.CornerRadius = UDim.new(0,8)
 
 local VisualsBtn = Instance.new("TextButton")
 local VisualsCorner = Instance.new("UICorner")
-VisualsBtn.Parent = Frame
+VisualsBtn.Parent = NavScroll
 VisualsBtn.Size = UDim2.new(0,80,0,28)
 VisualsBtn.Position = UDim2.new(0,10,0,110)
 VisualsBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
@@ -231,7 +240,7 @@ VisualsCorner.CornerRadius = UDim.new(0,8)
 
 local TeleportBtn = Instance.new("TextButton")
 local TeleportCorner = Instance.new("UICorner")
-TeleportBtn.Parent = Frame
+TeleportBtn.Parent = NavScroll
 TeleportBtn.Size = UDim2.new(0, 80, 0, 28)
 TeleportBtn.Position = UDim2.new(0, 10, 0, 145)
 TeleportBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
@@ -245,7 +254,7 @@ TeleportCorner.CornerRadius = UDim.new(0, 8)
 
 local CombatBtn = Instance.new("TextButton")
 local CombatCorner = Instance.new("UICorner")
-CombatBtn.Parent = Frame
+CombatBtn.Parent = NavScroll
 CombatBtn.Size = UDim2.new(0, 80, 0, 28)
 CombatBtn.Position = UDim2.new(0, 10, 0, 180)
 CombatBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
@@ -256,6 +265,22 @@ CombatBtn.TextSize = 14
 CombatBtn.BorderSizePixel = 0
 CombatCorner.Parent = CombatBtn
 CombatCorner.CornerRadius = UDim.new(0, 8)
+
+local MovedBtn = Instance.new("TextButton")
+local MovedCorner = Instance.new("UICorner")
+
+MovedBtn.Parent = NavScroll
+MovedBtn.Size = UDim2.new(0,80,0,28)
+MovedBtn.Position = UDim2.new(0,10,0,215) -- ниже Combat
+MovedBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+MovedBtn.Text = "Moved"
+MovedBtn.TextColor3 = Color3.fromRGB(20,20,25)
+MovedBtn.Font = Enum.Font.GothamBold
+MovedBtn.TextSize = 14
+MovedBtn.BorderSizePixel = 0
+
+MovedCorner.Parent = MovedBtn
+MovedCorner.CornerRadius = UDim.new(0,8)
 
 -- СТРАНИЦА COMBAT (Обновлено: ScrollingFrame + UIListLayout)
 local CombatPage = Instance.new("ScrollingFrame")
@@ -545,6 +570,13 @@ TeleportPage.CanvasSize = UDim2.new(0, 0, 0, 700)
 TeleportPage.ScrollBarThickness = 4
 TeleportPage.BackgroundTransparency = 1
 TeleportPage.BorderSizePixel = 0
+
+local MovedPage = Instance.new("Frame")
+MovedPage.Parent = Frame
+MovedPage.Visible = false
+MovedPage.Position = UDim2.new(0,110,0,40)
+MovedPage.Size = UDim2.new(1,-120,1,-50)
+MovedPage.BackgroundTransparency = 1
 
 local TPCard = Instance.new("Frame")
 TPCard.Parent = TeleportPage
@@ -1406,7 +1438,7 @@ HomeBtn.MouseButton1Click:Connect(function()
     if minimized then return end
     opened = not opened
     HomePage.Visible = opened
-    if opened then ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false end
+    if opened then ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false MovedPage.Visible = false end
 end)
 
 local serverOpened = false
@@ -1414,28 +1446,43 @@ ServerBtn.MouseButton1Click:Connect(function()
     if minimized then return end
     serverOpened = not serverOpened
     ServerPage.Visible = serverOpened
-    if serverOpened then HomePage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false end
+    if serverOpened then HomePage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false MovedPage.Visible = false end
 end)
 
 local visualsOpened = false
 VisualsBtn.MouseButton1Click:Connect(function()
     visualsOpened = not visualsOpened
     VisualsPage.Visible = visualsOpened
-    if visualsOpened then HomePage.Visible = false ServerPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false end
+    if visualsOpened then HomePage.Visible = false ServerPage.Visible = false TeleportPage.Visible = false CombatPage.Visible = false MovedPage.Visible = false end
 end)
 
 local tpOpened = false
 TeleportBtn.MouseButton1Click:Connect(function()
     tpOpened = not tpOpened
     TeleportPage.Visible = tpOpened
-    if tpOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false CombatPage.Visible = false end
+    if tpOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false CombatPage.Visible = false MovedPage.Visible = false end
 end)
 
 local combatOpened = false
 CombatBtn.MouseButton1Click:Connect(function()
     combatOpened = not combatOpened
     CombatPage.Visible = combatOpened
-    if combatOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false end
+    if combatOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false MovedPage.Visible = false end
+end)
+
+local movedOpened = false
+
+MovedBtn.MouseButton1Click:Connect(function()
+    movedOpened = not movedOpened
+    MovedPage.Visible = movedOpened
+
+    if movedOpened then
+        HomePage.Visible = false
+        ServerPage.Visible = false
+        VisualsPage.Visible = false
+        TeleportPage.Visible = false
+        CombatPage.Visible = false
+    end
 end)
 
 local Title = Instance.new("TextLabel")
@@ -1488,10 +1535,11 @@ MinBtn.MouseButton1Click:Connect(function()
         VisualsBtn.Visible = false VisualsPage.Visible = false
         TeleportBtn.Visible = false TeleportPage.Visible = false
         CombatBtn.Visible = false CombatPage.Visible = false
+   MovedBtn.Visible = false MovedPage.Visible = false
     else
         Frame:TweenSize(UDim2.new(0,437,0,238), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
         HomeBtn.Visible = true SideBar.Visible = true ServerBtn.Visible = true
-        VisualsBtn.Visible = true TeleportBtn.Visible = true CombatBtn.Visible = true
+        VisualsBtn.Visible = true TeleportBtn.Visible = true CombatBtn.Visible = true MovedBtn.Visible = true
     end
 end)
 
