@@ -1460,18 +1460,26 @@ CombatBtn.MouseButton1Click:Connect(function()
     if combatOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false end
 end)
 
-local movedOpened = false
 MovedBtn.MouseButton1Click:Connect(function()
-    movedOpened = not movedOpened
-    MovedPage.Visible = movedOpened
 
-    if movedOpened then
-        HomePage.Visible = false
-        ServerPage.Visible = false
-        VisualsPage.Visible = false
-        TeleportPage.Visible = false
-        CombatPage.Visible = false
-    end
+    HomePage.Visible = false
+    ServerPage.Visible = false
+    VisualsPage.Visible = false
+    TeleportPage.Visible = false
+    CombatPage.Visible = false
+
+    HomePage.Visible = false
+    ServerPage.Visible = false
+    VisualsPage.Visible = false
+    TeleportPage.Visible = false
+    CombatPage.Visible = false
+    MovedPage.Visible = true
+
+    opened = false
+    serverOpened = false
+    visualsOpened = false
+    tpOpened = false
+    combatOpened = false
 end)
 
 local Title = Instance.new("TextLabel")
