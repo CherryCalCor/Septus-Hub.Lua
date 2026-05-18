@@ -257,6 +257,20 @@ CombatBtn.BorderSizePixel = 0
 CombatCorner.Parent = CombatBtn
 CombatCorner.CornerRadius = UDim.new(0, 8)
 
+local MovedBtn = Instance.new("TextButton")
+local MovedCorner = Instance.new("UICorner")
+MovedBtn.Parent = Frame
+MovedBtn.Size = UDim2.new(0, 80, 0, 28)
+MovedBtn.Position = UDim2.new(0, 10, 0, 215) -- ниже Combat
+MovedBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
+MovedBtn.Text = "Moved"
+MovedBtn.TextColor3 = Color3.fromRGB(20, 20, 25)
+MovedBtn.Font = Enum.Font.GothamBold
+MovedBtn.TextSize = 14
+MovedBtn.BorderSizePixel = 0
+MovedCorner.Parent = MovedBtn
+MovedCorner.CornerRadius = UDim.new(0, 8)
+
 -- СТРАНИЦА COMBAT (Обновлено: ScrollingFrame + UIListLayout)
 local CombatPage = Instance.new("ScrollingFrame")
 CombatPage.Parent = Frame
@@ -545,6 +559,14 @@ TeleportPage.CanvasSize = UDim2.new(0, 0, 0, 700)
 TeleportPage.ScrollBarThickness = 4
 TeleportPage.BackgroundTransparency = 1
 TeleportPage.BorderSizePixel = 0
+
+-- СТРАНИЦА MOVED
+local MovedPage = Instance.new("Frame")
+MovedPage.Parent = Frame
+MovedPage.Visible = false
+MovedPage.Position = UDim2.new(0,110,0,40)
+MovedPage.Size = UDim2.new(1,-120,1,-50)
+MovedPage.BackgroundTransparency = 1
 
 local TPCard = Instance.new("Frame")
 TPCard.Parent = TeleportPage
@@ -1438,6 +1460,20 @@ CombatBtn.MouseButton1Click:Connect(function()
     if combatOpened then HomePage.Visible = false ServerPage.Visible = false VisualsPage.Visible = false TeleportPage.Visible = false end
 end)
 
+local movedOpened = false
+MovedBtn.MouseButton1Click:Connect(function()
+    movedOpened = not movedOpened
+    MovedPage.Visible = movedOpened
+
+    if movedOpened then
+        HomePage.Visible = false
+        ServerPage.Visible = false
+        VisualsPage.Visible = false
+        TeleportPage.Visible = false
+        CombatPage.Visible = false
+    end
+end)
+
 local Title = Instance.new("TextLabel")
 local InjectorTag = Instance.new("TextLabel")
 local executor = "Unknown"
@@ -1488,11 +1524,13 @@ MinBtn.MouseButton1Click:Connect(function()
         VisualsBtn.Visible = false VisualsPage.Visible = false
         TeleportBtn.Visible = false TeleportPage.Visible = false
         CombatBtn.Visible = false CombatPage.Visible = false
-    else
+   MovedBtn.Visible = false
+MovedPage.Visible = false
+else
         Frame:TweenSize(UDim2.new(0,437,0,238), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
         HomeBtn.Visible = true SideBar.Visible = true ServerBtn.Visible = true
-        VisualsBtn.Visible = true TeleportBtn.Visible = true CombatBtn.Visible = true
-    end
+        VisualsBtn.Visible = true TeleportBtn.Visible = true CombatBtn.Visible = true MovedBtn.Visible = true
+   end
 end)
 
 CloseBtn.Parent = Frame
