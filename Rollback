@@ -753,6 +753,56 @@ UDim2.new(
 35
 )
 
+local SpeedFill = Instance.new("Frame")
+SpeedFill.Parent = SpeedSlider
+SpeedFill.Size = UDim2.new(0,0,1,0)
+SpeedFill.BackgroundColor3 =
+Color3.fromRGB(220,190,255)
+SpeedFill.BorderSizePixel = 0
+
+Instance.new(
+"UICorner",
+SpeedFill
+)
+
+local SpeedKnob =
+Instance.new("Frame")
+
+SpeedKnob.Parent =
+SpeedSlider
+
+SpeedKnob.Size =
+UDim2.new(
+0,
+16,
+0,
+16
+)
+
+SpeedKnob.Position =
+UDim2.new(
+0,
+-8,
+0.5,
+-8
+)
+
+SpeedKnob.BackgroundColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+Instance.new(
+"UICorner",
+SpeedKnob
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
 local speed = 16
 local speedDragging = false
 
@@ -774,6 +824,22 @@ math.floor(
 
 SpeedLabel.Text =
 "Speed: "..speed
+
+SpeedFill.Size =
+UDim2.new(
+percent,
+0,
+1,
+0
+)
+
+SpeedKnob.Position =
+UDim2.new(
+percent,
+-8,
+0.5,
+-8
+)
 
 local char =
 game.Players.LocalPlayer.Character
@@ -809,9 +875,15 @@ end)
 
 UIS.InputChanged:Connect(function(i)
 
-if speedDragging
-and i.UserInputType ==
-Enum.UserInputType.MouseMovement then
+if speedDragging and (
+i.UserInputType ==
+Enum.UserInputType.MouseMovement
+
+or
+
+i.UserInputType ==
+Enum.UserInputType.Touch
+) then
 
 setSpeed(i.Position.X)
 
@@ -883,6 +955,77 @@ UDim2.new(
 115
 )
 
+local JumpFill =
+Instance.new(
+"Frame"
+)
+
+JumpFill.Parent =
+JumpSlider
+
+JumpFill.Size =
+UDim2.new(
+0,
+0,
+1,
+0
+)
+
+JumpFill.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+JumpFill.BorderSizePixel =
+0
+
+Instance.new(
+"UICorner",
+JumpFill
+)
+
+local JumpKnob =
+Instance.new(
+"Frame"
+)
+
+JumpKnob.Parent =
+JumpSlider
+
+JumpKnob.Size =
+UDim2.new(
+0,
+16,
+0,
+16
+)
+
+JumpKnob.Position =
+UDim2.new(
+0,
+-8,
+0.5,
+-8
+)
+
+JumpKnob.BackgroundColor3 =
+Color3.new(
+1,
+1,
+1
+)
+
+Instance.new(
+"UICorner",
+JumpKnob
+).CornerRadius =
+UDim.new(
+1,
+0
+)
+
 local jump = 50
 local jumpDragging = false
 
@@ -904,6 +1047,22 @@ math.floor(
 
 JumpLabel.Text =
 "Jump: "..jump
+
+JumpFill.Size =
+UDim2.new(
+percent,
+0,
+1,
+0
+)
+
+JumpKnob.Position =
+UDim2.new(
+percent,
+-8,
+0.5,
+-8
+)
 
 local char =
 game.Players.LocalPlayer.Character
@@ -939,19 +1098,27 @@ end
 
 end)
 
-
 UIS.InputChanged:Connect(function(i)
 
-if jumpDragging
-and i.UserInputType ==
-Enum.UserInputType.MouseMovement then
+if jumpDragging and (
 
-setJump(i.Position.X)
+i.UserInputType ==
+Enum.UserInputType.MouseMovement
+
+or
+
+i.UserInputType ==
+Enum.UserInputType.Touch
+
+) then
+
+setJump(
+i.Position.X
+)
 
 end
 
 end)
-
 
 UIS.InputEnded:Connect(function(i)
 
