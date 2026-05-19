@@ -753,17 +753,14 @@ UDim2.new(
 35
 )
 
-local speed =
-16
+local speed = 16
+local speedDragging = false
 
 local function setSpeed(x)
 
 local percent =
 math.clamp(
-(
-x-
-SpeedSlider.AbsolutePosition.X
-)
+(x-SpeedSlider.AbsolutePosition.X)
 /
 SpeedSlider.AbsoluteSize.X,
 0,
@@ -772,10 +769,7 @@ SpeedSlider.AbsoluteSize.X,
 
 speed =
 math.floor(
-16+
-(200-16)
-*
-percent
+16+(200-16)*percent
 )
 
 SpeedLabel.Text =
@@ -786,35 +780,53 @@ game.Players.LocalPlayer.Character
 
 if char then
 
-char:
-FindFirstChild(
-"Humanoid"
-).WalkSpeed =
-speed
+local hum =
+char:FindFirstChild("Humanoid")
 
+if hum then
+hum.WalkSpeed = speed
 end
 
 end
+
+end
+
 
 SpeedSlider.InputBegan:Connect(function(i)
 
 if i.UserInputType ==
 Enum.UserInputType.MouseButton1 then
 
-dragging =
+speedDragging =
 true
+
+setSpeed(i.Position.X)
 
 end
 
 end)
 
+
 UIS.InputChanged:Connect(function(i)
 
-if dragging then
+if speedDragging
+and i.UserInputType ==
+Enum.UserInputType.MouseMovement then
 
-setSpeed(
-i.Position.X
-)
+setSpeed(i.Position.X)
+
+end
+
+end)
+
+
+UIS.InputEnded:Connect(function(i)
+
+if i.UserInputType ==
+Enum.UserInputType.MouseButton1 then
+
+speedDragging =
+false
 
 end
 
@@ -871,17 +883,14 @@ UDim2.new(
 115
 )
 
-local jump =
-50
+local jump = 50
+local jumpDragging = false
 
 local function setJump(x)
 
 local percent =
 math.clamp(
-(
-x-
-JumpSlider.AbsolutePosition.X
-)
+(x-JumpSlider.AbsolutePosition.X)
 /
 JumpSlider.AbsoluteSize.X,
 0,
@@ -890,29 +899,71 @@ JumpSlider.AbsoluteSize.X,
 
 jump =
 math.floor(
-50+
-(200-50)
-*
-percent
+50+(200-50)*percent
 )
 
 JumpLabel.Text =
 "Jump: "..jump
 
+local char =
+game.Players.LocalPlayer.Character
+
+if char then
+
 local hum =
-game.Players.LocalPlayer.Character:
-FindFirstChild(
-"Humanoid"
-)
+char:FindFirstChild("Humanoid")
 
 if hum then
 
-hum.JumpPower =
-jump
+hum.UseJumpPower = true
+hum.JumpPower = jump
 
 end
 
 end
+
+end
+
+
+JumpSlider.InputBegan:Connect(function(i)
+
+if i.UserInputType ==
+Enum.UserInputType.MouseButton1 then
+
+jumpDragging =
+true
+
+setJump(i.Position.X)
+
+end
+
+end)
+
+
+UIS.InputChanged:Connect(function(i)
+
+if jumpDragging
+and i.UserInputType ==
+Enum.UserInputType.MouseMovement then
+
+setJump(i.Position.X)
+
+end
+
+end)
+
+
+UIS.InputEnded:Connect(function(i)
+
+if i.UserInputType ==
+Enum.UserInputType.MouseButton1 then
+
+jumpDragging =
+false
+
+end
+
+end)
 
 local EJToggle,
 EJCircle =
@@ -922,13 +973,11 @@ MovedPage,
 170
 )
 
-local endless =
-false
+local endless = false
 
 EJToggle.MouseButton1Click:Connect(function()
 
-endless =
-not endless
+endless = not endless
 
 TweenService:Create(
 EJCircle,
@@ -936,13 +985,19 @@ TweenInfo.new(.2),
 {
 Position =
 endless
-and UDim2.new(
-1,-27,.5,-12
-)
-or
-UDim2.new(
-0,3,.5,-12
-)
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+EJToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+endless
+and Color3.fromRGB(220,190,255)
+or Color3.fromRGB(50,50,60)
 }
 ):Play()
 
@@ -977,8 +1032,7 @@ false
 
 WallToggle.MouseButton1Click:Connect(function()
 
-wall =
-not wall
+wall = not wall
 
 TweenService:Create(
 WallCircle,
@@ -986,13 +1040,19 @@ TweenInfo.new(.2),
 {
 Position =
 wall
-and UDim2.new(
-1,-27,.5,-12
-)
-or
-UDim2.new(
-0,3,.5,-12
-)
+and UDim2.new(1,-27,.5,-12)
+or UDim2.new(0,3,.5,-12)
+}
+):Play()
+
+TweenService:Create(
+WallToggle,
+TweenInfo.new(.2),
+{
+BackgroundColor3 =
+wall
+and Color3.fromRGB(220,190,255)
+or Color3.fromRGB(50,50,60)
 }
 ):Play()
 
