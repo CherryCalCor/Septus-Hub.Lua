@@ -693,6 +693,40 @@ MovedPage.ScrollBarThickness =
 MovedPage.BorderSizePixel =
 0
 
+local SliderBG =
+Instance.new("Frame")
+
+SliderBG.Parent =
+MiscMenu
+
+SliderBG.Size =
+UDim2.new(
+1,
+-20,
+0,
+8
+)
+
+SliderBG.Position =
+UDim2.new(
+0,
+10,
+0,
+40
+)
+
+SliderBG.BackgroundColor3 =
+Color3.fromRGB(
+50,
+50,
+60
+)
+
+Instance.new(
+"UICorner",
+SliderBG
+)
+
 local SpeedLabel =
 Instance.new("TextLabel")
 
@@ -1849,40 +1883,6 @@ Enum.Font.GothamBold
 
 FOVLabel.TextXAlignment =
 Enum.TextXAlignment.Left
-
-local SliderBG =
-Instance.new("Frame")
-
-SliderBG.Parent =
-MiscMenu
-
-SliderBG.Size =
-UDim2.new(
-1,
--20,
-0,
-8
-)
-
-SliderBG.Position =
-UDim2.new(
-0,
-10,
-0,
-40
-)
-
-SliderBG.BackgroundColor3 =
-Color3.fromRGB(
-50,
-50,
-60
-)
-
-Instance.new(
-"UICorner",
-SliderBG
-)
 
 local Fill =
 Instance.new("Frame")
