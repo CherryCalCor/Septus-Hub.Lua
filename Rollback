@@ -472,6 +472,67 @@ UDim.new(
 8
 )
 
+-- MOVED BUTTON
+local MovedBtn =
+Instance.new("TextButton")
+
+local MovedCorner =
+Instance.new("UICorner")
+
+MovedBtn.Parent =
+Frame
+
+MovedBtn.Size =
+UDim2.new(
+0,
+80,
+0,
+28
+)
+
+MovedBtn.Position =
+UDim2.new(
+0,
+10,
+0,
+180 -- под Teleport
+)
+
+MovedBtn.BackgroundColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+MovedBtn.Text =
+"Moved"
+
+MovedBtn.TextColor3 =
+Color3.fromRGB(
+20,
+20,
+25
+)
+
+MovedBtn.Font =
+Enum.Font.GothamBold
+
+MovedBtn.TextSize =
+14
+
+MovedBtn.BorderSizePixel =
+0
+
+MovedCorner.Parent =
+MovedBtn
+
+MovedCorner.CornerRadius =
+UDim.new(
+0,
+8
+)
+
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
 
@@ -587,6 +648,359 @@ TeleportPage.BackgroundTransparency =
 
 TeleportPage.BorderSizePixel =
 0
+
+local MovedPage =
+Instance.new(
+"ScrollingFrame"
+)
+
+MovedPage.Parent =
+Frame
+
+MovedPage.Visible =
+false
+
+MovedPage.Position =
+UDim2.new(
+0,
+110,
+0,
+40
+)
+
+MovedPage.Size =
+UDim2.new(
+1,
+-120,
+1,
+-50
+)
+
+MovedPage.CanvasSize =
+UDim2.new(
+0,
+0,
+0,
+500
+)
+
+MovedPage.BackgroundTransparency =
+1
+
+MovedPage.ScrollBarThickness =
+4
+
+MovedPage.BorderSizePixel =
+0
+
+local SpeedLabel =
+Instance.new("TextLabel")
+
+SpeedLabel.Parent =
+MovedPage
+
+SpeedLabel.Size =
+UDim2.new(1,0,0,25)
+
+SpeedLabel.BackgroundTransparency =
+1
+
+SpeedLabel.Text =
+"Speed: 16"
+
+SpeedLabel.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+local SpeedSlider =
+SliderBG:Clone()
+
+SpeedSlider.Parent =
+MovedPage
+
+SpeedSlider.Position =
+UDim2.new(
+0,
+10,
+0,
+35
+)
+
+local speed =
+16
+
+local function setSpeed(x)
+
+local percent =
+math.clamp(
+(
+x-
+SpeedSlider.AbsolutePosition.X
+)
+/
+SpeedSlider.AbsoluteSize.X,
+0,
+1
+)
+
+speed =
+math.floor(
+16+
+(200-16)
+*
+percent
+)
+
+SpeedLabel.Text =
+"Speed: "..speed
+
+local char =
+game.Players.LocalPlayer.Character
+
+if char then
+
+char:
+FindFirstChild(
+"Humanoid"
+).WalkSpeed =
+speed
+
+end
+
+end
+
+SpeedSlider.InputBegan:Connect(function(i)
+
+if i.UserInputType ==
+Enum.UserInputType.MouseButton1 then
+
+dragging =
+true
+
+end
+
+end)
+
+UIS.InputChanged:Connect(function(i)
+
+if dragging then
+
+setSpeed(
+i.Position.X
+)
+
+end
+
+end)
+
+local JumpLabel =
+Instance.new(
+"TextLabel"
+)
+
+JumpLabel.Parent =
+MovedPage
+
+JumpLabel.Position =
+UDim2.new(
+0,
+0,
+0,
+80
+)
+
+JumpLabel.Size =
+UDim2.new(
+1,
+0,
+0,
+25
+)
+
+JumpLabel.Text =
+"Jump: 50"
+
+JumpLabel.BackgroundTransparency =
+1
+
+JumpLabel.TextColor3 =
+Color3.fromRGB(
+220,
+190,
+255
+)
+
+local JumpSlider =
+SliderBG:Clone()
+
+JumpSlider.Parent =
+MovedPage
+
+JumpSlider.Position =
+UDim2.new(
+0,
+10,
+0,
+115
+)
+
+local jump =
+50
+
+local function setJump(x)
+
+local percent =
+math.clamp(
+(
+x-
+JumpSlider.AbsolutePosition.X
+)
+/
+JumpSlider.AbsoluteSize.X,
+0,
+1
+)
+
+jump =
+math.floor(
+50+
+(200-50)
+*
+percent
+)
+
+JumpLabel.Text =
+"Jump: "..jump
+
+local hum =
+game.Players.LocalPlayer.Character:
+FindFirstChild(
+"Humanoid"
+)
+
+if hum then
+
+hum.JumpPower =
+jump
+
+end
+
+end
+
+local EJToggle,
+EJCircle =
+createToggle(
+MovedPage,
+"Endless Jump",
+170
+)
+
+local endless =
+false
+
+EJToggle.MouseButton1Click:Connect(function()
+
+endless =
+not endless
+
+TweenService:Create(
+EJCircle,
+TweenInfo.new(.2),
+{
+Position =
+endless
+and UDim2.new(
+1,-27,.5,-12
+)
+or
+UDim2.new(
+0,3,.5,-12
+)
+}
+):Play()
+
+end)
+
+UIS.JumpRequest:Connect(function()
+
+if endless then
+
+game.Players.LocalPlayer
+.Character:
+FindFirstChildOfClass(
+"Humanoid"
+):ChangeState(
+Enum.HumanoidStateType.Jumping
+)
+
+end
+
+end)
+
+local WallToggle,
+WallCircle =
+createToggle(
+MovedPage,
+"Climbing Walls",
+220
+)
+
+local wall =
+false
+
+WallToggle.MouseButton1Click:Connect(function()
+
+wall =
+not wall
+
+TweenService:Create(
+WallCircle,
+TweenInfo.new(.2),
+{
+Position =
+wall
+and UDim2.new(
+1,-27,.5,-12
+)
+or
+UDim2.new(
+0,3,.5,-12
+)
+}
+):Play()
+
+end)
+
+task.spawn(function()
+
+while task.wait() do
+
+if wall then
+
+local hum =
+game.Players.LocalPlayer
+.Character:
+FindFirstChild(
+"Humanoid"
+)
+
+if hum then
+
+hum:
+ChangeState(
+Enum.HumanoidStateType.Climbing
+)
+
+end
+
+end
+
+end
+
+end)
 
 local TPCard =
 Instance.new("Frame")
@@ -4018,6 +4432,19 @@ HomePage.Visible = opened
 if opened then
 ServerPage.Visible = false
 serverOpened = false
+
+TeleportPage.Visible =
+false
+
+tpOpened =
+false
+
+MovedPage.Visible =
+false
+
+movedOpened =
+false
+
 end
 
 end)
@@ -4048,6 +4475,19 @@ false
 Arrow.Text =
 "▶"
 opened = false
+
+TeleportPage.Visible =
+false
+
+tpOpened =
+false
+
+MovedPage.Visible =
+false
+
+movedOpened =
+false
+
 end
 
 end)
@@ -4077,6 +4517,18 @@ false
 serverOpened =
 false
 
+TeleportPage.Visible =
+false
+
+tpOpened =
+false
+
+MovedPage.Visible =
+false
+
+movedOpened =
+false
+
 end
 
 end)
@@ -4100,6 +4552,40 @@ false
 
 VisualsPage.Visible =
 false
+
+MovedPage.Visible =
+false
+
+movedOpened =
+false
+
+end)
+
+local movedOpened =
+false
+
+MovedBtn.MouseButton1Click:Connect(function()
+
+movedOpened =
+not movedOpened
+
+MovedPage.Visible =
+movedOpened
+
+HomePage.Visible =
+false
+
+ServerPage.Visible =
+false
+
+VisualsPage.Visible =
+false
+
+TeleportPage.Visible =
+false
+
+tpOpened =
+false)
 
 end)
 
@@ -4197,6 +4683,12 @@ false
 TeleportPage.Visible =
 false
 
+MovedBtn.Visible =
+false
+
+MovedPage.Visible =
+false
+
 else
 
 Frame:TweenSize(
@@ -4213,6 +4705,8 @@ SideBar.Visible = true
 ServerBtn.Visible=true
 VisualsBtn.Visible=true
 TeleportBtn.Visible =
+true
+MovedBtn.Visible =
 true
 
 end
