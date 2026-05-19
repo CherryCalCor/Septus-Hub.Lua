@@ -696,31 +696,19 @@ MovedPage.BorderSizePixel =
 local SliderBG =
 Instance.new("Frame")
 
-SliderBG.Parent =
-MiscMenu
-
 SliderBG.Size =
 UDim2.new(
-1,
--20,
-0,
-8
-)
-
-SliderBG.Position =
-UDim2.new(
-0,
-10,
-0,
-40
+1,-20,
+0,8
 )
 
 SliderBG.BackgroundColor3 =
 Color3.fromRGB(
-50,
-50,
-60
+50,50,60
 )
+
+SliderBG.BorderSizePixel =
+0
 
 Instance.new(
 "UICorner",
@@ -1888,7 +1876,7 @@ local Fill =
 Instance.new("Frame")
 
 Fill.Parent =
-SliderBG
+FOVSlider
 
 Fill.Size =
 UDim2.new(
@@ -1914,7 +1902,7 @@ local Knob =
 Instance.new("Frame")
 
 Knob.Parent =
-SliderBG
+FOVSlider
 
 Knob.Size =
 UDim2.new(
@@ -1974,10 +1962,10 @@ local percent =
 math.clamp(
 (
 x -
-SliderBG.AbsolutePosition.X
+FOVSlider.AbsolutePosition.X
 )
 /
-SliderBG.AbsoluteSize.X,
+FOVSlider.AbsoluteSize.X,
 0,
 1
 )
