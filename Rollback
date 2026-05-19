@@ -75,6 +75,8 @@ StarStroke.Color = Color3.fromRGB(235,215,255)
 StarStroke.Thickness = 1.5
 
 local TweenService = game:GetService("TweenService")
+local UIS =
+game:GetService("UserInputService")
 
 local function createToggle(
 parent,
@@ -1936,11 +1938,6 @@ UDim.new(
 0
 )
 
-local UIS =
-game:GetService(
-"UserInputService"
-)
-
 local Camera =
 workspace.CurrentCamera
 
@@ -3414,11 +3411,6 @@ local ListBtn =
 createBtn(
 "Servers Toggle",
 100
-)
-
-local UIS =
-game:GetService(
-"UserInputService"
 )
 
 local ServerWidget =
