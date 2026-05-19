@@ -2867,13 +2867,8 @@ player.Character
 
 if myChar and myChar:FindFirstChild("HumanoidRootPart") then
 
-local dist =
-math.floor(
-(
-myChar.HumanoidRootPart.Position
-
-hrp.Position
-).Magnitude
+local dist = math.floor(
+    (myChar.HumanoidRootPart.Position - hrp.Position).Magnitude
 )
 
 gui.TXT.Text =
