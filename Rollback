@@ -4585,7 +4585,7 @@ TeleportPage.Visible =
 false
 
 tpOpened =
-false)
+false
 
 end)
 
