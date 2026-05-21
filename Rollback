@@ -2158,42 +2158,23 @@ MiscMenu.Size =
 UDim2.new(1,-20,0,0)
 
 -- FOV CHANGER
-local FOVLabel =
-Instance.new("TextLabel")
+local FOVLabel = Instance.new("TextLabel")
+FOVLabel.Parent = MiscMenu
+FOVLabel.Position = UDim2.new(0, 10, 0, 10)
+FOVLabel.Size = UDim2.new(1, -20, 0, 25)
+FOVLabel.BackgroundTransparency = 1
+FOVLabel.Text = "FOV: 70"
+FOVLabel.TextColor3 = Color3.fromRGB(220, 190, 255)
+FOVLabel.Font = Enum.Font.GothamBold
+FOVLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-FOVLabel.Parent =
-MiscMenu
+local FOVSlider = SliderBG:Clone()
+FOVSlider.Parent = MiscMenu
+FOVSlider.Position = UDim2.new(0, 10, 0, 40)
 
-FOVLabel.Position =
-UDim2.new(0,0,0,10)
+local Fill = Instance.new("Frame")
+Fill.Parent = FOVSlider
 
-FOVLabel.Size =
-UDim2.new(1,0,0,25)
-
-FOVLabel.BackgroundTransparency =
-1
-
-FOVLabel.Text =
-"FOV: 70"
-
-FOVLabel.TextColor3 =
-Color3.fromRGB(
-220,
-190,
-255
-)
-
-FOVLabel.Font =
-Enum.Font.GothamBold
-
-FOVLabel.TextXAlignment =
-Enum.TextXAlignment.Left
-
-local Fill =
-Instance.new("Frame")
-
-Fill.Parent =
-FOVSlider
 
 Fill.Size =
 UDim2.new(
