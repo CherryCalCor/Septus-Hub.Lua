@@ -535,6 +535,58 @@ UDim.new(
 8
 )
 
+-- === СКРОЛЛ ДЛЯ БОКОВОГО МЕНЮ И КНОПКА MISC TAB ===
+local SideMenuScroll = Instance.new("ScrollingFrame")
+SideMenuScroll.Parent = Frame
+SideMenuScroll.Size = UDim2.new(0, 105, 1, -35)
+SideMenuScroll.Position = UDim2.new(0, 0, 0, 35)
+SideMenuScroll.BackgroundTransparency = 1
+SideMenuScroll.ScrollBarThickness = 0 -- Скрываем ползунок для эстетики
+SideMenuScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+SideMenuScroll.BorderSizePixel = 0
+
+local SideLayout = Instance.new("UIListLayout")
+SideLayout.Parent = SideMenuScroll
+SideLayout.Padding = UDim.new(0, 7)
+SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Назначаем порядок сортировки
+HomeBtn.LayoutOrder = 1
+ServerBtn.LayoutOrder = 2
+VisualsBtn.LayoutOrder = 3
+TeleportBtn.LayoutOrder = 4
+MovedBtn.LayoutOrder = 5
+
+-- Переносим уже созданные кнопки в скролл
+for _, btn in pairs({HomeBtn, ServerBtn, VisualsBtn, TeleportBtn, MovedBtn}) do
+    btn.Parent = SideMenuScroll
+    btn.Position = UDim2.new(0, 0, 0, 0)
+end
+
+-- Авто-размер скролла
+SideLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    SideMenuScroll.CanvasSize = UDim2.new(0, 0, 0, SideLayout.AbsoluteContentSize.Y + 10)
+end)
+
+-- Создаем новую кнопку Misc Tab для боковой панели
+local SidebarMiscBtn = Instance.new("TextButton")
+local SidebarMiscCorner = Instance.new("UICorner")
+SidebarMiscBtn.Parent = SideMenuScroll
+SidebarMiscBtn.LayoutOrder = 6
+SidebarMiscBtn.Size = UDim2.new(0, 80, 0, 28)
+SidebarMiscBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+SidebarMiscBtn.Text = "Misc Tab"
+SidebarMiscBtn.TextColor3 = Color3.fromRGB(20,20,25)
+SidebarMiscBtn.Font = Enum.Font.GothamBold
+SidebarMiscBtn.TextSize = 14
+SidebarMiscBtn.BorderSizePixel = 0
+
+SidebarMiscCorner.Parent = SidebarMiscBtn
+SidebarMiscCorner.CornerRadius = UDim.new(0, 8)
+-- =================================================
+
+
 -- HOME PAGE
 local HomePage = Instance.new("ScrollingFrame")
 
@@ -694,6 +746,42 @@ MovedPage.ScrollBarThickness =
 
 MovedPage.BorderSizePixel =
 0
+
+-- === СТРАНИЦА MISC TAB И ЕЁ КНОПКИ ===
+local MiscTabPage = Instance.new("ScrollingFrame")
+MiscTabPage.Parent = Frame
+MiscTabPage.Visible = false
+MiscTabPage.Position = UDim2.new(0, 110, 0, 40)
+MiscTabPage.Size = UDim2.new(1, -120, 1, -50)
+MiscTabPage.CanvasSize = UDim2.new(0, 0, 0, 300)
+MiscTabPage.BackgroundTransparency = 1
+MiscTabPage.ScrollBarThickness = 4
+MiscTabPage.BorderSizePixel = 0
+
+local FlingMenuBtn = Instance.new("TextButton")
+local FlingMenuCorner = Instance.new("UICorner")
+FlingMenuBtn.Parent = MiscTabPage
+FlingMenuBtn.Size = UDim2.new(1, -20, 0, 35)
+FlingMenuBtn.Position = UDim2.new(0, 10, 0, 10)
+FlingMenuBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+FlingMenuBtn.Text = "Fling Player"
+FlingMenuBtn.TextColor3 = Color3.fromRGB(20,20,25)
+FlingMenuBtn.Font = Enum.Font.GothamBold
+FlingMenuCorner.Parent = FlingMenuBtn
+FlingMenuCorner.CornerRadius = UDim.new(0, 8)
+
+local BringPartsMenuBtn = Instance.new("TextButton")
+local BringPartsMenuCorner = Instance.new("UICorner")
+BringPartsMenuBtn.Parent = MiscTabPage
+BringPartsMenuBtn.Size = UDim2.new(1, -20, 0, 35)
+BringPartsMenuBtn.Position = UDim2.new(0, 10, 0, 55)
+BringPartsMenuBtn.BackgroundColor3 = Color3.fromRGB(220,190,255)
+BringPartsMenuBtn.Text = "Bring Parts"
+BringPartsMenuBtn.TextColor3 = Color3.fromRGB(20,20,25)
+BringPartsMenuBtn.Font = Enum.Font.GothamBold
+BringPartsMenuCorner.Parent = BringPartsMenuBtn
+BringPartsMenuCorner.CornerRadius = UDim.new(0, 8)
+-- ===================================
 
 local SliderBG =
 Instance.new("Frame")
@@ -4796,6 +4884,30 @@ false
 
 end)
 
+-- === ЛОГИКА ВКЛАДКИ MISC TAB ===
+local sidebarMiscOpened = false
+
+SidebarMiscBtn.MouseButton1Click:Connect(function()
+    if minimized then return end
+    sidebarMiscOpened = not sidebarMiscOpened
+    MiscTabPage.Visible = sidebarMiscOpened
+
+    if sidebarMiscOpened then
+        HomePage.Visible = false
+        ServerPage.Visible = false
+        VisualsPage.Visible = false
+        TeleportPage.Visible = false
+        MovedPage.Visible = false
+
+        opened = false
+        serverOpened = false
+        visualsOpened = false
+        tpOpened = false
+        movedOpened = false
+    end
+end)
+
+
 local Title = Instance.new("TextLabel")
 
 local InjectorTag = Instance.new("TextLabel")
@@ -4935,6 +5047,252 @@ CloseBtn.BorderSizePixel = 0
 CloseBtn.MouseButton1Click:Connect(function()
 ScreenGui:Destroy()
 end)
+
+-- === ОКОШКА FLING И BRING PARTS ===
+
+-- 1. Fling Menu
+local FlingWindow = Instance.new("Frame")
+FlingWindow.Parent = ScreenGui
+FlingWindow.Visible = false
+FlingWindow.Size = UDim2.new(0, 250, 0, 300)
+FlingWindow.Position = UDim2.new(0.5, -125, 0.5, -150)
+FlingWindow.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Instance.new("UICorner", FlingWindow).CornerRadius = UDim.new(0, 10)
+
+local FlingStroke = Instance.new("UIStroke", FlingWindow)
+FlingStroke.Color = Color3.fromRGB(220, 20, 60)
+FlingStroke.Thickness = 1.5
+
+local FlingTitle = Instance.new("TextLabel", FlingWindow)
+FlingTitle.Size = UDim2.new(1, 0, 0, 30)
+FlingTitle.BackgroundTransparency = 1
+FlingTitle.Text = " Fling Player"
+FlingTitle.TextColor3 = Color3.fromRGB(220, 20, 60)
+FlingTitle.Font = Enum.Font.GothamBold
+FlingTitle.TextXAlignment = Enum.TextXAlignment.Left
+FlingTitle.Position = UDim2.new(0, 10, 0, 0)
+
+local FlingClose = Instance.new("TextButton", FlingWindow)
+FlingClose.Size = UDim2.new(0, 30, 0, 30)
+FlingClose.Position = UDim2.new(1, -30, 0, 0)
+FlingClose.BackgroundTransparency = 1
+FlingClose.Text = "X"
+FlingClose.TextColor3 = Color3.new(1, 1, 1)
+FlingClose.Font = Enum.Font.GothamBold
+FlingClose.MouseButton1Click:Connect(function() FlingWindow.Visible = false end)
+
+local FlingMin = Instance.new("TextButton", FlingWindow)
+FlingMin.Size = UDim2.new(0, 30, 0, 30)
+FlingMin.Position = UDim2.new(1, -60, 0, 0)
+FlingMin.BackgroundTransparency = 1
+FlingMin.Text = "-"
+FlingMin.TextColor3 = Color3.new(1, 1, 1)
+FlingMin.Font = Enum.Font.GothamBold
+
+local FlingPlayerList = Instance.new("ScrollingFrame", FlingWindow)
+FlingPlayerList.Size = UDim2.new(1, -20, 1, -85)
+FlingPlayerList.Position = UDim2.new(0, 10, 0, 35)
+FlingPlayerList.BackgroundTransparency = 1
+FlingPlayerList.ScrollBarThickness = 4
+local FlingListLayout = Instance.new("UIListLayout", FlingPlayerList)
+FlingListLayout.Padding = UDim.new(0, 5)
+
+local StartFlingBtn = Instance.new("TextButton", FlingWindow)
+StartFlingBtn.Size = UDim2.new(1, -20, 0, 35)
+StartFlingBtn.Position = UDim2.new(0, 10, 1, -45)
+StartFlingBtn.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
+StartFlingBtn.Text = "Start Fling"
+StartFlingBtn.TextColor3 = Color3.new(1, 1, 1)
+StartFlingBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", StartFlingBtn).CornerRadius = UDim.new(0, 8)
+
+local flingMinimized = false
+FlingMin.MouseButton1Click:Connect(function()
+    flingMinimized = not flingMinimized
+    if flingMinimized then
+        FlingWindow:TweenSize(UDim2.new(0, 250, 0, 30), "Out", "Quad", 0.2, true)
+        FlingPlayerList.Visible = false
+        StartFlingBtn.Visible = false
+    else
+        FlingWindow:TweenSize(UDim2.new(0, 250, 0, 300), "Out", "Quad", 0.2, true)
+        FlingPlayerList.Visible = true
+        StartFlingBtn.Visible = true
+    end
+end)
+
+local dragFling = false
+local dragFlingStart, startFlingPos
+FlingWindow.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragFling = true
+        dragFlingStart = input.Position
+        startFlingPos = FlingWindow.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragFling = false end
+        end)
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragFling then
+        local delta = input.Position - dragFlingStart
+        FlingWindow.Position = UDim2.new(startFlingPos.X.Scale, startFlingPos.X.Offset + delta.X, startFlingPos.Y.Scale, startFlingPos.Y.Offset + delta.Y)
+    end
+end)
+
+local selectedFlingTarget = nil
+local activeFling = false
+
+local function refreshFlingPlayers()
+    for _, child in pairs(FlingPlayerList:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr ~= game.Players.LocalPlayer then
+            local btn = Instance.new("TextButton", FlingPlayerList)
+            btn.Size = UDim2.new(1, 0, 0, 30)
+            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+            btn.TextColor3 = Color3.new(1, 1, 1)
+            btn.Font = Enum.Font.Gotham
+            btn.Text = plr.Name
+            Instance.new("UICorner", btn)
+            btn.MouseButton1Click:Connect(function()
+                selectedFlingTarget = plr
+                FlingTitle.Text = " Target: " .. plr.Name
+            end)
+        end
+    end
+    FlingPlayerList.CanvasSize = UDim2.new(0, 0, 0, FlingListLayout.AbsoluteContentSize.Y)
+end
+
+FlingMenuBtn.MouseButton1Click:Connect(function()
+    FlingWindow.Visible = true
+    refreshFlingPlayers()
+end)
+
+StartFlingBtn.MouseButton1Click:Connect(function()
+    if not selectedFlingTarget or not selectedFlingTarget.Character then return end
+    activeFling = not activeFling
+    StartFlingBtn.Text = activeFling and "Stop Fling" or "Start Fling"
+    
+    if activeFling then
+        task.spawn(function()
+            local myChar = game.Players.LocalPlayer.Character
+            if not myChar then activeFling = false; StartFlingBtn.Text = "Start Fling"; return end
+            
+            local myRoot = myChar:FindFirstChild("HumanoidRootPart")
+            if myRoot then
+                local bv = Instance.new("BodyAngularVelocity")
+                bv.AngularVelocity = Vector3.new(0, 99999, 0)
+                bv.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                bv.P = math.huge
+                bv.Parent = myRoot
+                
+                while activeFling and selectedFlingTarget.Character and myChar:FindFirstChild("HumanoidRootPart") do
+                    myRoot.CFrame = selectedFlingTarget.Character.HumanoidRootPart.CFrame
+                    myRoot.Velocity = Vector3.new(0, 9999, 0)
+                    task.wait()
+                end
+                if bv then bv:Destroy() end
+            end
+        end)
+    end
+end)
+
+-- 2. Bring Parts Window
+local BringWindow = Instance.new("Frame")
+BringWindow.Parent = ScreenGui
+BringWindow.Visible = false
+BringWindow.Size = UDim2.new(0, 200, 0, 130)
+BringWindow.Position = UDim2.new(0.5, -100, 0.5, -65)
+BringWindow.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Instance.new("UICorner", BringWindow).CornerRadius = UDim.new(0, 10)
+local BringStroke = Instance.new("UIStroke", BringWindow)
+BringStroke.Color = Color3.fromRGB(220, 20, 60)
+BringStroke.Thickness = 1.5
+
+local BringTitle = Instance.new("TextLabel", BringWindow)
+BringTitle.Size = UDim2.new(1, -30, 0, 30)
+BringTitle.Position = UDim2.new(0, 10, 0, 0)
+BringTitle.BackgroundTransparency = 1
+BringTitle.Text = "Bring Parts"
+BringTitle.TextColor3 = Color3.fromRGB(220, 20, 60)
+BringTitle.Font = Enum.Font.GothamBold
+BringTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local BringClose = Instance.new("TextButton", BringWindow)
+BringClose.Size = UDim2.new(0, 30, 0, 30)
+BringClose.Position = UDim2.new(1, -30, 0, 0)
+BringClose.BackgroundTransparency = 1
+BringClose.Text = "X"
+BringClose.TextColor3 = Color3.new(1, 1, 1)
+BringClose.Font = Enum.Font.GothamBold
+BringClose.MouseButton1Click:Connect(function() BringWindow.Visible = false end)
+
+local BringTextBox = Instance.new("TextBox", BringWindow)
+BringTextBox.Size = UDim2.new(1, -20, 0, 35)
+BringTextBox.Position = UDim2.new(0, 10, 0, 40)
+BringTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+BringTextBox.TextColor3 = Color3.new(1, 1, 1)
+BringTextBox.Font = Enum.Font.Gotham
+BringTextBox.Text = ""
+BringTextBox.PlaceholderText = "Player Name..."
+Instance.new("UICorner", BringTextBox).CornerRadius = UDim.new(0, 5)
+
+local BringBtn = Instance.new("TextButton", BringWindow)
+BringBtn.Size = UDim2.new(1, -20, 0, 35)
+BringBtn.Position = UDim2.new(0, 10, 0, 85)
+BringBtn.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
+BringBtn.Text = "Bring"
+BringBtn.TextColor3 = Color3.new(1, 1, 1)
+BringBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", BringBtn).CornerRadius = UDim.new(0, 8)
+
+local dragBring = false
+local dragBringStart, startBringPos
+BringWindow.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragBring = true
+        dragBringStart = input.Position
+        startBringPos = BringWindow.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragBring = false end
+        end)
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragBring then
+        local delta = input.Position - dragBringStart
+        BringWindow.Position = UDim2.new(startBringPos.X.Scale, startBringPos.X.Offset + delta.X, startBringPos.Y.Scale, startBringPos.Y.Offset + delta.Y)
+    end
+end)
+
+BringPartsMenuBtn.MouseButton1Click:Connect(function()
+    BringWindow.Visible = true
+end)
+
+BringBtn.MouseButton1Click:Connect(function()
+    local tName = BringTextBox.Text
+    local targetPlr = nil
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if string.find(string.lower(p.Name), string.lower(tName)) or string.find(string.lower(p.DisplayName), string.lower(tName)) then
+            targetPlr = p
+            break
+        end
+    end
+    
+    if targetPlr and targetPlr.Character then
+        local tRoot = targetPlr.Character:FindFirstChild("HumanoidRootPart")
+        if tRoot then
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and not part.Anchored and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part:IsDescendantOf(targetPlr.Character) then
+                    part.CFrame = tRoot.CFrame
+                end
+            end
+        end
+    end
+end)
+-- ===================================
+
 
 -- Кнопка SH (отдельно от GUI)
 local UserInputService = game:GetService("UserInputService")
