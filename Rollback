@@ -4972,7 +4972,7 @@ local function refreshFlingPlayers()
         if child:IsA("TextButton") then child:Destroy() end
     end
     for _, plr in pairs(game.Players:GetPlayers()) do
-        if plr ~= game.Players.LocalPlayer then
+        if plr ~= game.Players.LocalPlayer end
             local btn = Instance.new("TextButton", FlingPlayerList)
             btn.Size = UDim2.new(1, 0, 0, 30)
             btn.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
