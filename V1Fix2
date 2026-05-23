@@ -490,6 +490,7 @@ DiffMenu.BackgroundTransparency = 1
 DiffMenu.ClipsDescendants = true
 DiffMenu.Size = UDim2.new(1,-20,0,0)
 
+local diffOpened = false
 local otherOpened = false
 
 -- Функция для обновления позиций кнопок в MainMiscPage
