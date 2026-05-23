@@ -464,14 +464,33 @@ task.spawn(function()
 end)
 
 -- НОВЫЙ РАЗДЕЛ "MAIN MISC PAGE" --
+local MiscPageLayout = Instance.new("UIListLayout")
+MiscPageLayout.Parent = MainMiscPage
+MiscPageLayout.Padding = UDim.new(0, 8)
+MiscPageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+MiscPageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Автоматическое обновление CanvasSize для скролла страницы
+MiscPageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    MainMiscPage.CanvasSize = UDim2.new(0, 0, 0, MiscPageLayout.AbsoluteContentSize.Y + 20)
+end)
+
+-- Кастомные отступы внутри ScrollingFrame, чтобы элементы не прижимались к краям
+local PagePadding = Instance.new("UIPadding")
+PagePadding.Parent = MainMiscPage
+PagePadding.PaddingTop = UDim.new(0, 10)
+PagePadding.PaddingLeft = UDim.new(0, 10)
+PagePadding.PaddingRight = UDim.new(0, 10)
+
+-- === КНОПКА DIFFERENT ===
 local DiffBtn = Instance.new("TextButton")
 DiffBtn.Parent = MainMiscPage
-DiffBtn.Size = UDim2.new(1,-20,0,35)
-DiffBtn.Position = UDim2.new(0,10,0,10)
+DiffBtn.Size = UDim2.new(1, 0, 0, 35) -- Ширина 1 (авто-подгон под Padding)
 DiffBtn.BackgroundColor3 = Color3.fromRGB(200,190,255)
 DiffBtn.Text = "Different"
 DiffBtn.TextColor3 = Color3.fromRGB(20,20,25)
 DiffBtn.Font = Enum.Font.GothamBold
+DiffBtn.LayoutOrder = 1
 Instance.new("UICorner", DiffBtn)
 
 local DiffArrow = Instance.new("TextLabel")
@@ -480,15 +499,15 @@ DiffArrow.Size = UDim2.new(0,20,1,0)
 DiffArrow.Position = UDim2.new(1,-25,0,0)
 DiffArrow.BackgroundTransparency = 1
 DiffArrow.Text = "▼"
-DiffArrow.TextColor3 = Color3.fromRGB(220,190,255)
+DiffArrow.TextColor3 = Color3.fromRGB(20,20,25) -- Изменен цвет для читаемости на светлом фоне
 
 local DiffMenu = Instance.new("Frame")
 DiffMenu.Parent = MainMiscPage
 DiffMenu.Visible = false
-DiffMenu.Position = UDim2.new(0,10,0,50)
 DiffMenu.BackgroundTransparency = 1
 DiffMenu.ClipsDescendants = true
-DiffMenu.Size = UDim2.new(1,-20,0,0)
+DiffMenu.Size = UDim2.new(1, 0, 0, 0)
+DiffMenu.LayoutOrder = 2
 
 local diffOpened = false
 
@@ -496,9 +515,17 @@ DiffBtn.MouseButton1Click:Connect(function()
     diffOpened = not diffOpened
     TweenService:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play()
     DiffArrow.Text = diffOpened and "▲" or "▼"
-    DiffMenu.Visible = true
-    TweenService:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,160) or UDim2.new(1,-20,0,0)}):Play()
-    task.delay(.2, function() if not diffOpened then DiffMenu.Visible = false end end)
+    
+    if diffOpened then
+        DiffMenu.Visible = true
+        TweenService:Create(DiffMenu, TweenInfo.new(.2), {Size = UDim2.new(1, 0, 0, 160)}):Play()
+    else
+        local tween = TweenService:Create(DiffMenu, TweenInfo.new(.2), {Size = UDim2.new(1, 0, 0, 0)})
+        tween:Play()
+        tween.Completed:Connect(function()
+            if not diffOpened then DiffMenu.Visible = false end
+        end)
+    end
 end)
 
 -- Функции для Different Menu --
@@ -530,97 +557,15 @@ AutoReconToggle.MouseButton1Click:Connect(function()
     TweenService:Create(AutoReconToggle, TweenInfo.new(.2), {BackgroundColor3 = autoReconEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()
 end)
 
--- Anti-AFK Logic
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
-    if antiAfkEnabled then
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end
-end)
-
--- Noclip Logic
-RunService.Stepped:Connect(function()
-    if noclipEnabled and game.Players.LocalPlayer.Character then
-        for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
--- Auto Reconnect Logic
-game:GetService("GuiService").ErrorMessageChanged:Connect(function()
-    if autoReconEnabled then
-        task.wait(0.5)
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
-    end
-end)
-
--- Free Camera Logic
-local cam = workspace.CurrentCamera
-local fcSpeed = 2
-local fcKeys = {W = false, A = false, S = false, D = false, Space = false, LeftShift = false}
-
-FreeCamToggle.MouseButton1Click:Connect(function()
-    freeCamEnabled = not freeCamEnabled
-    TweenService:Create(FreeCamCircle, TweenInfo.new(.2), {Position = freeCamEnabled and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()
-    TweenService:Create(FreeCamToggle, TweenInfo.new(.2), {BackgroundColor3 = freeCamEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()
-    
-    if freeCamEnabled then
-        cam.CameraType = Enum.CameraType.Scriptable
-        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
-        end
-    else
-        cam.CameraType = Enum.CameraType.Custom
-        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
-        end
-    end
-end)
-
-UIS.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.W then fcKeys.W = true
-    elseif input.KeyCode == Enum.KeyCode.A then fcKeys.A = true
-    elseif input.KeyCode == Enum.KeyCode.S then fcKeys.S = true
-    elseif input.KeyCode == Enum.KeyCode.D then fcKeys.D = true
-    elseif input.KeyCode == Enum.KeyCode.Space then fcKeys.Space = true
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = true end
-end)
-
-UIS.InputEnded:Connect(function(input, gpe)
-    if input.KeyCode == Enum.KeyCode.W then fcKeys.W = false
-    elseif input.KeyCode == Enum.KeyCode.A then fcKeys.A = false
-    elseif input.KeyCode == Enum.KeyCode.S then fcKeys.S = false
-    elseif input.KeyCode == Enum.KeyCode.D then fcKeys.D = false
-    elseif input.KeyCode == Enum.KeyCode.Space then fcKeys.Space = false
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = false end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if freeCamEnabled then
-        local moveVector = Vector3.new()
-        if fcKeys.W then moveVector = moveVector + Vector3.new(0, 0, -1) end
-        if fcKeys.S then moveVector = moveVector + Vector3.new(0, 0, 1) end
-        if fcKeys.A then moveVector = moveVector + Vector3.new(-1, 0, 0) end
-        if fcKeys.D then moveVector = moveVector + Vector3.new(1, 0, 0) end
-        if fcKeys.Space then moveVector = moveVector + Vector3.new(0, 1, 0) end
-        if fcKeys.LeftShift then moveVector = moveVector + Vector3.new(0, -1, 0) end
-        cam.CFrame = cam.CFrame * CFrame.new(moveVector * fcSpeed)
-    end
-end)
-
--- НОВАЯ КНОПКА "OTHER"
+-- === КНОПКА OTHER ===
 local OtherBtn = Instance.new("TextButton")
 OtherBtn.Parent = MainMiscPage
-OtherBtn.Size = UDim2.new(1,-20,0,35)
-OtherBtn.Position = UDim2.new(0,10,0,50) 
+OtherBtn.Size = UDim2.new(1, 0, 0, 35)
 OtherBtn.BackgroundColor3 = Color3.fromRGB(200,190,255)
 OtherBtn.Text = "Other"
 OtherBtn.TextColor3 = Color3.fromRGB(20,20,25)
 OtherBtn.Font = Enum.Font.GothamBold
+OtherBtn.LayoutOrder = 3
 Instance.new("UICorner", OtherBtn)
 
 local OtherArrow = Instance.new("TextLabel")
@@ -629,49 +574,39 @@ OtherArrow.Size = UDim2.new(0,20,1,0)
 OtherArrow.Position = UDim2.new(1,-25,0,0)
 OtherArrow.BackgroundTransparency = 1
 OtherArrow.Text = "▼"
-OtherArrow.TextColor3 = Color3.fromRGB(220,190,255)
+OtherArrow.TextColor3 = Color3.fromRGB(20,20,25)
 
 local OtherMenu = Instance.new("Frame")
 OtherMenu.Parent = MainMiscPage
 OtherMenu.Visible = false
-OtherMenu.Position = UDim2.new(0,10,0,90)
 OtherMenu.BackgroundTransparency = 1
 OtherMenu.ClipsDescendants = true
-OtherMenu.Size = UDim2.new(1,-20,0,0)
+OtherMenu.Size = UDim2.new(1, 0, 0, 0)
+OtherMenu.LayoutOrder = 4
 
 local otherOpened = false
-
--- ОБНОВЛЯЕМ ЛОГИКУ DIFFBTN ДЛЯ СДВИГА OTHERBTN
-DiffBtn.MouseButton1Click:Connect(function()
-    diffOpened = not diffOpened
-    TweenService:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play()
-    DiffArrow.Text = diffOpened and "▲" or "▼"
-    DiffMenu.Visible = true
-    
-    local diffHeight = diffOpened and 160 or 0
-    TweenService:Create(DiffMenu, TweenInfo.new(.2), {Size = UDim2.new(1,-20,0,diffHeight)}):Play()
-    
-    -- Сдвигаем OtherBtn и OtherMenu
-    TweenService:Create(OtherBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 50 + diffHeight)}):Play()
-    TweenService:Create(OtherMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 90 + diffHeight)}):Play()
-    
-    task.delay(.2, function() if not diffOpened then DiffMenu.Visible = false end end)
-end)
 
 OtherBtn.MouseButton1Click:Connect(function()
     otherOpened = not otherOpened
     TweenService:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play()
     OtherArrow.Text = otherOpened and "▲" or "▼"
-    OtherMenu.Visible = true
     
-    local otherHeight = otherOpened and 80 or 0
-    TweenService:Create(OtherMenu, TweenInfo.new(.2), {Size = UDim2.new(1,-20,0,otherHeight)}):Play()
-    task.delay(.2, function() if not otherOpened then OtherMenu.Visible = false end end)
+    if otherOpened then
+        OtherMenu.Visible = true
+        TweenService:Create(OtherMenu, TweenInfo.new(.2), {Size = UDim2.new(1, 0, 0, 80)}):Play()
+    else
+        local tween = TweenService:Create(OtherMenu, TweenInfo.new(.2), {Size = UDim2.new(1, 0, 0, 0)})
+        tween:Play()
+        tween.Completed:Connect(function()
+            if not otherOpened then OtherMenu.Visible = false end
+        end)
+    end
 end)
 
 -- Переключатели внутри Other
 local FlingToggle, FlingCircle = createToggle(OtherMenu, "Fling Menu", 0)
 local BringToggle, BringCircle = createToggle(OtherMenu, "Bring Parts Menu", 40)
+
 
 -- Функция для генерации внешних окон утилит
 local function createUtilityWindow(titleText)
