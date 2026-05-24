@@ -26,6 +26,119 @@ Frame.BackgroundTransparency = 0.1
 Frame.BorderSizePixel = 0
 Frame.Visible = false
 
+-- Таблица для отслеживания активных уведомлений
+local activeNotifications = {}
+-- Настройки внешнего вида уведомлений (в стиле твоего GUI)
+[span_6](start_span)local NOTIF_BG_COLOR = Color3.fromRGB(18, 18, 22)   -- Темный фон основного GUI[span_6](end_span)
+[span_7](start_span)local NOTIF_STROKE_COLOR = Color3.fromRGB(210, 180, 255) -- Сиреневый цвет обводки[span_7](end_span)
+[span_8](start_span)local TEXT_ACCENT_COLOR = Color3.fromRGB(220, 190, 255)  -- Цвет заголовков[span_8](end_span)
+local GIRL_ASSET_ID = "rbxassetid://11405102553"    -- Asset ID с девочкой (можно заменить на свой)
+
+local function showNotification(message)
+    -- Создание основного фрейма уведомления
+    local notifFrame = Instance.new("Frame")
+    notifFrame.Size = UDim2.new(0, 290, 0, 75)
+    -- Начальная позиция: за пределами экрана справа для эффекта выезжания
+    notifFrame.Position = UDim2.new(1, 310, 1, -95)
+    notifFrame.BackgroundColor3 = NOTIF_BG_COLOR
+    [span_9](start_span)notifFrame.BackgroundTransparency = 0.1 -- Прозрачность как у твоего меню[span_9](end_span)
+    notifFrame.BorderSizePixel = 0
+    [span_10](start_span)notifFrame.Parent = ScreenGui -- Привязываем к твоему ScreenGui[span_10](end_span)
+
+    -- Скругление углов
+    local corner = Instance.new("UICorner")
+    [span_11](start_span)corner.CornerRadius = UDim.new(0, 10) -- Радиус скругления из твоего интерфейса[span_11](end_span)
+    corner.Parent = notifFrame
+
+    -- Обводка фрейма
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = NOTIF_STROKE_COLOR
+    stroke.Thickness = 1.2
+    stroke.Parent = notifFrame
+
+    -- Персонаж девочки (ImageLabel)
+    local girlIcon = Instance.new("ImageLabel")
+    girlIcon.Size = UDim2.new(0, 55, 0, 55)
+    girlIcon.Position = UDim2.new(0, 10, 0, 10)
+    girlIcon.BackgroundTransparency = 1
+    girlIcon.Image = GIRL_ASSET_ID
+    girlIcon.Parent = notifFrame
+
+    -- Закруглим и аватарку персонажа для аккуратности
+    local imgCorner = Instance.new("UICorner")
+    imgCorner.CornerRadius = UDim.new(0, 8)
+    imgCorner.Parent = girlIcon
+
+    -- Заголовок уведомления (сверху слева относительно текста)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -85, 0, 20)
+    titleLabel.Position = UDim2.new(0, 75, 0, 10)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Notification"
+    [span_12](start_span)titleLabel.Font = Enum.Font.GothamBold -- Твой стандартный жирный шрифт[span_12](end_span)
+    titleLabel.TextSize = 14
+    titleLabel.TextColor3 = TEXT_ACCENT_COLOR
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = notifFrame
+
+    -- Сообщение (посередине/снизу)
+    local msgLabel = Instance.new("TextLabel")
+    msgLabel.Size = UDim2.new(1, -90, 0, 38)
+    msgLabel.Position = UDim2.new(0, 75, 0, 27)
+    msgLabel.BackgroundTransparency = 1
+    msgLabel.Text = message
+    [span_13](start_span)msgLabel.Font = Enum.Font.Gotham -- Твой стандартный шрифт[span_13](end_span)
+    msgLabel.TextSize = 12
+    msgLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+    msgLabel.TextWrapped = true
+    msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+    msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+    msgLabel.Parent = notifFrame
+
+    -- ЛОГИКА СДВИГА СТАРЫХ УВЕДОМЛЕНИЙ ВВЕРХ
+    for _, oldNotif in ipairs(activeNotifications) do
+        if oldNotif and oldNotif.Parent then
+            local currentYOffset = oldNotif.Position.Y.Offset
+            -- Плавно поднимаем старое уведомление на его высоту + отступ (85 пикселей)
+            TweenService:Create(oldNotif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(1, -300, 1, currentYOffset - 85)
+            }):Play()
+        end
+    end
+
+    -- Добавляем текущее уведомление в массив отслеживания
+    table.insert(activeNotifications, notifFrame)
+
+    -- Анимация появления (выезжает справа налево)
+    TweenService:Create(notifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -300, 1, -95)
+    }):Play()
+
+    -- Автоматическое скрытие через 3.5 секунды
+    task.delay(3.5, function()
+        -- Анимация уезда обратно вправо и растворения
+        TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 310, 1, notifFrame.Position.Y.Offset),
+            BackgroundTransparency = 1
+        }):Play()
+        
+        -- Растворяем элементы внутри фрейма
+        TweenService:Create(titleLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(msgLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        TweenService:Create(girlIcon, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+        TweenService:Create(stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
+
+        task.wait(0.3)
+
+        -- Удаляем из таблицы активных
+        local index = table.find(activeNotifications, notifFrame)
+        if index then
+            table.remove(activeNotifications, index)
+        end
+        notifFrame:Destroy()
+    end)
+end
+
 -- Функция для независимого перетаскивания элементов
 local function makeDraggable(guiObj, dragHandle)
     dragHandle = dragHandle or guiObj
@@ -561,16 +674,22 @@ do
     local freeCamEnabled = false
 
     AntiAFKToggle.MouseButton1Click:Connect(function()
-        antiAfkEnabled = not antiAfkEnabled
-        TweenService:Create(AntiAFKCircle, TweenInfo.new(.2), {Position = antiAfkEnabled and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()
-        TweenService:Create(AntiAFKToggle, TweenInfo.new(.2), {BackgroundColor3 = antiAfkEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()
-    end)
+    antiAfkEnabled = not antiAfkEnabled
+    [span_16](start_span)TweenService:Create(AntiAFKCircle, TweenInfo.new(.2), {Position = antiAfkEnabled and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()[span_16](end_span)
+    [span_17](start_span)TweenService:Create(AntiAFKToggle, TweenInfo.new(.2), {BackgroundColor3 = antiAfkEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()[span_17](end_span)
+    
+    -- Вызов уведомления
+    showNotification("Anti-AFK был " .. (antiAfkEnabled and "успешно включен!" or "выключен."))
+end)
 
     NoclipToggle.MouseButton1Click:Connect(function()
-        noclipEnabled = not noclipEnabled
-        TweenService:Create(NoclipCircle, TweenInfo.new(.2), {Position = noclipEnabled and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()
-        TweenService:Create(NoclipToggle, TweenInfo.new(.2), {BackgroundColor3 = noclipEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()
-    end)
+    noclipEnabled = not noclipEnabled
+    [span_18](start_span)TweenService:Create(NoclipCircle, TweenInfo.new(.2), {Position = noclipEnabled and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()[span_18](end_span)
+    [span_19](start_span)TweenService:Create(NoclipToggle, TweenInfo.new(.2), {BackgroundColor3 = noclipEnabled and Color3.fromRGB(220,190,255) or Color3.fromRGB(50,50,60)}):Play()[span_19](end_span)
+    
+    -- Вызов уведомления
+    showNotification("Noclip был " .. (noclipEnabled and "успешно включен!" or "выключен."))
+end)
 
     AutoReconToggle.MouseButton1Click:Connect(function()
         autoReconEnabled = not autoReconEnabled
