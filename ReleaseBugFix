@@ -656,7 +656,7 @@ do
         end
     end)
 
-    -- Создание плавающего меню для Fling и Bring
+        -- Создание плавающего меню для Fling и Bring
     local function createFloatingMenu(titleText)
         local win = Instance.new("Frame", ScreenGui)
         win.Size = UDim2.new(0, 200, 0, 250)
@@ -674,6 +674,7 @@ do
         local topBar = Instance.new("Frame", win)
         topBar.Size = UDim2.new(1, 0, 0, 30)
         topBar.BackgroundTransparency = 1
+        topBar.Active = true -- ИСПРАВЛЕНИЕ: Теперь за этот блок можно тянуть
         makeDraggable(win, topBar)
 
         local title = Instance.new("TextLabel", topBar)
@@ -713,12 +714,15 @@ do
 
         local actionBtn = Instance.new("TextButton", win)
         actionBtn.Size = UDim2.new(1, -20, 0, 30)
-        actionBtn.Position = UDim2.new(0, 10, 1, -38)
+        -- ИСПРАВЛЕНИЕ: Абсолютное позиционирование сверху, чтобы скрыть кнопку при сворачивании
+        actionBtn.Position = UDim2.new(0, 10, 0, 212) 
         actionBtn.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
         actionBtn.Text = titleText .. ": [None]"
         actionBtn.TextColor3 = Color3.fromRGB(20, 20, 25)
         actionBtn.Font = Enum.Font.GothamBold
-        actionBtn.TextScaled = true
+        -- ИСПРАВЛЕНИЕ: Выключаем растягивание текста и задаем нормальный размер
+        actionBtn.TextScaled = false
+        actionBtn.TextSize = 14
         Instance.new("UICorner", actionBtn).CornerRadius = UDim.new(0, 6)
 
         local isMin = false
@@ -735,8 +739,11 @@ do
     end
 
     local function populatePlayers(scroll, layout, actionBtn, defaultText, targetCallback)
-        scroll:ClearAllChildren()
-        layout.Parent = scroll
+        -- ИСПРАВЛЕНИЕ: Не используем ClearAllChildren, чтобы не удалить UIListLayout
+        for _, v in pairs(scroll:GetChildren()) do
+            if v:IsA("TextButton") then v:Destroy() end
+        end
+        
         for _, plr in ipairs(game.Players:GetPlayers()) do
             if plr ~= game.Players.LocalPlayer then
                 local btn = Instance.new("TextButton")
@@ -745,6 +752,7 @@ do
                 btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
                 btn.TextColor3 = Color3.new(1, 1, 1)
                 btn.Font = Enum.Font.Gotham
+                btn.TextSize = 13
                 btn.Text = plr.Name
                 Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 
@@ -754,7 +762,11 @@ do
                 end)
             end
         end
-        scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 5)
+        
+        -- ИСПРАВЛЕНИЕ: Ждем рендера, чтобы CanvasSize обновился корректно
+        task.delay(0.05, function()
+            scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 5)
+        end)
     end
 
     -- Функции для Other Menu (Fling & Bring Parts) --
@@ -817,11 +829,16 @@ do
         local hrp = char.HumanoidRootPart
         local oldPos = hrp.CFrame
         
+        -- ИСПРАВЛЕНИЕ: Добавлен BodyThrust для сетевой репликации (чтобы видели все)
         local bv = Instance.new("BodyAngularVelocity")
         bv.AngularVelocity = Vector3.new(0, 99999, 0)
         bv.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-        bv.P = 100000
+        bv.P = math.huge
         bv.Parent = hrp
+        
+        local bt = Instance.new("BodyThrust")
+        bt.Force = Vector3.new(9999, 9999, 9999)
+        bt.Parent = hrp
         
         char.Humanoid.Sit = true
 
@@ -831,6 +848,9 @@ do
             flingTime = flingTime + dt
             if flingTime > 2.5 or not currentFlingTarget.Character or not currentFlingTarget.Character:FindFirstChild("HumanoidRootPart") then
                 if bv then bv:Destroy() end
+                if bt then bt:Destroy() end
+                hrp.Velocity = Vector3.new()
+                hrp.RotVelocity = Vector3.new()
                 hrp.CFrame = oldPos
                 char.Humanoid.Sit = false
                 isFlinging = false
@@ -847,8 +867,12 @@ do
         local targetHRP = currentBringTarget.Character:FindFirstChild("HumanoidRootPart")
         if not targetHRP then return end
 
+        -- ИСПРАВЛЕНИЕ: Расширяем Network Ownership, чтобы части могли лететь издалека
+        pcall(function() sethiddenproperty(game.Players.LocalPlayer, "MaximumSimulationRadius", math.huge) end)
+        pcall(function() sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge) end)
+
         for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored and not part.Parent:FindFirstChild("Humanoid") then
+            if part:IsA("BasePart") and not part.Anchored and not part.Parent:FindFirstChildOfClass("Humanoid") and not part.Parent:IsA("Accessory") then
                 -- Ставим CFrame на игрока и обнуляем velocity, чтобы части не разлетались
                 part.CFrame = targetHRP.CFrame
                 part.Velocity = Vector3.new(0, 0, 0)
@@ -857,6 +881,8 @@ do
         end
     end)
 end
+
+
 
 -- TELEPORT PAGE
 do
