@@ -30,7 +30,7 @@ local activeNotifications = {}
 local NOTIF_BG_COLOR = Color3.fromRGB(18, 18, 22)
 local NOTIF_STROKE_COLOR = Color3.fromRGB(210, 180, 255)
 local TEXT_ACCENT_COLOR = Color3.fromRGB(220, 190, 255)
-local GIRL_ASSET_ID = "rbxthumb://type=Asset&id=125849652369617&w=150&h=150"
+local GIRL_ASSET_ID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
 
 local function showNotification(message)
     local notifFrame = Instance.new("Frame")
