@@ -304,50 +304,77 @@ WelcomeText.TextWrapped = true
 WelcomeText.TextAlignment = Enum.TextXAlignment.Center
 
 -- Кнопка Our GitHub
-local GithubBtn = Instance.new("TextButton", WelcomeGui)
+local GithubBtn = Instance.new("TextButton")
+GithubBtn.Name = "GithubBtn"
 GithubBtn.Size = UDim2.new(0, 180, 0, 40)
 GithubBtn.Position = UDim2.new(0, 25, 0, 125)
 GithubBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 GithubBtn.Text = ""
-applyGradient(GithubBtn)
-Instance.new("UICorner", GithubBtn).CornerRadius = UDim.new(0, 8)
+GithubBtn.ZIndex = 10
+GithubBtn.Visible = true
 
-local GithubLbl = Instance.new("TextLabel", GithubBtn)
+applyGradient(GithubBtn)
+
+local ghCorner = Instance.new("UICorner")
+ghCorner.CornerRadius = UDim.new(0, 8)
+ghCorner.Parent = GithubBtn
+
+local GithubLbl = Instance.new("TextLabel")
 GithubLbl.Size = UDim2.new(1, 0, 1, 0)
 GithubLbl.BackgroundTransparency = 1
 GithubLbl.Text = "our GitHub"
 GithubLbl.Font = Enum.Font.GothamBold
 GithubLbl.TextSize = 14
 GithubLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+GithubLbl.ZIndex = 11
+GithubLbl.Parent = GithubBtn
+
+-- Задаем родителя в самом конце (важно для корректного отображения)
+GithubBtn.Parent = WelcomeGui
 
 GithubBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard("https://github.com/CherryCalCor")
-    elseif toclipboard then
-        toclipboard("https://github.com/CherryCalCor")
-    end
+    pcall(function()
+        if setclipboard then
+            setclipboard("https://github.com/CherryCalCor")
+        elseif toclipboard then
+            toclipboard("https://github.com/CherryCalCor")
+        end
+    end)
 end)
 
 -- Кнопка Launching the main menu
-local LaunchBtn = Instance.new("TextButton", WelcomeGui)
+local LaunchBtn = Instance.new("TextButton")
+LaunchBtn.Name = "LaunchBtn"
 LaunchBtn.Size = UDim2.new(0, 190, 0, 40)
 LaunchBtn.Position = UDim2.new(1, -215, 0, 125)
 LaunchBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 LaunchBtn.Text = ""
-applyGradient(LaunchBtn)
-Instance.new("UICorner", LaunchBtn).CornerRadius = UDim.new(0, 8)
+LaunchBtn.ZIndex = 10
+LaunchBtn.Visible = true
 
-local LaunchLbl = Instance.new("TextLabel", LaunchBtn)
+applyGradient(LaunchBtn)
+
+local launchCorner = Instance.new("UICorner")
+launchCorner.CornerRadius = UDim.new(0, 8)
+launchCorner.Parent = LaunchBtn
+
+local LaunchLbl = Instance.new("TextLabel")
 LaunchLbl.Size = UDim2.new(1, 0, 1, 0)
 LaunchLbl.BackgroundTransparency = 1
 LaunchLbl.Text = "Launching the main menu"
 LaunchLbl.Font = Enum.Font.GothamBold
 LaunchLbl.TextSize = 13
 LaunchLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+LaunchLbl.ZIndex = 11
+LaunchLbl.Parent = LaunchBtn
+
+-- Задаем родителя в самом конце
+LaunchBtn.Parent = WelcomeGui
 
 local welcomeDone = false
 LaunchBtn.MouseButton1Click:Connect(function()
     welcomeDone = true
+    WelcomeGui.Visible = false
     WelcomeGui:Destroy()
 end)
 
