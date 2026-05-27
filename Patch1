@@ -39,13 +39,48 @@ end
 
 applyGradient(Frame)
 
+-- === НАСТРОЙКИ ГЛОБАЛЬНЫХ ПЕРЕМЕННЫХ ТЕМЫ И УВЕДОМЛЕНИЙ ===
+_G.CurrentGradientColors = {
+    Color3.fromRGB(15, 15, 20),
+    Color3.fromRGB(130, 90, 180)
+}
+_G.NotificationsEnabled = true
+_G.NotificationAssetID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
+_G.MainMenuLoaded = false
+
+-- Функция для добавления градиента (динамическая)
+local function applyGradient(obj)
+    local grad = Instance.new("UIGradient")
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, _G.CurrentGradientColors[1]),
+        ColorSequenceKeypoint.new(1, _G.CurrentGradientColors[2])
+    })
+    grad.Rotation = 45
+    grad.Parent = obj
+end
+_G.applyGradient = applyGradient
+
+-- Функция динамического изменения темы для ВСЕХ окон
+_G.changeTheme = function(color1, color2)
+    _G.CurrentGradientColors = {color1, color2}
+    for _, v in pairs(ScreenGui:GetDescendants()) do
+        if v:IsA("UIGradient") then
+            v.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, color1),
+                ColorSequenceKeypoint.new(1, color2)
+            })
+        end
+    end
+end
+
 local activeNotifications = {}
 local NOTIF_BG_COLOR = Color3.fromRGB(18, 18, 22)
 local NOTIF_STROKE_COLOR = Color3.fromRGB(210, 180, 255)
 local TEXT_ACCENT_COLOR = Color3.fromRGB(220, 190, 255)
-local GIRL_ASSET_ID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
 
 local function showNotification(message)
+    if not _G.NotificationsEnabled then return end -- Проверка выключателя уведомлений
+    
     local notifFrame = Instance.new("Frame")
     notifFrame.Size = UDim2.new(0, 290, 0, 75)
     notifFrame.Position = UDim2.new(1, 310, 1, -95)
@@ -68,7 +103,7 @@ local function showNotification(message)
     girlIcon.Size = UDim2.new(0, 55, 0, 55)
     girlIcon.Position = UDim2.new(0, 10, 0, 10)
     girlIcon.BackgroundTransparency = 1
-    girlIcon.Image = GIRL_ASSET_ID
+    girlIcon.Image = _G.NotificationAssetID -- Динамический Asset ID
     girlIcon.Parent = notifFrame
 
     local imgCorner = Instance.new("UICorner")
@@ -115,6 +150,7 @@ local function showNotification(message)
     }):Play()
 
     task.delay(3.5, function()
+        if not notifFrame or not notifFrame.Parent then return end
         TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 310, 1, notifFrame.Position.Y.Offset),
             BackgroundTransparency = 1
@@ -127,13 +163,12 @@ local function showNotification(message)
 
         task.wait(0.3)
         local index = table.find(activeNotifications, notifFrame)
-        if index then
-            table.remove(activeNotifications, index)
-        end
+        if index then table.remove(activeNotifications, index) end
         notifFrame:Destroy()
     end)
 end
 
+    
 -- ИСПРАВЛЕННЫЙ makeDraggable без утечек памяти и зависаний
 local function makeDraggable(guiObj, dragHandle)
     dragHandle = dragHandle or guiObj
@@ -240,6 +275,88 @@ local function createMenuBtn(parent, text, posY, showArrow)
     return btn, arrow, lbl
 end
 
+-- === ПРИВЕТСТВЕННОЕ МЕНЮ (CHERRY TEAM & AMETHYSTGIRL) ===
+local WelcomeGui = Instance.new("Frame")
+WelcomeGui.Parent = ScreenGui
+WelcomeGui.Size = UDim2.new(0, 440, 0, 200)
+WelcomeGui.Position = UDim2.new(0.5, -220, 0.5, -100)
+WelcomeGui.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+WelcomeGui.BackgroundTransparency = 0.15
+WelcomeGui.BorderSizePixel = 0
+applyGradient(WelcomeGui)
+
+local WelcomeCorner = Instance.new("UICorner", WelcomeGui)
+WelcomeCorner.CornerRadius = UDim.new(0, 12)
+
+local WelcomeStroke = Instance.new("UIStroke", WelcomeGui)
+WelcomeStroke.Color = Color3.fromRGB(220, 190, 255)
+WelcomeStroke.Thickness = 1.5
+
+local WelcomeText = Instance.new("TextLabel", WelcomeGui)
+WelcomeText.Size = UDim2.new(1, -40, 0, 70)
+WelcomeText.Position = UDim2.new(0, 20, 0, 30)
+WelcomeText.BackgroundTransparency = 1
+WelcomeText.Text = "We are glad to see you sincerely Cherry Team and AmethystGirl"
+WelcomeText.Font = Enum.Font.GothamBold
+WelcomeText.TextSize = 16
+WelcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+WelcomeText.TextWrapped = true
+WelcomeText.TextAlignment = Enum.TextXAlignment.Center
+
+-- Кнопка Our GitHub
+local GithubBtn = Instance.new("TextButton", WelcomeGui)
+GithubBtn.Size = UDim2.new(0, 180, 0, 40)
+GithubBtn.Position = UDim2.new(0, 25, 0, 125)
+GithubBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+GithubBtn.Text = ""
+applyGradient(GithubBtn)
+Instance.new("UICorner", GithubBtn).CornerRadius = UDim.new(0, 8)
+
+local GithubLbl = Instance.new("TextLabel", GithubBtn)
+GithubLbl.Size = UDim2.new(1, 0, 1, 0)
+GithubLbl.BackgroundTransparency = 1
+GithubLbl.Text = "our GitHub"
+GithubLbl.Font = Enum.Font.GothamBold
+GithubLbl.TextSize = 14
+GithubLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+GithubBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://github.com/CherryCalCor")
+    elseif toclipboard then
+        toclipboard("https://github.com/CherryCalCor")
+    end
+end)
+
+-- Кнопка Launching the main menu
+local LaunchBtn = Instance.new("TextButton", WelcomeGui)
+LaunchBtn.Size = UDim2.new(0, 190, 0, 40)
+LaunchBtn.Position = UDim2.new(1, -215, 0, 125)
+LaunchBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LaunchBtn.Text = ""
+applyGradient(LaunchBtn)
+Instance.new("UICorner", LaunchBtn).CornerRadius = UDim.new(0, 8)
+
+local LaunchLbl = Instance.new("TextLabel", LaunchBtn)
+LaunchLbl.Size = UDim2.new(1, 0, 1, 0)
+LaunchLbl.BackgroundTransparency = 1
+LaunchLbl.Text = "Launching the main menu"
+LaunchLbl.Font = Enum.Font.GothamBold
+LaunchLbl.TextSize = 13
+LaunchLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local welcomeDone = false
+LaunchBtn.MouseButton1Click:Connect(function()
+    welcomeDone = true
+    WelcomeGui:Destroy()
+end)
+
+makeDraggable(WelcomeGui)
+
+-- Цикл задерживает выполнение скрипта, пока не нажата кнопка Launch
+repeat task.wait() until welcomeDone
+
+
 do
     local LoadingFrame = Instance.new("Frame")
     local LoadingTitle = Instance.new("TextLabel")
@@ -331,7 +448,9 @@ do
     TweenService:Create(LoadingStar, TweenInfo.new(0.8), {TextTransparency = 1, Rotation = LoadingStar.Rotation + 90}):Play()
     task.wait(0.8)
 
+    task.wait(0.8)
     LoadingFrame:Destroy()
+    _G.MainMenuLoaded = true -- Сигнализируем, что основное меню готово
 end
 
 Frame.Visible = true
@@ -442,6 +561,13 @@ local VisualsPage = createPage(900)
 local TeleportPage = createPage(700)
 local MovedPage = createPage(500)
 local MainMiscPage = createPage(500)
+local SettingsPage = createPage(600)
+
+-- Создание кнопки навигации
+local SettingsBtn = createNavBtn("Settings")
+SettingsBtn.LayoutOrder = 7
+SettingsBtn.Parent = SideMenuScroll
+
 
 local ServerPage = Instance.new("Frame", Frame)
 ServerPage.Visible = false
@@ -1776,6 +1902,7 @@ VisualsBtn.MouseButton1Click:Connect(function() switchTab(VisualsBtn, VisualsPag
 TeleportBtn.MouseButton1Click:Connect(function() switchTab(TeleportBtn, TeleportPage) end)
 MovedBtn.MouseButton1Click:Connect(function() switchTab(MovedBtn, MovedPage) end)
 MainMiscBtn.MouseButton1Click:Connect(function() switchTab(MainMiscBtn, MainMiscPage) end)
+SettingsBtn.MouseButton1Click:Connect(function() switchTab(SettingsBtn, SettingsPage) end)
 
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(0, 180, 0, 30)
@@ -1836,6 +1963,263 @@ CloseBtn.BackgroundTransparency = 1
 
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
+-- === ДЕКОРАЦИИ И ЛОГИКА РАЗДЕЛОВ SETTINGS ===
+local themeColorsOpened = false
+local notifSystemOpened = false
+
+-- Главная раскрывающаяся кнопка Theme Colors
+local ThemeColorsBtn, ThemeArrow, ThemeLbl = createMenuBtn(SettingsPage, "Theme Colors", 10, true)
+
+-- Панель под список градиентов
+local ThemeColorsPanel = Instance.new("Frame", SettingsPage)
+ThemeColorsPanel.Size = UDim2.new(1, -20, 0, 0)
+ThemeColorsPanel.Position = UDim2.new(0, 10, 0, 50)
+ThemeColorsPanel.BackgroundTransparency = 1
+ThemeColorsPanel.ClipsDescendants = true
+
+local ThemeListLayout = Instance.new("UIListLayout", ThemeColorsPanel)
+ThemeListLayout.Padding = UDim.new(0, 5)
+
+local function createThemeOption(name, c1, c2)
+    local btn = Instance.new("TextButton", ThemeColorsPanel)
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = ""
+    
+    local grad = Instance.new("UIGradient", btn)
+    grad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, c1), ColorSequenceKeypoint.new(1, c2)})
+    grad.Rotation = 45
+    Instance.new("UICorner", btn)
+    
+    local lbl = Instance.new("TextLabel", btn)
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = name
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 13
+    lbl.TextColor3 = Color3.new(1, 1, 1)
+    
+    btn.MouseButton1Click:Connect(function()
+        _G.changeTheme(c1, c2)
+    end)
+end
+
+-- 10 уникальных градиентных тем по твоему запросу
+createThemeOption("Black & Orange", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 120, 0))
+createThemeOption("Black & Red", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 50, 50))
+createThemeOption("Black & Green", Color3.fromRGB(15, 15, 20), Color3.fromRGB(50, 255, 50))
+createThemeOption("Black & Blue", Color3.fromRGB(15, 15, 20), Color3.fromRGB(50, 100, 255))
+createThemeOption("Black & Yellow", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 215, 0))
+createThemeOption("Black & Cyan", Color3.fromRGB(15, 15, 20), Color3.fromRGB(0, 255, 255))
+createThemeOption("Black & Pink", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 105, 180))
+createThemeOption("Black & White", Color3.fromRGB(15, 15, 20), Color3.fromRGB(240, 240, 240))
+createThemeOption("Indigo Night & Gold", Color3.fromRGB(20, 10, 40), Color3.fromRGB(255, 200, 50))
+createThemeOption("Deep Aqua & Mint", Color3.fromRGB(10, 35, 40), Color3.fromRGB(100, 255, 180))
+
+-- Функция Сброса темы (Reset the theme)
+local ResetThemeBtn = Instance.new("TextButton", ThemeColorsPanel)
+ResetThemeBtn.Size = UDim2.new(1, 0, 0, 30)
+ResetThemeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+ResetThemeBtn.Text = "Reset the theme"
+ResetThemeBtn.Font = Enum.Font.GothamBold
+ResetThemeBtn.TextSize = 13
+ResetThemeBtn.TextColor3 = Color3.fromRGB(220, 190, 255)
+Instance.new("UICorner", ResetThemeBtn)
+
+ResetThemeBtn.MouseButton1Click:Connect(function()
+    _G.changeTheme(Color3.fromRGB(15, 15, 20), Color3.fromRGB(130, 90, 180))
+end)
+
+-- Главная раскрывающаяся кнопка Notification system
+local NotifSystemBtn, NotifArrow, NotifLbl = createMenuBtn(SettingsPage, "Notification system", 55, true)
+
+-- Панель под систему уведомлений
+local NotifSystemPanel = Instance.new("Frame", SettingsPage)
+NotifSystemPanel.Size = UDim2.new(1, -20, 0, 0)
+NotifSystemPanel.Position = UDim2.new(0, 10, 0, 95)
+NotifSystemPanel.BackgroundTransparency = 1
+NotifSystemPanel.ClipsDescendants = true
+
+local NotifListLayout = Instance.new("UIListLayout", NotifSystemPanel)
+NotifListLayout.Padding = UDim.new(0, 5)
+
+-- Элемент переключателя (Вкл/Выкл)
+local ToggleCont = Instance.new("Frame", NotifSystemPanel)
+ToggleCont.Size = UDim2.new(1, 0, 0, 35)
+ToggleCont.BackgroundTransparency = 1
+
+local NotifToggle, NotifCircle = createToggle(ToggleCont, "Enable Notifications", 0)
+NotifToggle.Parent = ToggleCont
+NotifToggle.Position = UDim2.new(1, -65, 0.5, -15)
+
+local CustomToggleLbl = Instance.new("TextLabel", ToggleCont)
+CustomToggleLbl.Text = "Notification System Status"
+CustomToggleLbl.Size = UDim2.new(0, 180, 1, 0)
+CustomToggleLbl.BackgroundTransparency = 1
+CustomToggleLbl.TextColor3 = Color3.fromRGB(220, 190, 255)
+CustomToggleLbl.Font = Enum.Font.Gotham
+CustomToggleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+setToggleState(NotifToggle, NotifCircle, true)
+
+NotifToggle.MouseButton1Click:Connect(function()
+    _G.NotificationsEnabled = not _G.NotificationsEnabled
+    setToggleState(NotifToggle, NotifCircle, _G.NotificationsEnabled)
+end)
+
+-- Кнопка для открытия меню кастомизации маскота
+local OpenCustBtn = Instance.new("TextButton", NotifSystemPanel)
+OpenCustBtn.Size = UDim2.new(1, 0, 0, 35)
+OpenCustBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+OpenCustBtn.Text = ""
+applyGradient(OpenCustBtn)
+Instance.new("UICorner", OpenCustBtn)
+
+local OpenCustLbl = Instance.new("TextLabel", OpenCustBtn)
+OpenCustLbl.Size = UDim2.new(1, 0, 1, 0)
+OpenCustLbl.BackgroundTransparency = 1
+OpenCustLbl.Text = "Character Customization Menu"
+OpenCustLbl.Font = Enum.Font.GothamBold
+OpenCustLbl.TextSize = 13
+OpenCustLbl.TextColor3 = Color3.new(1, 1, 1)
+
+-- Функция динамической перестройки высоты страницы Настроек
+local function refreshSettingsLayout()
+    local themeH = themeColorsOpened and ThemeListLayout.AbsoluteContentSize.Y + 10 or 0
+    local notifH = notifSystemOpened and NotifListLayout.AbsoluteContentSize.Y + 10 or 0
+    
+    TweenService:Create(ThemeColorsPanel, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, themeH)}):Play()
+    TweenService:Create(NotifSystemBtn, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 50 + themeH)}):Play()
+    TweenService:Create(NotifSystemPanel, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 95 + themeH), Size = UDim2.new(1, -20, 0, notifH)}):Play()
+    
+    SettingsPage.CanvasSize = UDim2.new(0, 0, 0, 110 + themeH + notifH)
+end
+
+ThemeColorsBtn.MouseButton1Click:Connect(function()
+    themeColorsOpened = not themeColorsOpened
+    ThemeArrow.Text = themeColorsOpened and "▲" or "▼"
+    refreshSettingsLayout()
+end)
+
+NotifSystemBtn.MouseButton1Click:Connect(function()
+    notifSystemOpened = not notifSystemOpened
+    NotifArrow.Text = notifSystemOpened and "▲" or "▼"
+    refreshSettingsLayout()
+end)
+
+
+-- === ОТДЕЛЬНОЕ МАЛЕНЬКОЕ ОКНО CHARACTER CUSTOMIZATION ===
+local CharCustWin = Instance.new("Frame", ScreenGui)
+CharCustWin.Size = UDim2.new(0, 300, 0, 150)
+CharCustWin.Position = UDim2.new(0.5, -150, 0.5, -75)
+CharCustWin.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+CharCustWin.Visible = false
+CharCustWin.BorderSizePixel = 0
+applyGradient(CharCustWin)
+Instance.new("UICorner", CharCustWin).CornerRadius = UDim.new(0, 10)
+
+local CustStroke = Instance.new("UIStroke", CharCustWin)
+CustStroke.Color = Color3.fromRGB(210, 180, 255)
+CustStroke.Thickness = 1.2
+
+local CustTopBar = Instance.new("Frame", CharCustWin)
+CustTopBar.Size = UDim2.new(1, 0, 0, 30)
+CustTopBar.BackgroundTransparency = 1
+
+local CustTitle = Instance.new("TextLabel", CustTopBar)
+CustTitle.Size = UDim2.new(0, 180, 1, 0)
+CustTitle.Position = UDim2.new(0, 10, 0, 0)
+CustTitle.BackgroundTransparency = 1
+CustTitle.Text = "Character Customization"
+CustTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+CustTitle.Font = Enum.Font.GothamBold
+CustTitle.TextSize = 13
+CustTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+makeDraggable(CharCustWin, CustTopBar)
+
+-- Кнопка Сворачивания (-)
+local CustMinBtn = Instance.new("TextButton", CustTopBar)
+CustMinBtn.Size = UDim2.new(0, 25, 0, 25)
+CustMinBtn.Position = UDim2.new(1, -55, 0, 2)
+CustMinBtn.BackgroundTransparency = 1
+CustMinBtn.Text = "-"
+CustMinBtn.TextColor3 = Color3.new(1, 1, 1)
+CustMinBtn.TextSize = 18
+
+-- Кнопка Закрытия (X)
+local CustCloseBtn = Instance.new("TextButton", CustTopBar)
+CustCloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CustCloseBtn.Position = UDim2.new(1, -30, 0, 2)
+CustCloseBtn.BackgroundTransparency = 1
+CustCloseBtn.Text = "X"
+CustCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CustCloseBtn.Font = Enum.Font.GothamBold
+
+-- Тело контента меню
+local CustContent = Instance.new("Frame", CharCustWin)
+CustContent.Size = UDim2.new(1, 0, 1, -30)
+CustContent.Position = UDim2.new(0, 0, 0, 30)
+CustContent.BackgroundTransparency = 1
+
+-- Текстовое Поле Ввода Asset ID
+local AssetTextBox = Instance.new("TextBox", CustContent)
+AssetTextBox.Size = UDim2.new(1, -20, 0, 35)
+AssetTextBox.Position = UDim2.new(0, 10, 0, 10)
+AssetTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+AssetTextBox.Text = ""
+AssetTextBox.PlaceholderText = "Paste Asset ID here..."
+AssetTextBox.TextColor3 = Color3.new(1, 1, 1)
+AssetTextBox.Font = Enum.Font.Gotham
+AssetTextBox.TextSize = 13
+Instance.new("UICorner", AssetTextBox).CornerRadius = UDim.new(0, 6)
+
+Instance.new("UIStroke", AssetTextBox).Color = Color3.fromRGB(60, 60, 70)
+
+AssetTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local val = AssetTextBox.Text
+    if val ~= "" then
+        if tonumber(val) then
+            _G.NotificationAssetID = "rbxthumb://type=Asset&id=" .. val .. "&w=150&h=150"
+        else
+            _G.NotificationAssetID = val
+        end
+    end
+end)
+
+-- Кнопка Reset (сброс к исходному маскоту)
+local ResetAssetBtn = Instance.new("TextButton", CustContent)
+ResetAssetBtn.Size = UDim2.new(1, -20, 0, 35)
+ResetAssetBtn.Position = UDim2.new(0, 10, 0, 55)
+ResetAssetBtn.BackgroundColor3 = Color3.fromRGB(50, 45, 60)
+ResetAssetBtn.Text = "Reset Asset ID"
+ResetAssetBtn.Font = Enum.Font.GothamBold
+ResetAssetBtn.TextSize = 13
+ResetAssetBtn.TextColor3 = Color3.fromRGB(220, 190, 255)
+Instance.new("UICorner", ResetAssetBtn).CornerRadius = UDim.new(0, 6)
+
+ResetAssetBtn.MouseButton1Click:Connect(function()
+    _G.NotificationAssetID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
+    AssetTextBox.Text = ""
+    showNotification("Asset ID возвращен по умолчанию!")
+end)
+
+-- Управление окном кастомизации
+OpenCustBtn.MouseButton1Click:Connect(function() CharCustWin.Visible = not CharCustWin.Visible end)
+CustCloseBtn.MouseButton1Click:Connect(function() CharCustWin.Visible = false end)
+
+local custMinimized = false
+CustMinBtn.MouseButton1Click:Connect(function()
+    custMinimized = not custMinimized
+    if custMinimized then
+        CharCustWin:TweenSize(UDim2.new(0, 300, 0, 30), "Out", "Quad", 0.2, true)
+        CustContent.Visible = false
+    else
+        CharCustWin:TweenSize(UDim2.new(0, 300, 0, 150), "Out", "Quad", 0.2, true)
+        CustContent.Visible = true
+    end
+end)
+
 local ToggleBtn = Instance.new("TextButton", ScreenGui)
 ToggleBtn.Size = UDim2.new(0,50,0,50)
 ToggleBtn.Position = UDim2.new(0,50,0.5,-25)
@@ -1858,7 +2242,8 @@ local ToggleStroke = Instance.new("UIStroke", ToggleBtn)
 ToggleStroke.Color = Color3.fromRGB(240,220,255)
 
 task.spawn(function()
-    repeat task.wait() until Frame.Parent
+    -- Ожидаем, пока завершится цепочка: Приветствие -> Загрузочный бар
+    repeat task.wait() until _G.MainMenuLoaded == true
     ToggleBtn.Visible = true
     showNotification("SEPTUS HUB успешно загружен!")
 end)
