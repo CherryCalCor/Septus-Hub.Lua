@@ -1106,10 +1106,6 @@ do
         end)
     end)
 
-    local RunService = game:GetService("RunService")
-local bringConnection = nil
-local isBringing = false
-
 BringActionBtn.MouseButton1Click:Connect(function()
     if not currentBringTarget or not currentBringTarget.Character then 
         return 
