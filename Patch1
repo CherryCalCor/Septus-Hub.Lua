@@ -1106,24 +1106,119 @@ do
         end)
     end)
 
-    BringActionBtn.MouseButton1Click:Connect(function()
-        if not currentBringTarget or not currentBringTarget.Character then return end
-        local targetHRP = currentBringTarget.Character:FindFirstChild("HumanoidRootPart")
-        if not targetHRP then return end
-        showNotification("Перемещение объектов к " .. currentBringTarget.Name)
+    local RunService = game:GetService("RunService")
+local bringConnection = nil
+local isBringing = false
 
-        pcall(function() sethiddenproperty(game.Players.LocalPlayer, "MaximumSimulationRadius", math.huge) end)
-        pcall(function() sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge) end)
+BringActionBtn.MouseButton1Click:Connect(function()
+    if not currentBringTarget or not currentBringTarget.Character then 
+        return 
+    end
 
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored and not part.Parent:FindFirstChildOfClass("Humanoid") and not part.Parent:IsA("Accessory") then
-                part.CFrame = targetHRP.CFrame
-                part.Velocity = Vector3.new(0, 0, 0)
-                part.RotVelocity = Vector3.new(0, 0, 0)
+    local targetHRP = currentBringTarget.Character:FindFirstChild("HumanoidRootPart")
+    if not targetHRP then 
+        return 
+    end
+
+    if isBringing then
+        isBringing = false
+        if bringConnection then
+            bringConnection:Disconnect()
+            bringConnection = nil
+        end
+        showNotification("Преследование остановлено")
+        return
+    end
+
+    isBringing = true
+    showNotification("Сбор физических объектов к " .. currentBringTarget.Name)
+
+    -- Увеличиваем радиус, чтобы перехватить Network Ownership
+    pcall(function()
+        local lp = game.Players.LocalPlayer
+        sethiddenproperty(lp, "MaximumSimulationRadius", math.huge)
+        sethiddenproperty(lp, "SimulationRadius", math.huge)
+    end)
+
+    -- Обновленный фильтр: ищем физические двери (на петлях) и машины
+    local function isTargetObject(part)
+        if not part:IsA("BasePart") or part.Anchored then return false end
+        if part.Parent:FindFirstChildOfClass("Humanoid") then return false end
+        if part.Parent:IsA("Accessory") then return false end
+
+        -- 1. Проверка на машины (ищем VehicleSeat)
+        local model = part:FindFirstAncestorOfClass("Model")
+        if model and model:FindFirstChildOfClass("VehicleSeat", true) then
+            return true
+        end
+
+        -- 2. Проверка на физические двери (наличие Constraint, Attachment)
+        local hasPhysicsJoint = false
+        
+        -- Проверяем внутри самой детали
+        if part:FindFirstChildOfClass("Constraint") or part:FindFirstChildOfClass("Attachment") then
+            hasPhysicsJoint = true
+        end
+        
+        -- Проверяем в родительской модели (часто петля лежит рядом с дверью)
+        if not hasPhysicsJoint and part.Parent then
+            if part.Parent:FindFirstChildOfClass("Constraint", true) or part.Parent:FindFirstChildOfClass("Attachment", true) then
+                hasPhysicsJoint = true
+            end
+        end
+
+        if hasPhysicsJoint then
+            return true
+        end
+
+        -- 3. Дополнительный фильтр по размеру (берем крупные объекты, игнорим мелкий мусор)
+        -- Если дверь просто валяется без петель, но её объем достаточно большой
+        local volume = part.Size.X * part.Size.Y * part.Size.Z
+        if volume > 15 then 
+            return true
+        end
+
+        return false
+    end
+
+    local targetParts = {}
+    for _, part in pairs(workspace:GetDescendants()) do
+        if isTargetObject(part) then
+            
+            -- ВАЖНО: Отрываем дверь от петель и сварки, чтобы её можно было свободно утащить
+            for _, child in pairs(part:GetDescendants()) do
+                if child:IsA("Constraint") or child:IsA("Attachment") or child:IsA("Weld") or child:IsA("WeldConstraint") then
+                    pcall(function() child:Destroy() end)
+                end
+            end
+
+            table.insert(targetParts, part)
+            -- Отключаем коллизию, чтобы облако объектов не расталкивало само себя
+            part.CanCollide = false 
+        end
+    end
+
+    -- Запускаем постоянное обновление позиций
+    bringConnection = RunService.Heartbeat:Connect(function()
+        if not targetHRP or not targetHRP.Parent then
+            isBringing = false
+            bringConnection:Disconnect()
+            return
+        end
+
+        for _, part in pairs(targetParts) do
+            if part and part.Parent then
+                -- Глушим инерцию
+                part.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                part.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                
+                -- Двигаем объекты облаком вокруг игрока
+                local offset = Vector3.new(math.random(-4, 4), math.random(1, 4), math.random(-4, 4))
+                part.CFrame = targetHRP.CFrame + offset
             end
         end
     end)
-end
+end)
 
 do
     local TPCard = Instance.new("Frame", TeleportPage)
