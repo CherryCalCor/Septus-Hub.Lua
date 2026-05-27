@@ -301,7 +301,8 @@ WelcomeText.Font = Enum.Font.GothamBold
 WelcomeText.TextSize = 16
 WelcomeText.TextColor3 = Color3.fromRGB(255, 255, 255)
 WelcomeText.TextWrapped = true
-WelcomeText.TextAlignment = Enum.TextXAlignment.Center
+WelcomeText.TextXAlignment = Enum.TextXAlignment.Center
+WelcomeText.TextYAlignment = Enum.TextYAlignment.Center
 
 -- Кнопка Our GitHub
 local GithubBtn = Instance.new("TextButton")
