@@ -1,0 +1,741 @@
+-- === ЧАСТЬ 1: СЕРВИСЫ, БАЗА, ЗАГРУЗКА, HOME, SERVER ===
+local Services = {
+    Http = game:GetService("HttpService"),
+    TP = game:GetService("TeleportService"),
+    TS = game:GetService("TweenService"),
+    UIS = game:GetService("UserInputService"),
+    Run = game:GetService("RunService"),
+    VU = game:GetService("VirtualUser"),
+    Players = game:GetService("Players"),
+    Core = game:GetService("CoreGui")
+}
+
+local LP = Services.Players.LocalPlayer
+local UI = { ActiveNotifs = {}, Pages = {}, NavBtns = {} }
+
+_G.CurrentGradientColors = {Color3.fromRGB(15, 15, 20), Color3.fromRGB(130, 90, 180)}
+_G.NotificationsEnabled = true
+_G.NotificationAssetID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
+_G.MainMenuLoaded = false
+
+local function applyGradient(obj)
+    local grad = Instance.new("UIGradient", obj)
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, _G.CurrentGradientColors[1]),
+        ColorSequenceKeypoint.new(1, _G.CurrentGradientColors[2])
+    })
+    grad.Rotation = 45
+end
+_G.applyGradient = applyGradient
+
+_G.changeTheme = function(c1, c2)
+    _G.CurrentGradientColors = {c1, c2}
+    if not UI.Screen then return end
+    for _, v in pairs(UI.Screen:GetDescendants()) do
+        if v:IsA("UIGradient") then v.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, c1), ColorSequenceKeypoint.new(1, c2)}) end
+    end
+end
+
+local function showNotification(message)
+    if not _G.NotificationsEnabled then return end
+    local notifFrame = Instance.new("Frame", UI.Screen)
+    notifFrame.Size = UDim2.new(0, 290, 0, 75); notifFrame.Position = UDim2.new(1, 310, 1, -95)
+    notifFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255); notifFrame.BackgroundTransparency = 0.1; notifFrame.BorderSizePixel = 0
+    applyGradient(notifFrame); Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 10)
+    
+    Instance.new("UIStroke", notifFrame).Color = Color3.fromRGB(210, 180, 255); notifFrame.UIStroke.Thickness = 1.2
+
+    local girlIcon = Instance.new("ImageLabel", notifFrame)
+    girlIcon.Size = UDim2.new(0, 55, 0, 55); girlIcon.Position = UDim2.new(0, 10, 0, 10); girlIcon.BackgroundTransparency = 1
+    girlIcon.Image = _G.NotificationAssetID; Instance.new("UICorner", girlIcon).CornerRadius = UDim.new(0, 8)
+
+    local titleLabel = Instance.new("TextLabel", notifFrame)
+    titleLabel.Size = UDim2.new(1, -85, 0, 20); titleLabel.Position = UDim2.new(0, 75, 0, 10); titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Notification"; titleLabel.Font = Enum.Font.GothamBold; titleLabel.TextSize = 14; titleLabel.TextColor3 = Color3.fromRGB(220, 190, 255); titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local msgLabel = Instance.new("TextLabel", notifFrame)
+    msgLabel.Size = UDim2.new(1, -90, 0, 38); msgLabel.Position = UDim2.new(0, 75, 0, 27); msgLabel.BackgroundTransparency = 1
+    msgLabel.Text = message; msgLabel.Font = Enum.Font.Gotham; msgLabel.TextSize = 12; msgLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+    msgLabel.TextWrapped = true; msgLabel.TextXAlignment = Enum.TextXAlignment.Left; msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+    for _, oldNotif in ipairs(UI.ActiveNotifs) do
+        if oldNotif and oldNotif.Parent then Services.TS:Create(oldNotif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(1, -300, 1, oldNotif.Position.Y.Offset - 85)}):Play() end
+    end
+    table.insert(UI.ActiveNotifs, notifFrame)
+    Services.TS:Create(notifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(1, -300, 1, -95)}):Play()
+
+    task.delay(3.5, function()
+        if not notifFrame or not notifFrame.Parent then return end
+        Services.TS:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 310, 1, notifFrame.Position.Y.Offset), BackgroundTransparency = 1}):Play()
+        Services.TS:Create(titleLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play(); Services.TS:Create(msgLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+        Services.TS:Create(girlIcon, TweenInfo.new(0.2), {ImageTransparency = 1}):Play(); Services.TS:Create(notifFrame.UIStroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
+        task.wait(0.3); local index = table.find(UI.ActiveNotifs, notifFrame); if index then table.remove(UI.ActiveNotifs, index) end; notifFrame:Destroy()
+    end)
+end
+
+local function makeDraggable(guiObj, dragHandle)
+    dragHandle = dragHandle or guiObj
+    local dragging, dragStart, startPos
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true; dragStart = input.Position; startPos = guiObj.Position end
+    end)
+    dragHandle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+    end)
+    Services.UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            guiObj.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+local function createToggle(parent, name, y)
+    local label = Instance.new("TextLabel", parent)
+    label.Text = name; label.Size = UDim2.new(0, 150, 0, 30); label.Position = UDim2.new(0, 0, 0, y); label.BackgroundTransparency = 1; label.TextColor3 = Color3.fromRGB(220, 190, 255); label.Font = Enum.Font.Gotham
+    local bg = Instance.new("TextButton", parent)
+    bg.Text = ""; bg.Size = UDim2.new(0, 60, 0, 30); bg.Position = UDim2.new(1, -65, 0, y); bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(bg); Instance.new("UICorner", bg).CornerRadius = UDim.new(1, 0)
+    local circle = Instance.new("Frame", bg)
+    circle.Size = UDim2.new(0, 24, 0, 24); circle.Position = UDim2.new(0, 3, 0.5, -12); circle.BackgroundColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    return bg, circle
+end
+
+local function setToggleState(bg, circle, state, toggleName)
+    Services.TS:Create(circle, TweenInfo.new(.2), {Position = state and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()
+    if state then
+        bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(bg)
+    else
+        for _, v in pairs(bg:GetChildren()) do if v:IsA("UIGradient") then v:Destroy() end end
+        bg.BackgroundColor3 = Color3.fromRGB(50,50,60)
+    end
+    if toggleName then showNotification(toggleName .. (state and " включен!" or " выключен.")) end
+end
+
+local function createMenuBtn(parent, text, posY, showArrow)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(1,-20,0,35); btn.Position = UDim2.new(0,10,0,posY); btn.BackgroundColor3 = Color3.fromRGB(255,255,255); btn.Text = ""; applyGradient(btn); Instance.new("UICorner", btn)
+    local lbl = Instance.new("TextLabel", btn)
+    lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.TextColor3 = Color3.fromRGB(255, 255, 255); lbl.Font = Enum.Font.GothamBold
+    local arrow = nil
+    if showArrow then
+        arrow = Instance.new("TextLabel", btn); arrow.Size = UDim2.new(0,20,1,0); arrow.Position = UDim2.new(1,-25,0,0); arrow.BackgroundTransparency = 1; arrow.Text = "▼"; arrow.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+    return btn, arrow, lbl
+end
+
+UI.Screen = Instance.new("ScreenGui")
+UI.Screen.Parent = Services.Core:FindFirstChild("RobloxGui") or LP:WaitForChild("PlayerGui")
+UI.Screen.ResetOnSpawn = false
+UI.Screen.Name = "MainGUI"
+
+do -- Welcome Menu
+    local WelcomeGui = Instance.new("Frame", UI.Screen)
+    WelcomeGui.Size = UDim2.new(0, 440, 0, 200); WelcomeGui.Position = UDim2.new(0.5, -220, 0.5, -100); WelcomeGui.BackgroundColor3 = Color3.fromRGB(255, 255, 255); WelcomeGui.BackgroundTransparency = 0.15; WelcomeGui.BorderSizePixel = 0; applyGradient(WelcomeGui); Instance.new("UICorner", WelcomeGui).CornerRadius = UDim.new(0, 12)
+    Instance.new("UIStroke", WelcomeGui).Color = Color3.fromRGB(220, 190, 255); WelcomeGui.UIStroke.Thickness = 1.5
+    local txt = Instance.new("TextLabel", WelcomeGui); txt.Size = UDim2.new(1, -40, 0, 70); txt.Position = UDim2.new(0, 20, 0, 30); txt.BackgroundTransparency = 1; txt.Text = "We are glad to see you sincerely Cherry Team and AmethystGirl"; txt.Font = Enum.Font.GothamBold; txt.TextSize = 16; txt.TextColor3 = Color3.fromRGB(255, 255, 255); txt.TextWrapped = true
+    
+    local GithubBtn = Instance.new("TextButton", WelcomeGui); GithubBtn.Size = UDim2.new(0, 180, 0, 40); GithubBtn.Position = UDim2.new(0, 25, 0, 125); GithubBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); GithubBtn.Text = ""; applyGradient(GithubBtn); Instance.new("UICorner", GithubBtn).CornerRadius = UDim.new(0, 8)
+    local glbl = Instance.new("TextLabel", GithubBtn); glbl.Size = UDim2.new(1, 0, 1, 0); glbl.BackgroundTransparency = 1; glbl.Text = "our GitHub"; glbl.Font = Enum.Font.GothamBold; glbl.TextSize = 14; glbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    GithubBtn.MouseButton1Click:Connect(function() pcall(function() setclipboard("https://github.com/CherryCalCor") end) end)
+
+    local LaunchBtn = Instance.new("TextButton", WelcomeGui); LaunchBtn.Size = UDim2.new(0, 190, 0, 40); LaunchBtn.Position = UDim2.new(1, -215, 0, 125); LaunchBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); LaunchBtn.Text = ""; applyGradient(LaunchBtn); Instance.new("UICorner", LaunchBtn).CornerRadius = UDim.new(0, 8)
+    local llbl = Instance.new("TextLabel", LaunchBtn); llbl.Size = UDim2.new(1, 0, 1, 0); llbl.BackgroundTransparency = 1; llbl.Text = "Launching the main menu"; llbl.Font = Enum.Font.GothamBold; llbl.TextSize = 13; llbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local welcomeDone = false; LaunchBtn.MouseButton1Click:Connect(function() welcomeDone = true; WelcomeGui.Visible = false; WelcomeGui:Destroy() end); makeDraggable(WelcomeGui)
+    repeat task.wait() until welcomeDone
+end
+
+do -- Loading Screen
+    local LoadingFrame = Instance.new("Frame", UI.Screen)
+    LoadingFrame.Size = UDim2.new(0,500,0,300); LoadingFrame.Position = UDim2.new(0.5,-250,0.5,-150); LoadingFrame.BackgroundColor3 = Color3.fromRGB(255,255,255); applyGradient(LoadingFrame); LoadingFrame.BackgroundTransparency = 0.15; Instance.new("UICorner", LoadingFrame).CornerRadius = UDim.new(0,20); Instance.new("UIStroke", LoadingFrame).Color = Color3.fromRGB(220,190,255); LoadingFrame.UIStroke.Thickness = 1.5
+
+    local LoadingTitle = Instance.new("TextLabel", LoadingFrame); LoadingTitle.Size = UDim2.new(1,0,0,60); LoadingTitle.Position = UDim2.new(0,0,0.4,0); LoadingTitle.BackgroundTransparency = 1; LoadingTitle.Text = "SEPTUS HUB"; LoadingTitle.Font = Enum.Font.GothamBlack; LoadingTitle.TextSize = 34; LoadingTitle.TextColor3 = Color3.fromRGB(220,190,255)
+    local LoadingStar = Instance.new("TextLabel", LoadingFrame); LoadingStar.Size = UDim2.new(0,80,0,80); LoadingStar.Position = UDim2.new(0.5,-40,0.3,-40); LoadingStar.BackgroundTransparency = 1; LoadingStar.Text = "★"; LoadingStar.TextSize = 65; LoadingStar.Font = Enum.Font.SourceSansBold; LoadingStar.TextColor3 = Color3.fromRGB(220,190,255); Instance.new("UIStroke", LoadingStar).Color = Color3.fromRGB(235,215,255)
+
+    task.spawn(function() while LoadingStar.Parent do local rotate = Services.TS:Create(LoadingStar, TweenInfo.new(2, Enum.EasingStyle.Linear), {Rotation = LoadingStar.Rotation + 360}); rotate:Play(); rotate.Completed:Wait() end end)
+    task.spawn(function() while LoadingStar.Parent do Services.TS:Create(LoadingStar, TweenInfo.new(1), {TextTransparency = 0.2}):Play(); task.wait(1); Services.TS:Create(LoadingStar, TweenInfo.new(1), {TextTransparency = 0}):Play(); task.wait(1) end end)
+
+    local LoadingBarBG = Instance.new("Frame", LoadingFrame); LoadingBarBG.Size = UDim2.new(0,250,0,10); LoadingBarBG.Position = UDim2.new(0.5,-125,0.55,0); LoadingBarBG.BackgroundColor3 = Color3.fromRGB(40,40,50); LoadingBarBG.BorderSizePixel = 0; Instance.new("UICorner", LoadingBarBG)
+    local LoadingBar = Instance.new("Frame", LoadingBarBG); LoadingBar.Size = UDim2.new(0,0,1,0); LoadingBar.BackgroundColor3 = Color3.fromRGB(210,180,255); LoadingBar.BorderSizePixel = 0; Instance.new("UICorner", LoadingBar)
+
+    Services.TS:Create(LoadingBar, TweenInfo.new(7, Enum.EasingStyle.Linear), {Size = UDim2.new(1,0,1,0)}):Play(); task.wait(7)
+    Services.TS:Create(LoadingFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play(); Services.TS:Create(LoadingTitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play(); Services.TS:Create(LoadingBarBG, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play(); Services.TS:Create(LoadingBar, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+    task.wait(1); Services.TS:Create(LoadingStar, TweenInfo.new(0.8), {TextTransparency = 1, Rotation = LoadingStar.Rotation + 90}):Play(); task.wait(0.8); LoadingFrame:Destroy(); _G.MainMenuLoaded = true
+end
+
+UI.Frame = Instance.new("Frame", UI.Screen)
+UI.Frame.Size = UDim2.new(0, 437, 0, 238); UI.Frame.Position = UDim2.new(0.5, -218.5, 0.5, -119); UI.Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255); UI.Frame.BackgroundTransparency = 0.1; UI.Frame.BorderSizePixel = 0; UI.Frame.ClipsDescendants = true; UI.Frame.Visible = false
+applyGradient(UI.Frame); Instance.new("UICorner", UI.Frame).CornerRadius = UDim.new(0,10)
+local mainStroke = Instance.new("UIStroke", UI.Frame); mainStroke.Color = Color3.fromRGB(210,180,255); mainStroke.Thickness = 1.2
+
+local TopBar = Instance.new("Frame", UI.Frame)
+TopBar.Size = UDim2.new(1, -2, 0, 1); TopBar.Position = UDim2.new(0, 1, 0.12, 0); TopBar.BackgroundColor3 = Color3.fromRGB(140,140,140); TopBar.BackgroundTransparency = 0.35; TopBar.BorderSizePixel = 0
+
+UI.SideBar = Instance.new("Frame", UI.Frame)
+UI.SideBar.Size = UDim2.new(0, 1, 1, -30); UI.SideBar.Position = UDim2.new(0, 100, 0, 30); UI.SideBar.BackgroundColor3 = Color3.fromRGB(140,140,140); UI.SideBar.BackgroundTransparency = 0.35; UI.SideBar.BorderSizePixel = 0
+
+UI.SideMenuScroll = Instance.new("ScrollingFrame", UI.Frame)
+UI.SideMenuScroll.Size = UDim2.new(0, 105, 1, -35); UI.SideMenuScroll.Position = UDim2.new(0, 0, 0, 35); UI.SideMenuScroll.BackgroundTransparency = 1; UI.SideMenuScroll.ScrollBarThickness = 2; UI.SideMenuScroll.ScrollBarImageColor3 = Color3.fromRGB(220,190,255); UI.SideMenuScroll.BorderSizePixel = 0
+local SideLayout = Instance.new("UIListLayout", UI.SideMenuScroll); SideLayout.Padding = UDim.new(0, 7); SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SideLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() UI.SideMenuScroll.CanvasSize = UDim2.new(0, 0, 0, SideLayout.AbsoluteContentSize.Y + 10) end)
+
+local function createNavBtn(text, order)
+    local btn = Instance.new("TextButton", UI.SideMenuScroll); btn.Size = UDim2.new(0,80,0,28); btn.BackgroundColor3 = Color3.fromRGB(255,255,255); applyGradient(btn); btn.Text = ""; btn.LayoutOrder = order; Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+    local lbl = Instance.new("TextLabel", btn); lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.TextColor3 = Color3.fromRGB(255, 255, 255); lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 14
+    local indicator = Instance.new("Frame", btn); indicator.Name = "Indicator"; indicator.Size = UDim2.new(0, 3, 0.6, 0); indicator.Position = UDim2.new(1, -6, 0.2, 0); indicator.BackgroundColor3 = Color3.fromRGB(220, 190, 255); indicator.BackgroundTransparency = 1; Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
+    return btn
+end
+
+local function createPage(canvasY)
+    local page = Instance.new("ScrollingFrame", UI.Frame)
+    page.Position = UDim2.new(0,110,0,40); page.Size = UDim2.new(1,-120,1,-50); page.CanvasSize = UDim2.new(0,0,0,canvasY); page.ScrollBarThickness = 4; page.BackgroundTransparency = 1; page.Visible = false; page.BorderSizePixel = 0
+    return page
+end
+
+UI.NavBtns.Home = createNavBtn("Home", 1); UI.NavBtns.Server = createNavBtn("Server", 2); UI.NavBtns.Visuals = createNavBtn("Visuals", 3)
+UI.NavBtns.Teleport = createNavBtn("Teleport", 4); UI.NavBtns.Moved = createNavBtn("Moved", 5); UI.NavBtns.Misc = createNavBtn("Misc", 6)
+UI.NavBtns.Settings = createNavBtn("Settings", 7); UI.NavBtns.Help = createNavBtn("Help", 8)
+
+UI.Pages.Home = createPage(400); UI.Pages.Server = Instance.new("Frame", UI.Frame); UI.Pages.Visuals = createPage(900)
+UI.Pages.Teleport = createPage(700); UI.Pages.Moved = createPage(500); UI.Pages.Misc = createPage(500)
+UI.Pages.Settings = createPage(600); UI.Pages.Help = createPage(1000)
+UI.Pages.Server.Visible = false; UI.Pages.Server.Position = UDim2.new(0,110,0,40); UI.Pages.Server.Size = UDim2.new(1,-120,1,-50); UI.Pages.Server.BackgroundTransparency = 1
+
+do -- Home Page
+    local PlayerCard = Instance.new("Frame", UI.Pages.Home)
+    PlayerCard.Size = UDim2.new(1,-10,0,80); PlayerCard.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(PlayerCard); PlayerCard.BackgroundTransparency = .15; Instance.new("UICorner", PlayerCard)
+    local Avatar = Instance.new("ImageLabel", PlayerCard); Avatar.Size = UDim2.new(0,55,0,55); Avatar.Position = UDim2.new(0,10,0.5,-27); Avatar.BackgroundTransparency = 1
+    pcall(function() Avatar.Image = Services.Players:GetUserThumbnailAsync(LP.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420) end)
+    local Welcome = Instance.new("TextLabel", PlayerCard); Welcome.Position = UDim2.new(0,75,0,20); Welcome.Size = UDim2.new(1,-80,0,30); Welcome.BackgroundTransparency = 1; Welcome.Text = "Welcome, " .. LP.Name; Welcome.TextColor3 = Color3.fromRGB(255,255,255); Welcome.Font = Enum.Font.GothamBold; Welcome.TextSize = 18; Welcome.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Status = Instance.new("Frame", UI.Pages.Home); Status.Position = UDim2.new(0,0,0,95); Status.Size = UDim2.new(1,-10,0,160); Status.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(Status); Status.BackgroundTransparency = .15; Instance.new("UICorner", Status)
+    local StatusTitle = Instance.new("TextLabel", Status); StatusTitle.Text = "Status"; StatusTitle.Position = UDim2.new(0,10,0,5); StatusTitle.Size = UDim2.new(1,0,0,20); StatusTitle.BackgroundTransparency = 1; StatusTitle.TextColor3 = Color3.fromRGB(255,255,255); StatusTitle.Font = Enum.Font.GothamBold; StatusTitle.TextXAlignment = Enum.TextXAlignment.Left
+    local GameLabel = Instance.new("TextLabel", Status); local FPSLabel = Instance.new("TextLabel", Status); local PingLabel = Instance.new("TextLabel", Status); local PlayersLabel = Instance.new("TextLabel", Status)
+    for i, v in pairs({GameLabel, FPSLabel, PingLabel, PlayersLabel}) do v.Position = UDim2.new(0, 10, 0, 30 + (i * 25)); v.Size = UDim2.new(1,-20, 0,20); v.BackgroundTransparency = 1; v.TextColor3 = Color3.fromRGB(255,255,255); v.Font = Enum.Font.Gotham; v.TextXAlignment = Enum.TextXAlignment.Left end
+    pcall(function() GameLabel.Text = "Game      " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name end)
+    task.spawn(function() while true do FPSLabel.Text = "FPS     " .. math.floor(workspace:GetRealPhysicsFPS()); PingLabel.Text = "Ping     " .. math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) .. " ms"; PlayersLabel.Text = "Players      " .. #Services.Players:GetPlayers(); task.wait(1) end end)
+end
+
+do -- Server Page
+    local RejoinBtn = Instance.new("TextButton", UI.Pages.Server); RejoinBtn.Size = UDim2.new(1,-20,0,35); RejoinBtn.Position = UDim2.new(0,10,0,10); RejoinBtn.BackgroundColor3 = Color3.fromRGB(255,255,255); RejoinBtn.Text = ""; applyGradient(RejoinBtn); Instance.new("UICorner", RejoinBtn)
+    local rejLbl = Instance.new("TextLabel", RejoinBtn); rejLbl.Size = UDim2.new(1,0,1,0); rejLbl.BackgroundTransparency = 1; rejLbl.Text = "🖱 Rejoin"; rejLbl.Font = Enum.Font.GothamBold; rejLbl.TextColor3 = Color3.new(1,1,1)
+    RejoinBtn.MouseButton1Click:Connect(function() showNotification("Перезаход на сервер..."); Services.TP:Teleport(game.PlaceId, LP) end)
+
+    local HopBtn = Instance.new("TextButton", UI.Pages.Server); HopBtn.Size = UDim2.new(1,-20,0,35); HopBtn.Position = UDim2.new(0,10,0,55); HopBtn.BackgroundColor3 = Color3.fromRGB(255,255,255); HopBtn.Text = ""; applyGradient(HopBtn); Instance.new("UICorner", HopBtn)
+    local hopLbl = Instance.new("TextLabel", HopBtn); hopLbl.Size = UDim2.new(1,0,1,0); hopLbl.BackgroundTransparency = 1; hopLbl.Text = "🖱 Server Hop"; hopLbl.Font = Enum.Font.GothamBold; hopLbl.TextColor3 = Color3.new(1,1,1)
+
+    local ServerWidget = Instance.new("Frame", UI.Screen); ServerWidget.Visible = false; ServerWidget.Size = UDim2.new(0, 110, 0, 35); ServerWidget.Position = UDim2.new(0.5, -55, 0, 20); ServerWidget.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(ServerWidget); ServerWidget.BackgroundTransparency = 0.1; Instance.new("UICorner", ServerWidget).CornerRadius = UDim.new(0, 8); Instance.new("UIStroke", ServerWidget).Color = Color3.fromRGB(220, 190, 255)
+    local ServerDot = Instance.new("Frame", ServerWidget); ServerDot.Size = UDim2.new(0, 10, 0, 10); ServerDot.Position = UDim2.new(0, 10, 0.5, -5); ServerDot.BackgroundColor3 = Color3.fromRGB(220, 190, 255); Instance.new("UICorner", ServerDot).CornerRadius = UDim.new(1, 0)
+    local ServerWidgetBtn = Instance.new("TextButton", ServerWidget); ServerWidgetBtn.Size = UDim2.new(1, -25, 1, 0); ServerWidgetBtn.Position = UDim2.new(0, 25, 0, 0); ServerWidgetBtn.BackgroundTransparency = 1; ServerWidgetBtn.Text = "Servers"; ServerWidgetBtn.TextColor3 = Color3.fromRGB(255, 255, 255); ServerWidgetBtn.Font = Enum.Font.GothamBold; ServerWidgetBtn.TextSize = 14; makeDraggable(ServerWidget, ServerWidgetBtn)
+
+    local ServerMenu = Instance.new("Frame", UI.Screen); ServerMenu.Visible = false; ServerMenu.Size = UDim2.new(0, 380, 0, 260); ServerMenu.Position = UDim2.new(0.5, -190, 0.5, -130); ServerMenu.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(ServerMenu); ServerMenu.BackgroundTransparency = 0.1; Instance.new("UICorner", ServerMenu).CornerRadius = UDim.new(0, 10); Instance.new("UIStroke", ServerMenu).Color = Color3.fromRGB(210, 180, 255)
+    local SrvMenuTopBar = Instance.new("Frame", ServerMenu); SrvMenuTopBar.Size = UDim2.new(1, 0, 0, 30); SrvMenuTopBar.BackgroundTransparency = 1; local SrvMenuTitle = Instance.new("TextLabel", SrvMenuTopBar); SrvMenuTitle.Size = UDim2.new(0, 120, 1, 0); SrvMenuTitle.Position = UDim2.new(0, 15, 0, 0); SrvMenuTitle.BackgroundTransparency = 1; SrvMenuTitle.Text = "Server List"; SrvMenuTitle.TextColor3 = Color3.fromRGB(255, 255, 255); SrvMenuTitle.Font = Enum.Font.GothamBold; SrvMenuTitle.TextXAlignment = Enum.TextXAlignment.Left; makeDraggable(ServerMenu, SrvMenuTopBar)
+    local SrvSortBtn = Instance.new("TextButton", SrvMenuTopBar); SrvSortBtn.Size = UDim2.new(0, 130, 0, 20); SrvSortBtn.Position = UDim2.new(1, -200, 0, 5); SrvSortBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60); SrvSortBtn.Text = "Sort: Ascending"; SrvSortBtn.TextColor3 = Color3.new(1, 1, 1); SrvSortBtn.Font = Enum.Font.Gotham; SrvSortBtn.TextSize = 12; Instance.new("UICorner", SrvSortBtn).CornerRadius = UDim.new(0, 6)
+    local SrvMinBtn = Instance.new("TextButton", SrvMenuTopBar); SrvMinBtn.Size = UDim2.new(0, 25, 0, 25); SrvMinBtn.Position = UDim2.new(1, -60, 0, 2); SrvMinBtn.BackgroundTransparency = 1; SrvMinBtn.Text = "-"; SrvMinBtn.TextColor3 = Color3.new(1,1,1); SrvMinBtn.TextSize = 18; local SrvCloseBtn = Instance.new("TextButton", SrvMenuTopBar); SrvCloseBtn.Size = UDim2.new(0, 25, 0, 25); SrvCloseBtn.Position = UDim2.new(1, -30, 0, 2); SrvCloseBtn.BackgroundTransparency = 1; SrvCloseBtn.Text = "X"; SrvCloseBtn.TextColor3 = Color3.new(1,1,1); SrvCloseBtn.Font = Enum.Font.GothamBold
+    local SrvListScroll = Instance.new("ScrollingFrame", ServerMenu); SrvListScroll.Size = UDim2.new(1, -20, 1, -40); SrvListScroll.Position = UDim2.new(0, 10, 0, 35); SrvListScroll.BackgroundTransparency = 1; SrvListScroll.ScrollBarThickness = 4; SrvListScroll.BorderSizePixel = 0; local srvListLayout = Instance.new("UIListLayout", SrvListScroll); srvListLayout.Padding = UDim.new(0, 5)
+
+    local srvSortAscending = true; local srvMinimized = false
+    local function populateServers()
+        for _, v in pairs(SrvListScroll:GetChildren()) do if v:IsA("Frame") then v:Destroy() end end
+        local s, r = pcall(function() return Services.Http:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100")) end)
+        if s and r and r.data then
+            local servers = {}
+            for _, srv in pairs(r.data) do if srv.playing and srv.maxPlayers and srv.playing < srv.maxPlayers then table.insert(servers, srv) end end
+            table.sort(servers, function(a, b) return srvSortAscending and a.playing < b.playing or a.playing > b.playing end)
+            for _, srv in ipairs(servers) do
+                local item = Instance.new("Frame", SrvListScroll); item.Size = UDim2.new(1, -10, 0, 35); item.BackgroundColor3 = Color3.fromRGB(30, 30, 35); item.BackgroundTransparency = 0.5; Instance.new("UICorner", item).CornerRadius = UDim.new(0, 6)
+                local info = Instance.new("TextLabel", item); info.Size = UDim2.new(0, 200, 1, 0); info.Position = UDim2.new(0, 10, 0, 0); info.BackgroundTransparency = 1; info.Text = "Players: " .. srv.playing .. "/" .. srv.maxPlayers .. "  | Ping: " .. (srv.ping or "?"); info.TextColor3 = Color3.new(1, 1, 1); info.Font = Enum.Font.Gotham; info.TextSize = 13; info.TextXAlignment = Enum.TextXAlignment.Left
+                local joinBtn = Instance.new("TextButton", item); joinBtn.Size = UDim2.new(0, 60, 0, 25); joinBtn.Position = UDim2.new(1, -70, 0.5, -12.5); joinBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); joinBtn.Text = ""; applyGradient(joinBtn); Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 6)
+                local joinLbl = Instance.new("TextLabel", joinBtn); joinLbl.Size = UDim2.new(1,0,1,0); joinLbl.BackgroundTransparency = 1; joinLbl.Text = "Join"; joinLbl.TextColor3 = Color3.fromRGB(255, 255, 255); joinLbl.Font = Enum.Font.GothamBold
+                joinBtn.MouseButton1Click:Connect(function() showNotification("Подключение..."); Services.TP:TeleportToPlaceInstance(game.PlaceId, srv.id, LP) end)
+            end
+        end
+        SrvListScroll.CanvasSize = UDim2.new(0, 0, 0, srvListLayout.AbsoluteContentSize.Y + 10)
+    end
+    SrvSortBtn.MouseButton1Click:Connect(function() srvSortAscending = not srvSortAscending; SrvSortBtn.Text = srvSortAscending and "Sort: Ascending" or "Sort: Descending"; task.spawn(populateServers) end)
+    SrvMinBtn.MouseButton1Click:Connect(function() srvMinimized = not srvMinimized; ServerMenu:TweenSize(UDim2.new(0, 380, 0, srvMinimized and 30 or 260), "Out", "Quad", 0.2, true); SrvListScroll.Visible = not srvMinimized end)
+    SrvCloseBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = false end)
+    ServerWidgetBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = not ServerMenu.Visible; if ServerMenu.Visible then task.spawn(populateServers) end end)
+    HopBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = true; task.spawn(populateServers) end)
+
+    local ToggleBG, ToggleCircle = createToggle(UI.Pages.Server, "Servers Toggle", 100)
+    local toggleEnabled = false
+    ToggleBG.MouseButton1Click:Connect(function() toggleEnabled = not toggleEnabled; ServerWidget.Visible = toggleEnabled; if not toggleEnabled then ServerMenu.Visible = false end; setToggleState(ToggleBG, ToggleCircle, toggleEnabled, "Server Widget") end)
+end
+
+-- === ЧАСТЬ 2: ТЕЛЕПОРТ, НАСТРОЙКИ, ПОЛЕТ, МИНИМИЗАЦИЯ И РАЗДЕЛ ПОМОЩИ ===
+do -- Teleport Page
+    local TPCard = Instance.new("Frame", UI.Pages.Teleport); TPCard.Size = UDim2.new(1, -10, 0, 90); TPCard.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(TPCard); TPCard.BackgroundTransparency = .15; Instance.new("UICorner", TPCard)
+    local SelectedAvatar = Instance.new("ImageLabel", TPCard); SelectedAvatar.Size = UDim2.new(0, 60, 0, 60); SelectedAvatar.Position = UDim2.new(0, 10, 0.5, -30); SelectedAvatar.BackgroundTransparency = 1
+    local SelectedName = Instance.new("TextLabel", TPCard); SelectedName.Position = UDim2.new(0, 80, 0, 15); SelectedName.Size = UDim2.new(1, -90, 0, 20); SelectedName.BackgroundTransparency = 1; SelectedName.Text = "Player"; SelectedName.Font = Enum.Font.GothamBold; SelectedName.TextColor3 = Color3.new(1, 1, 1)
+
+    local TPPlayer = nil
+    local function makeTPBtn(text, x)
+        local b = Instance.new("TextButton", TPCard); b.Size = UDim2.new(0, 100, 0, 30); b.Position = UDim2.new(0, x, 0, 50); b.BackgroundColor3 = Color3.fromRGB(255, 255, 255); b.Text = ""; applyGradient(b); Instance.new("UICorner", b)
+        local lbl = Instance.new("TextLabel", b); lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1; lbl.Text = text; lbl.TextColor3 = Color3.fromRGB(255, 255, 255); lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 14
+        return b
+    end
+    local TPBtn = makeTPBtn("Teleport", 80); local SpectateBtn = makeTPBtn("Spectate", 190)
+
+    local PlayersBtn, _, PlayersLbl = createMenuBtn(UI.Pages.Teleport, "Players", 110, false)
+    local ToolBtn, _, ToolLbl = createMenuBtn(UI.Pages.Teleport, "Teleport Tool", 160, false)
+    local PlayersMenu = Instance.new("ScrollingFrame", UI.Pages.Teleport); PlayersMenu.Position = UDim2.new(0, 10, 0, 150); PlayersMenu.Size = UDim2.new(1, -20, 0, 0); PlayersMenu.Visible = false; PlayersMenu.BackgroundTransparency = 1; PlayersMenu.ScrollBarThickness = 2
+    local playersOpen = false
+
+    local function refreshPlayers()
+        PlayersMenu:ClearAllChildren(); local layout = Instance.new("UIListLayout", PlayersMenu); layout.Padding = UDim.new(0, 5)
+        for _, plr in ipairs(Services.Players:GetPlayers()) do
+            if plr ~= LP then
+                local btn = Instance.new("TextButton", PlayersMenu); btn.Size = UDim2.new(1, 0, 0, 35); btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); btn.Text = ""; applyGradient(btn); Instance.new("UICorner", btn)
+                local lbl = Instance.new("TextLabel", btn); lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1; lbl.Text = plr.Name; lbl.TextColor3 = Color3.fromRGB(255, 255, 255); lbl.Font = Enum.Font.GothamBold
+                btn.MouseButton1Click:Connect(function() TPPlayer = plr; SelectedName.Text = plr.Name; pcall(function() SelectedAvatar.Image = Services.Players:GetUserThumbnailAsync(plr.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420) end) end)
+            end
+        end
+        PlayersMenu.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+    end
+
+    ToolBtn.MouseButton1Click:Connect(function()
+        showNotification("Teleport Tool выдан!")
+        local tool = Instance.new("Tool"); tool.Name = "Teleport Tool"; tool.RequiresHandle = false; tool.Parent = LP.Backpack
+        tool.Activated:Connect(function() local mouse = LP:GetMouse(); if mouse.Hit and LP.Character then LP.Character:MoveTo(mouse.Hit.Position) end end)
+    end)
+    PlayersBtn.MouseButton1Click:Connect(function()
+        playersOpen = not playersOpen; refreshPlayers(); PlayersMenu.Visible = true; local menuHeight = playersOpen and 200 or 0
+        Services.TS:Create(PlayersMenu, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, menuHeight)}):Play(); Services.TS:Create(ToolBtn, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 160 + menuHeight)}):Play()
+    end)
+    TPBtn.MouseButton1Click:Connect(function() if TPPlayer and LP.Character and TPPlayer.Character and TPPlayer.Character:FindFirstChild("HumanoidRootPart") then LP.Character:MoveTo(TPPlayer.Character.HumanoidRootPart.Position); showNotification("Телепортирован к " .. TPPlayer.Name) end end)
+    SpectateBtn.MouseButton1Click:Connect(function() if TPPlayer and TPPlayer.Character then local hum = TPPlayer.Character:FindFirstChildOfClass("Humanoid"); if hum then workspace.CurrentCamera.CameraSubject = hum; showNotification("Наблюдение за " .. TPPlayer.Name) end end end)
+end
+
+do -- Settings Page
+    local themeColorsOpened, notifSystemOpened = false, false
+    local ThemeColorsBtn, ThemeArrow = createMenuBtn(UI.Pages.Settings, "Theme Colors", 10, true)
+    local ThemeColorsPanel = Instance.new("Frame", UI.Pages.Settings); ThemeColorsPanel.Size = UDim2.new(1, -20, 0, 0); ThemeColorsPanel.Position = UDim2.new(0, 10, 0, 50); ThemeColorsPanel.BackgroundTransparency = 1; ThemeColorsPanel.ClipsDescendants = true
+    local ThemeListLayout = Instance.new("UIListLayout", ThemeColorsPanel); ThemeListLayout.Padding = UDim.new(0, 5)
+
+    local function createThemeOption(name, c1, c2)
+        local btn = Instance.new("TextButton", ThemeColorsPanel); btn.Size = UDim2.new(1, 0, 0, 30); btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); btn.Text = ""; local grad = Instance.new("UIGradient", btn); grad.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, c1), ColorSequenceKeypoint.new(1, c2)}); grad.Rotation = 45; Instance.new("UICorner", btn)
+        local lbl = Instance.new("TextLabel", btn); lbl.Size = UDim2.new(1, 0, 1, 0); lbl.BackgroundTransparency = 1; lbl.Text = name; lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 13; lbl.TextColor3 = Color3.new(1, 1, 1)
+        btn.MouseButton1Click:Connect(function() _G.changeTheme(c1, c2) end)
+    end
+    createThemeOption("Black & Orange", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 120, 0)); createThemeOption("Black & Red", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 50, 50)); createThemeOption("Black & Green", Color3.fromRGB(15, 15, 20), Color3.fromRGB(50, 255, 50)); createThemeOption("Black & Blue", Color3.fromRGB(15, 15, 20), Color3.fromRGB(50, 100, 255)); createThemeOption("Black & Yellow", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 215, 0)); createThemeOption("Black & Cyan", Color3.fromRGB(15, 15, 20), Color3.fromRGB(0, 255, 255)); createThemeOption("Black & Pink", Color3.fromRGB(15, 15, 20), Color3.fromRGB(255, 105, 180)); createThemeOption("Black & White", Color3.fromRGB(15, 15, 20), Color3.fromRGB(240, 240, 240)); createThemeOption("Indigo Night & Gold", Color3.fromRGB(20, 10, 40), Color3.fromRGB(255, 200, 50)); createThemeOption("Deep Aqua & Mint", Color3.fromRGB(10, 35, 40), Color3.fromRGB(100, 255, 180))
+    local ResetThemeBtn = Instance.new("TextButton", ThemeColorsPanel); ResetThemeBtn.Size = UDim2.new(1, 0, 0, 30); ResetThemeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 55); ResetThemeBtn.Text = "Reset the theme"; ResetThemeBtn.Font = Enum.Font.GothamBold; ResetThemeBtn.TextSize = 13; ResetThemeBtn.TextColor3 = Color3.fromRGB(220, 190, 255); Instance.new("UICorner", ResetThemeBtn)
+    ResetThemeBtn.MouseButton1Click:Connect(function() _G.changeTheme(Color3.fromRGB(15, 15, 20), Color3.fromRGB(130, 90, 180)) end)
+
+    local NotifSystemBtn, NotifArrow = createMenuBtn(UI.Pages.Settings, "Notification system", 55, true)
+    local NotifSystemPanel = Instance.new("Frame", UI.Pages.Settings); NotifSystemPanel.Size = UDim2.new(1, -20, 0, 0); NotifSystemPanel.Position = UDim2.new(0, 10, 0, 95); NotifSystemPanel.BackgroundTransparency = 1; NotifSystemPanel.ClipsDescendants = true; local NotifListLayout = Instance.new("UIListLayout", NotifSystemPanel); NotifListLayout.Padding = UDim.new(0, 5)
+
+    local ToggleCont = Instance.new("Frame", NotifSystemPanel); ToggleCont.Size = UDim2.new(1, 0, 0, 35); ToggleCont.BackgroundTransparency = 1
+    local NotifToggle, NotifCircle = createToggle(ToggleCont, "Enable Notifications", 0); NotifToggle.Position = UDim2.new(1, -65, 0.5, -15); setToggleState(NotifToggle, NotifCircle, true)
+    NotifToggle.MouseButton1Click:Connect(function() _G.NotificationsEnabled = not _G.NotificationsEnabled; setToggleState(NotifToggle, NotifCircle, _G.NotificationsEnabled) end)
+
+    local OpenCustBtn = Instance.new("TextButton", NotifSystemPanel); OpenCustBtn.Size = UDim2.new(1, 0, 0, 35); OpenCustBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); OpenCustBtn.Text = ""; applyGradient(OpenCustBtn); Instance.new("UICorner", OpenCustBtn)
+    local OpenCustLbl = Instance.new("TextLabel", OpenCustBtn); OpenCustLbl.Size = UDim2.new(1, 0, 1, 0); OpenCustLbl.BackgroundTransparency = 1; OpenCustLbl.Text = "Character Customization Menu"; OpenCustLbl.Font = Enum.Font.GothamBold; OpenCustLbl.TextSize = 13; OpenCustLbl.TextColor3 = Color3.new(1, 1, 1)
+
+    local function refreshSettingsLayout()
+        local themeH = themeColorsOpened and ThemeListLayout.AbsoluteContentSize.Y + 10 or 0
+        local notifH = notifSystemOpened and NotifListLayout.AbsoluteContentSize.Y + 10 or 0
+        Services.TS:Create(ThemeColorsPanel, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, themeH)}):Play()
+        Services.TS:Create(NotifSystemBtn, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 50 + themeH)}):Play()
+        Services.TS:Create(NotifSystemPanel, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 95 + themeH), Size = UDim2.new(1, -20, 0, notifH)}):Play()
+        UI.Pages.Settings.CanvasSize = UDim2.new(0, 0, 0, 110 + themeH + notifH)
+    end
+
+    ThemeColorsBtn.MouseButton1Click:Connect(function() themeColorsOpened = not themeColorsOpened; ThemeArrow.Text = themeColorsOpened and "▲" or "▼"; refreshSettingsLayout() end)
+    NotifSystemBtn.MouseButton1Click:Connect(function() notifSystemOpened = not notifSystemOpened; NotifArrow.Text = notifSystemOpened and "▲" or "▼"; refreshSettingsLayout() end)
+
+    local CharCustWin = Instance.new("Frame", UI.Screen); CharCustWin.Size = UDim2.new(0, 300, 0, 150); CharCustWin.Position = UDim2.new(0.5, -150, 0.5, -75); CharCustWin.BackgroundColor3 = Color3.fromRGB(255, 255, 255); CharCustWin.Visible = false; CharCustWin.BorderSizePixel = 0; applyGradient(CharCustWin); Instance.new("UICorner", CharCustWin).CornerRadius = UDim.new(0, 10); Instance.new("UIStroke", CharCustWin).Color = Color3.fromRGB(210, 180, 255)
+    local CustTopBar = Instance.new("Frame", CharCustWin); CustTopBar.Size = UDim2.new(1, 0, 0, 30); CustTopBar.BackgroundTransparency = 1; makeDraggable(CharCustWin, CustTopBar)
+    local CustTitle = Instance.new("TextLabel", CustTopBar); CustTitle.Size = UDim2.new(0, 180, 1, 0); CustTitle.Position = UDim2.new(0, 10, 0, 0); CustTitle.BackgroundTransparency = 1; CustTitle.Text = "Character Customization"; CustTitle.TextColor3 = Color3.fromRGB(255, 255, 255); CustTitle.Font = Enum.Font.GothamBold; CustTitle.TextXAlignment = Enum.TextXAlignment.Left
+    local CustMinBtn = Instance.new("TextButton", CustTopBar); CustMinBtn.Size = UDim2.new(0, 25, 0, 25); CustMinBtn.Position = UDim2.new(1, -55, 0, 2); CustMinBtn.BackgroundTransparency = 1; CustMinBtn.Text = "-"; CustMinBtn.TextColor3 = Color3.new(1, 1, 1)
+    local CustCloseBtn = Instance.new("TextButton", CustTopBar); CustCloseBtn.Size = UDim2.new(0, 25, 0, 25); CustCloseBtn.Position = UDim2.new(1, -30, 0, 2); CustCloseBtn.BackgroundTransparency = 1; CustCloseBtn.Text = "X"; CustCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+    
+    local CustContent = Instance.new("Frame", CharCustWin); CustContent.Size = UDim2.new(1, 0, 1, -30); CustContent.Position = UDim2.new(0, 0, 0, 30); CustContent.BackgroundTransparency = 1
+    local AssetTextBox = Instance.new("TextBox", CustContent); AssetTextBox.Size = UDim2.new(1, -20, 0, 35); AssetTextBox.Position = UDim2.new(0, 10, 0, 10); AssetTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35); AssetTextBox.Text = ""; AssetTextBox.PlaceholderText = "Paste Asset ID here..."; AssetTextBox.TextColor3 = Color3.new(1, 1, 1); AssetTextBox.Font = Enum.Font.Gotham; Instance.new("UICorner", AssetTextBox).CornerRadius = UDim.new(0, 6)
+    AssetTextBox:GetPropertyChangedSignal("Text"):Connect(function() local v = AssetTextBox.Text; if v ~= "" then _G.NotificationAssetID = tonumber(v) and "rbxthumb://type=Asset&id=" .. v .. "&w=150&h=150" or v end end)
+    local ResetAssetBtn = Instance.new("TextButton", CustContent); ResetAssetBtn.Size = UDim2.new(1, -20, 0, 35); ResetAssetBtn.Position = UDim2.new(0, 10, 0, 55); ResetAssetBtn.BackgroundColor3 = Color3.fromRGB(50, 45, 60); ResetAssetBtn.Text = "Reset Asset ID"; ResetAssetBtn.Font = Enum.Font.GothamBold; ResetAssetBtn.TextColor3 = Color3.fromRGB(220, 190, 255); Instance.new("UICorner", ResetAssetBtn).CornerRadius = UDim.new(0, 6)
+    ResetAssetBtn.MouseButton1Click:Connect(function() _G.NotificationAssetID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"; AssetTextBox.Text = ""; showNotification("Asset ID возвращен по умолчанию!") end)
+
+    OpenCustBtn.MouseButton1Click:Connect(function() CharCustWin.Visible = not CharCustWin.Visible end)
+    CustCloseBtn.MouseButton1Click:Connect(function() CharCustWin.Visible = false end)
+    local custMinimized = false
+    CustMinBtn.MouseButton1Click:Connect(function() custMinimized = not custMinimized; CharCustWin:TweenSize(UDim2.new(0, 300, 0, custMinimized and 30 or 150), "Out", "Quad", 0.2, true); CustContent.Visible = not custMinimized end)
+end
+
+do -- Moved Page (ИСПРАВЛЕН ПОЛЕТ И ДОБАВЛЕНА СКОРОСТЬ ПОЛЕТА)
+    local function createSlider(yPos, name, min, max, default, callback)
+        local bg = Instance.new("Frame", UI.Pages.Moved); bg.Size = UDim2.new(1,-20,0,8); bg.Position = UDim2.new(0, 10, 0, yPos + 25); bg.BackgroundColor3 = Color3.fromRGB(50,50,60); Instance.new("UICorner", bg)
+        local lbl = Instance.new("TextLabel", UI.Pages.Moved); lbl.Size = UDim2.new(1,0,0,25); lbl.Position = UDim2.new(0, 0, 0, yPos); lbl.BackgroundTransparency = 1; lbl.Text = name .. ": " .. default; lbl.TextColor3 = Color3.fromRGB(220, 190, 255)
+        local fill = Instance.new("Frame", bg); fill.Size = UDim2.new((default-min)/(max-min),0,1,0); fill.BackgroundColor3 = Color3.fromRGB(220,190,255); Instance.new("UICorner", fill)
+        local knob = Instance.new("Frame", bg); knob.Size = UDim2.new(0, 16, 0, 16); knob.Position = UDim2.new((default-min)/(max-min), -8, 0.5, -8); knob.BackgroundColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+        local dragging = false
+        local function update(x)
+            local p = math.clamp((x - bg.AbsolutePosition.X) / bg.AbsoluteSize.X, 0, 1); local val = math.floor(min + (max - min) * p)
+            lbl.Text = name .. ": " .. val; fill.Size = UDim2.new(p, 0, 1, 0); knob.Position = UDim2.new(p, -8, 0.5, -8); callback(val)
+        end
+        bg.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true; update(i.Position.X) end end)
+        Services.UIS.InputChanged:Connect(function(i) if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then update(i.Position.X) end end)
+        Services.UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+    end
+
+    createSlider(10, "Speed", 16, 200, 16, function(v) if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = v end end)
+    createSlider(80, "Jump", 50, 200, 50, function(v) if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.UseJumpPower = true; LP.Character.Humanoid.JumpPower = v end end)
+
+    local EJToggle, EJCircle = createToggle(UI.Pages.Moved, "Endless Jump", 160)
+    local endless = false; EJToggle.MouseButton1Click:Connect(function() endless = not endless; setToggleState(EJToggle, EJCircle, endless, "Endless Jump") end)
+    Services.UIS.JumpRequest:Connect(function() if endless and LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") then LP.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping) end end)
+
+    local WallToggle, WallCircle = createToggle(UI.Pages.Moved, "Climbing Walls", 205)
+    local wall = false; WallToggle.MouseButton1Click:Connect(function() wall = not wall; setToggleState(WallToggle, WallCircle, wall, "Climbing Walls") end)
+    task.spawn(function() while task.wait() do if wall and LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Climbing) end end end)
+
+    local flySpeed = 50
+    createSlider(250, "Flight Speed", 10, 300, 50, function(v) flySpeed = v end)
+
+    local FlyToggle, FlyCircle = createToggle(UI.Pages.Moved, "Flight (PC & Mobile)", 320)
+    local flying = false; local bg, bv
+    FlyToggle.MouseButton1Click:Connect(function()
+        flying = not flying; setToggleState(FlyToggle, FlyCircle, flying, "Flight")
+        local char = LP.Character
+        if flying and char and char:FindFirstChild("HumanoidRootPart") then
+            local hrp = char.HumanoidRootPart
+            bg = Instance.new("BodyGyro", hrp); bg.P = 9e4; bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9); bg.CFrame = hrp.CFrame
+            bv = Instance.new("BodyVelocity", hrp); bv.Velocity = Vector3.new(0,0,0); bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+            char.Humanoid.PlatformStand = true
+        else
+            if bg then bg:Destroy() end; if bv then bv:Destroy() end
+            if char and char:FindFirstChild("Humanoid") then char.Humanoid.PlatformStand = false end
+        end
+    end)
+
+    Services.Run.RenderStepped:Connect(function()
+        if flying and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            local hum = LP.Character:FindFirstChild("Humanoid"); if not hum then return end
+            local cam = workspace.CurrentCamera; local moveDir = hum.MoveDirection; local vel = Vector3.new()
+            
+            if moveDir.Magnitude > 0 then
+                local camLook = cam.CFrame.LookVector; local camRight = cam.CFrame.RightVector
+                local flatLook = Vector3.new(camLook.X, 0, camLook.Z).Unit; local flatRight = Vector3.new(camRight.X, 0, camRight.Z).Unit
+                local forwardInput = moveDir:Dot(flatLook); local rightInput = moveDir:Dot(flatRight)
+                vel = (camLook * forwardInput) + (camRight * rightInput)
+            end
+            
+            if Services.UIS:IsKeyDown(Enum.KeyCode.Space) then vel = vel + Vector3.new(0, 1, 0) end
+            if Services.UIS:IsKeyDown(Enum.KeyCode.LeftShift) then vel = vel + Vector3.new(0, -1, 0) end
+            if bv then bv.Velocity = vel.Magnitude > 0 and vel.Unit * flySpeed or Vector3.new(0,0,0) end
+            if bg then bg.CFrame = cam.CFrame end
+        end
+    end)
+end
+
+do -- Visuals Page
+    local ESPBtn, Arrow = createMenuBtn(UI.Pages.Visuals, "ESP", 10, true)
+    local ESPMenu = Instance.new("Frame", UI.Pages.Visuals); ESPMenu.Visible = false; ESPMenu.Position = UDim2.new(0,10,0,50); ESPMenu.BackgroundTransparency = 1; ESPMenu.ClipsDescendants = true; ESPMenu.Size = UDim2.new(1,-20,0,0)
+    local BoostBtn, BoostArrow = createMenuBtn(UI.Pages.Visuals, "Boostfps", 55, true)
+    local BoostMenu = Instance.new("Frame", UI.Pages.Visuals); BoostMenu.Visible = false; BoostMenu.Position = UDim2.new(0,10,0,95); BoostMenu.BackgroundTransparency = 1; BoostMenu.ClipsDescendants = true; BoostMenu.Size = UDim2.new(1,-20,0,0)
+    local MiscBtn, MiscArrow = createMenuBtn(UI.Pages.Visuals, "Misc", 95, true)
+    local MiscMenu = Instance.new("Frame", UI.Pages.Visuals); MiscMenu.Visible = false; MiscMenu.Position = UDim2.new(0,10,0,135); MiscMenu.BackgroundTransparency = 1; MiscMenu.ClipsDescendants = true; MiscMenu.Size = UDim2.new(1,-20,0,0)
+
+    local espOpened, boostOpened, miscOpened = false, false, false
+    local function updatePositions()
+        local espHeight = espOpened and 130 or 0; local boostHeight = boostOpened and 260 or 0
+        Services.TS:Create(BoostBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + espHeight)}):Play(); Services.TS:Create(BoostMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + espHeight)}):Play()
+        Services.TS:Create(MiscBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + espHeight + boostHeight)}):Play(); Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 135 + espHeight + boostHeight)}):Play()
+    end
+
+    MiscBtn.MouseButton1Click:Connect(function() miscOpened = not miscOpened; Services.TS:Create(MiscArrow, TweenInfo.new(.2), {Rotation = miscOpened and 180 or 0}):Play(); MiscArrow.Text = miscOpened and "▲" or "▼"; MiscMenu.Visible = true; Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Size = miscOpened and UDim2.new(1,-20,0,100) or UDim2.new(1,-20,0,0)}):Play() end)
+    BoostBtn.MouseButton1Click:Connect(function() boostOpened = not boostOpened; Services.TS:Create(BoostArrow, TweenInfo.new(.2), {Rotation = boostOpened and 180 or 0}):Play(); BoostArrow.Text = boostOpened and "▲" or "▼"; BoostMenu.Visible = true; Services.TS:Create(BoostMenu, TweenInfo.new(.2), {Size = boostOpened and UDim2.new(1,-20,0,260) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
+    ESPBtn.MouseButton1Click:Connect(function() espOpened = not espOpened; Services.TS:Create(Arrow, TweenInfo.new(.2), {Rotation = espOpened and 180 or 0}):Play(); Arrow.Text = espOpened and "▲" or "▼"; ESPMenu.Visible = true; Services.TS:Create(ESPMenu, TweenInfo.new(.2), {Size = espOpened and UDim2.new(1,-20,0,130) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
+
+    local HeadlessToggle, HeadlessCircle = createToggle(MiscMenu, "Headless", 0); local KorbloxToggle, KorbloxCircle = createToggle(MiscMenu, "Korblox", 45); local headless, korblox = false, false
+    HeadlessToggle.MouseButton1Click:Connect(function() headless = not headless; setToggleState(HeadlessToggle, HeadlessCircle, headless); if LP.Character and LP.Character:FindFirstChild("Head") then LP.Character.Head.Transparency = headless and 1 or 0; for _, v in pairs(LP.Character.Head:GetChildren()) do if v:IsA("Decal") then v.Transparency = headless and 1 or 0 end end end end)
+    KorbloxToggle.MouseButton1Click:Connect(function() korblox = not korblox; setToggleState(KorbloxToggle, KorbloxCircle, korblox); if LP.Character then local leg = LP.Character:FindFirstChild("Right Leg") or LP.Character:FindFirstChild("RightLowerLeg"); if leg then leg.Transparency = korblox and 1 or 0 end end end)
+
+    local BoostToggle, BoostCircle = createToggle(BoostMenu, "Boostfps", 0); local SkinToggle, SkinCircle = createToggle(BoostMenu, "Skin Replacement", 40); local PotatoToggle, PotatoCircle = createToggle(BoostMenu, "Potato Mode", 80); local RemoveToggle, RemoveCircle = createToggle(BoostMenu, "Removing Textures", 120); local FullBrightToggle, FullBrightCircle = createToggle(BoostMenu, "FullBright", 160); local EffectsToggle, EffectsCircle = createToggle(BoostMenu, "Remove Effects", 200)
+    local boostFPS, skinReplace, potatoEnabled, removeEnabled, fullbright, effectsEnabled = false, false, false, false, false, false; local RemoveTool, oldLighting = nil, {}
+
+    BoostToggle.MouseButton1Click:Connect(function() boostFPS = not boostFPS; setToggleState(BoostToggle, BoostCircle, boostFPS); if boostFPS then for _, obj in pairs(workspace:GetDescendants()) do if obj:IsA("Texture") or obj:IsA("Decal") then obj.Transparency = 1 end; if obj:IsA("BasePart") then obj.Material = Enum.Material.Plastic; obj.Reflectance = 0 end end end end)
+    SkinToggle.MouseButton1Click:Connect(function() skinReplace = not skinReplace; setToggleState(SkinToggle, SkinCircle, skinReplace); for _, plr in pairs(Services.Players:GetPlayers()) do if plr ~= LP and plr.Character then for _, v in pairs(plr.Character:GetDescendants()) do if v:IsA("MeshPart") and skinReplace then v.MeshId = ""; v.Size = Vector3.new(1, 1, 1) end end end end end)
+    PotatoToggle.MouseButton1Click:Connect(function() potatoEnabled = not potatoEnabled; setToggleState(PotatoToggle, PotatoCircle, potatoEnabled); if potatoEnabled then for _, obj in pairs(workspace:GetDescendants()) do if obj:IsA("Texture") or obj:IsA("Decal") then obj.Transparency = 1 end; if obj:IsA("BasePart") then obj.Material = Enum.Material.SmoothPlastic; obj.Reflectance = 0; obj.CastShadow = false end; if obj:IsA("MeshPart") then obj.TextureID = ""; obj.Material = Enum.Material.Plastic end; if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") then obj.Enabled = false end end end end)
+    RemoveToggle.MouseButton1Click:Connect(function() removeEnabled = not removeEnabled; setToggleState(RemoveToggle, RemoveCircle, removeEnabled); if removeEnabled then RemoveTool = Instance.new("Tool"); RemoveTool.Name = "Texture Remover"; RemoveTool.RequiresHandle = false; RemoveTool.Parent = LP.Backpack; RemoveTool.Activated:Connect(function() local t = LP:GetMouse().Target; if t then for _, v in pairs(t:GetDescendants()) do if v:IsA("Texture") or v:IsA("Decal") then v:Destroy() end end; if t:IsA("MeshPart") then t.TextureID = "" end end end) else if RemoveTool then RemoveTool:Destroy(); RemoveTool = nil end end end)
+    FullBrightToggle.MouseButton1Click:Connect(function() fullbright = not fullbright; setToggleState(FullBrightToggle, FullBrightCircle, fullbright); local Lighting = game:GetService("Lighting"); if fullbright then oldLighting.Brightness = Lighting.Brightness; oldLighting.ClockTime = Lighting.ClockTime; oldLighting.GlobalShadows = Lighting.GlobalShadows; oldLighting.FogEnd = Lighting.FogEnd; Lighting.Brightness = 3; Lighting.ClockTime = 14; Lighting.GlobalShadows = false; Lighting.FogEnd = 999999 else Lighting.Brightness = oldLighting.Brightness or 1; Lighting.ClockTime = oldLighting.ClockTime or 14; Lighting.GlobalShadows = oldLighting.GlobalShadows; Lighting.FogEnd = oldLighting.FogEnd or 1000 end end)
+    EffectsToggle.MouseButton1Click:Connect(function() effectsEnabled = not effectsEnabled; setToggleState(EffectsToggle, EffectsCircle, effectsEnabled); for _, v in pairs(game:GetService("Lighting"):GetChildren()) do if v:IsA("BlurEffect") or v:IsA("BloomEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("SunRaysEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("Atmosphere") then v.Enabled = not effectsEnabled end end end)
+
+    local NameToggle, NameCircle = createToggle(ESPMenu, "ESP Name", 0); local OutlineToggle, OutlineCircle = createToggle(ESPMenu, "ESP Outline", 40); local ItemToggle, ItemCircle = createToggle(ESPMenu, "Item ESP", 80); local nameESP, outlineESP, itemESP = false, false, false
+    NameToggle.MouseButton1Click:Connect(function() nameESP = not nameESP; setToggleState(NameToggle, NameCircle, nameESP) end); OutlineToggle.MouseButton1Click:Connect(function() outlineESP = not outlineESP; setToggleState(OutlineToggle, OutlineCircle, outlineESP) end); ItemToggle.MouseButton1Click:Connect(function() itemESP = not itemESP; setToggleState(ItemToggle, ItemCircle, itemESP) end)
+
+    task.spawn(function()
+        while task.wait(.5) do
+            for _, plr in pairs(Services.Players:GetPlayers()) do
+                if plr ~= LP then
+                    if itemESP then
+                        for _, obj in pairs(workspace:GetDescendants()) do
+                            if (obj:IsA("Tool") or obj.Name:lower():find("gun") or obj.Name:lower():find("key")) and not obj:FindFirstChild("ItemESP") then
+                                local part = obj:FindFirstChildWhichIsA("BasePart")
+                                if part then
+                                    local bb = Instance.new("BillboardGui", obj); bb.Name = "ItemESP"; bb.Size = UDim2.new(0, 100, 0, 30); bb.AlwaysOnTop = true; bb.Adornee = part
+                                    local txt = Instance.new("TextLabel", bb); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.Text = obj.Name; txt.TextScaled = true; txt.TextColor3 = Color3.fromRGB(220, 190, 255)
+                                end
+                            end
+                        end
+                    end
+                    local char = plr.Character
+                    if char and char:FindFirstChild("Head") and char:FindFirstChild("HumanoidRootPart") then
+                        if nameESP then
+                            local gui = char.Head:FindFirstChild("ESP") or Instance.new("BillboardGui", char.Head); gui.Name = "ESP"; gui.Size = UDim2.new(0,100,0,40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0,2,0); gui.Adornee = char.Head
+                            local txt = gui:FindFirstChild("TXT") or Instance.new("TextLabel", gui); txt.Name = "TXT"; txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextColor3 = Color3.fromRGB(220, 190, 255); txt.TextStrokeTransparency = 0; txt.Font = Enum.Font.GothamBold; txt.TextScaled = true
+                            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then txt.Text = plr.Name .. "\n" .. math.floor((LP.Character.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude) .. "m" end
+                        else if char.Head:FindFirstChild("ESP") then char.Head.ESP:Destroy() end end
+                        if outlineESP then
+                            if not char:FindFirstChild("ESPHighlight") then local hl = Instance.new("Highlight", char); hl.Name = "ESPHighlight"; hl.FillColor = Color3.fromRGB(220, 190, 255); hl.FillTransparency = 0.7; hl.OutlineColor = Color3.fromRGB(220, 190, 255); hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop end
+                        else if char:FindFirstChild("ESPHighlight") then char.ESPHighlight:Destroy() end end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+do -- Misc Page
+    local DiffBtn, DiffArrow = createMenuBtn(UI.Pages.Misc, "Different", 10, true)
+    local DiffMenu = Instance.new("Frame", UI.Pages.Misc); DiffMenu.Visible = false; DiffMenu.Position = UDim2.new(0,10,0,50); DiffMenu.BackgroundTransparency = 1; DiffMenu.ClipsDescendants = true; DiffMenu.Size = UDim2.new(1,-20,0,0)
+    local OtherBtn, OtherArrow = createMenuBtn(UI.Pages.Misc, "Other", 55, true)
+    local OtherMenu = Instance.new("Frame", UI.Pages.Misc); OtherMenu.Visible = false; OtherMenu.Position = UDim2.new(0,10,0,95); OtherMenu.BackgroundTransparency = 1; OtherMenu.ClipsDescendants = true; OtherMenu.Size = UDim2.new(1,-20,0,0)
+
+    local diffOpened, otherOpened = false, false
+    local function updateMainMiscPositions()
+        local diffHeight = diffOpened and 160 or 0
+        Services.TS:Create(OtherBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + diffHeight)}):Play(); Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + diffHeight)}):Play()
+    end
+    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,160) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
+    OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,80) or UDim2.new(1,-20,0,0)}):Play() end)
+
+    local AntiAFKToggle, AntiAFKCircle = createToggle(DiffMenu, "Anti-AFK", 0); local NoclipToggle, NoclipCircle = createToggle(DiffMenu, "Noclip", 40); local AutoReconToggle, AutoReconCircle = createToggle(DiffMenu, "Auto Reconnect", 80); local FreeCamToggle, FreeCamCircle = createToggle(DiffMenu, "Free camera", 120)
+    local antiAfkEnabled, noclipEnabled, autoReconEnabled, freeCamEnabled = false, false, false, false
+    AntiAFKToggle.MouseButton1Click:Connect(function() antiAfkEnabled = not antiAfkEnabled; setToggleState(AntiAFKToggle, AntiAFKCircle, antiAfkEnabled) end); NoclipToggle.MouseButton1Click:Connect(function() noclipEnabled = not noclipEnabled; setToggleState(NoclipToggle, NoclipCircle, noclipEnabled) end); AutoReconToggle.MouseButton1Click:Connect(function() autoReconEnabled = not autoReconEnabled; setToggleState(AutoReconToggle, AutoReconCircle, autoReconEnabled) end)
+
+    LP.Idled:Connect(function() if antiAfkEnabled then Services.VU:CaptureController(); Services.VU:ClickButton2(Vector2.new()) end end)
+    Services.Run.Stepped:Connect(function() if noclipEnabled and LP.Character then for _, part in pairs(LP.Character:GetDescendants()) do if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end end end end)
+    game:GetService("GuiService").ErrorMessageChanged:Connect(function() if autoReconEnabled then task.wait(0.5); Services.TP:TeleportToPlaceInstance(game.PlaceId, game.JobId, LP) end end)
+
+    local cam = workspace.CurrentCamera; local fcSpeed = 2; local fcKeys = {W = false, A = false, S = false, D = false, Space = false, LeftShift = false}
+    FreeCamToggle.MouseButton1Click:Connect(function() freeCamEnabled = not freeCamEnabled; setToggleState(FreeCamToggle, FreeCamCircle, freeCamEnabled); if freeCamEnabled then cam.CameraType = Enum.CameraType.Scriptable; if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then LP.Character.HumanoidRootPart.Anchored = true end else cam.CameraType = Enum.CameraType.Custom; if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then LP.Character.HumanoidRootPart.Anchored = false end end end)
+    Services.UIS.InputBegan:Connect(function(i, g) if not g then if i.KeyCode == Enum.KeyCode.W then fcKeys.W = true elseif i.KeyCode == Enum.KeyCode.A then fcKeys.A = true elseif i.KeyCode == Enum.KeyCode.S then fcKeys.S = true elseif i.KeyCode == Enum.KeyCode.D then fcKeys.D = true elseif i.KeyCode == Enum.KeyCode.Space then fcKeys.Space = true elseif i.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = true end end end)
+    Services.UIS.InputEnded:Connect(function(i) if i.KeyCode == Enum.KeyCode.W then fcKeys.W = false elseif i.KeyCode == Enum.KeyCode.A then fcKeys.A = false elseif i.KeyCode == Enum.KeyCode.S then fcKeys.S = false elseif i.KeyCode == Enum.KeyCode.D then fcKeys.D = false elseif i.KeyCode == Enum.KeyCode.Space then fcKeys.Space = false elseif i.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = false end end)
+    Services.Run.RenderStepped:Connect(function() if freeCamEnabled then local v = Vector3.new(); if fcKeys.W then v = v + Vector3.new(0, 0, -1) end; if fcKeys.S then v = v + Vector3.new(0, 0, 1) end; if fcKeys.A then v = v + Vector3.new(-1, 0, 0) end; if fcKeys.D then v = v + Vector3.new(1, 0, 0) end; if fcKeys.Space then v = v + Vector3.new(0, 1, 0) end; if fcKeys.LeftShift then v = v + Vector3.new(0, -1, 0) end; cam.CFrame = cam.CFrame * CFrame.new(v * fcSpeed) end end)
+
+    local function createFloatingMenu(titleText)
+        local win = Instance.new("Frame", UI.Screen); win.Size = UDim2.new(0, 200, 0, 250); win.Position = UDim2.new(0.5, -100, 0.5, -125); win.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(win); win.BackgroundTransparency = 0.1; win.Visible = false; win.ClipsDescendants = true; Instance.new("UICorner", win).CornerRadius = UDim.new(0, 10); Instance.new("UIStroke", win).Color = Color3.fromRGB(210, 180, 255)
+        local topBar = Instance.new("Frame", win); topBar.Size = UDim2.new(1, 0, 0, 30); topBar.BackgroundTransparency = 1; topBar.Active = true; makeDraggable(win, topBar)
+        local title = Instance.new("TextLabel", topBar); title.Size = UDim2.new(0, 120, 1, 0); title.Position = UDim2.new(0, 15, 0, 0); title.BackgroundTransparency = 1; title.Text = titleText; title.TextColor3 = Color3.fromRGB(255, 255, 255); title.Font = Enum.Font.GothamBold; title.TextXAlignment = Enum.TextXAlignment.Left
+        local minBtn = Instance.new("TextButton", topBar); minBtn.Size = UDim2.new(0, 25, 0, 25); minBtn.Position = UDim2.new(1, -60, 0, 2); minBtn.BackgroundTransparency = 1; minBtn.Text = "-"; minBtn.TextColor3 = Color3.new(1,1,1)
+        local closeBtn = Instance.new("TextButton", topBar); closeBtn.Size = UDim2.new(0, 25, 0, 25); closeBtn.Position = UDim2.new(1, -30, 0, 2); closeBtn.BackgroundTransparency = 1; closeBtn.Text = "X"; closeBtn.TextColor3 = Color3.new(1,1,1); closeBtn.Font = Enum.Font.GothamBold
+        local scroll = Instance.new("ScrollingFrame", win); scroll.Size = UDim2.new(1, -10, 1, -80); scroll.Position = UDim2.new(0, 5, 0, 35); scroll.BackgroundTransparency = 1; scroll.ScrollBarThickness = 2; scroll.BorderSizePixel = 0; local layout = Instance.new("UIListLayout", scroll); layout.Padding = UDim.new(0, 5)
+        local actionBtn = Instance.new("TextButton", win); actionBtn.Size = UDim2.new(1, -20, 0, 30); actionBtn.Position = UDim2.new(0, 10, 0, 212); actionBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(actionBtn); actionBtn.Text = ""; Instance.new("UICorner", actionBtn).CornerRadius = UDim.new(0, 6)
+        local actionLbl = Instance.new("TextLabel", actionBtn); actionLbl.Size = UDim2.new(1, 0, 1, 0); actionLbl.BackgroundTransparency = 1; actionLbl.Text = titleText .. ": [None]"; actionLbl.TextColor3 = Color3.fromRGB(255, 255, 255); actionLbl.Font = Enum.Font.GothamBold; actionLbl.TextSize = 14
+        local isMin = false; minBtn.MouseButton1Click:Connect(function() isMin = not isMin; win:TweenSize(UDim2.new(0, 200, 0, isMin and 30 or 250), "Out", "Quad", 0.2, true) end)
+        return win, closeBtn, scroll, layout, actionBtn, actionLbl
+    end
+
+    local function populatePlayers(scroll, layout, actionLbl, defaultText, targetCallback)
+        for _, v in pairs(scroll:GetChildren()) do if v:IsA("TextButton") then v:Destroy() end end
+        for _, plr in ipairs(Services.Players:GetPlayers()) do
+            if plr ~= LP then
+                local btn = Instance.new("TextButton", scroll); btn.Size = UDim2.new(1, -5, 0, 25); btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60); btn.TextColor3 = Color3.new(1, 1, 1); btn.Font = Enum.Font.Gotham; btn.TextSize = 13; btn.Text = plr.Name; Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+                btn.MouseButton1Click:Connect(function() targetCallback(plr); actionLbl.Text = defaultText .. ": " .. plr.Name end)
+            end
+        end
+        task.delay(0.05, function() scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 5) end)
+    end
+
+    local FlingToggle, FlingCircle = createToggle(OtherMenu, "Fling", 0); local BringToggle, BringCircle = createToggle(OtherMenu, "Bring parts", 40)
+    local flingEnabled, bringMenuEnabled = false, false
+    local FlingWin, FlingClose, FlingScroll, FlingLayout, FlingActionBtn, FlingActionLbl = createFloatingMenu("Fling"); local BringWin, BringClose, BringScroll, BringLayout, BringActionBtn, BringActionLbl = createFloatingMenu("Bring")
+    local currentFlingTarget, currentBringTarget = nil, nil
+
+    FlingToggle.MouseButton1Click:Connect(function() flingEnabled = not flingEnabled; setToggleState(FlingToggle, FlingCircle, flingEnabled); FlingWin.Visible = flingEnabled; if flingEnabled then populatePlayers(FlingScroll, FlingLayout, FlingActionLbl, "Fling", function(p) currentFlingTarget = p end) end end)
+    BringToggle.MouseButton1Click:Connect(function() bringMenuEnabled = not bringMenuEnabled; setToggleState(BringToggle, BringCircle, bringMenuEnabled); BringWin.Visible = bringMenuEnabled; if bringMenuEnabled then populatePlayers(BringScroll, BringLayout, BringActionLbl, "Bring", function(p) currentBringTarget = p end) end end)
+    FlingClose.MouseButton1Click:Connect(function() FlingWin.Visible = false; flingEnabled = false; setToggleState(FlingToggle, FlingCircle, false) end)
+    BringClose.MouseButton1Click:Connect(function() BringWin.Visible = false; bringMenuEnabled = false; setToggleState(BringToggle, BringCircle, false) end)
+
+    local isFlinging = false
+    FlingActionBtn.MouseButton1Click:Connect(function()
+        if not currentFlingTarget or not currentFlingTarget.Character or isFlinging then return end; if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
+        isFlinging = true; showNotification("Fling применяется к " .. currentFlingTarget.Name)
+        local hrp = LP.Character.HumanoidRootPart; local oldPos = hrp.CFrame
+        local bv = Instance.new("BodyAngularVelocity", hrp); bv.AngularVelocity = Vector3.new(0, 99999, 0); bv.MaxTorque = Vector3.new(math.huge, math.huge, math.huge); bv.P = math.huge
+        local bt = Instance.new("BodyThrust", hrp); bt.Force = Vector3.new(9999, 9999, 9999); LP.Character.Humanoid.Sit = true
+        local flingTime = 0; local flingCon
+        flingCon = Services.Run.Stepped:Connect(function(_, dt)
+            flingTime = flingTime + dt
+            if flingTime > 2.5 or not currentFlingTarget.Character or not currentFlingTarget.Character:FindFirstChild("HumanoidRootPart") then
+                if bv then bv:Destroy() end; if bt then bt:Destroy() end; hrp.Velocity = Vector3.new(); hrp.RotVelocity = Vector3.new(); hrp.CFrame = oldPos; LP.Character.Humanoid.Sit = false; isFlinging = false; flingCon:Disconnect(); return
+            end
+            hrp.CFrame = currentFlingTarget.Character.HumanoidRootPart.CFrame
+        end)
+    end)
+
+    local bringConnection = nil; local isBringing = false
+    BringActionBtn.MouseButton1Click:Connect(function()
+        if not currentBringTarget or not currentBringTarget.Character then return end; local targetHRP = currentBringTarget.Character:FindFirstChild("HumanoidRootPart"); if not targetHRP then return end
+        if isBringing then isBringing = false; if bringConnection then bringConnection:Disconnect(); bringConnection = nil end; showNotification("Преследование остановлено"); return end
+        isBringing = true; showNotification("Сбор физических объектов к " .. currentBringTarget.Name)
+        pcall(function() sethiddenproperty(LP, "MaximumSimulationRadius", math.huge); sethiddenproperty(LP, "SimulationRadius", math.huge) end)
+        local function isTargetObject(part)
+            if not part:IsA("BasePart") or part.Anchored then return false end; if part.Parent:FindFirstChildOfClass("Humanoid") then return false end; if part.Parent:IsA("Accessory") then return false end
+            local model = part:FindFirstAncestorOfClass("Model"); if model and model:FindFirstChildOfClass("VehicleSeat", true) then return true end
+            local hasJoint = false; if part:FindFirstChildOfClass("Constraint") or part:FindFirstChildOfClass("Attachment") then hasJoint = true end; if not hasJoint and part.Parent then if part.Parent:FindFirstChildOfClass("Constraint", true) or part.Parent:FindFirstChildOfClass("Attachment", true) then hasJoint = true end end
+            if hasJoint then return true end; if part.Size.X * part.Size.Y * part.Size.Z > 15 then return true end; return false
+        end
+        local targetParts = {}
+        for _, part in pairs(workspace:GetDescendants()) do
+            if isTargetObject(part) then for _, child in pairs(part:GetDescendants()) do if child:IsA("Constraint") or child:IsA("Attachment") or child:IsA("Weld") or child:IsA("WeldConstraint") then pcall(function() child:Destroy() end) end end; table.insert(targetParts, part); part.CanCollide = false end
+        end
+        bringConnection = Services.Run.Heartbeat:Connect(function()
+            if not targetHRP or not targetHRP.Parent then isBringing = false; bringConnection:Disconnect(); return end
+            for _, part in pairs(targetParts) do if part and part.Parent then part.AssemblyLinearVelocity = Vector3.new(0, 0, 0); part.AssemblyAngularVelocity = Vector3.new(0, 0, 0); part.CFrame = targetHRP.CFrame + Vector3.new(math.random(-4, 4), math.random(1, 4), math.random(-4, 4)) end end
+        end)
+    end)
+end
+
+-- === НОВЫЙ РАЗДЕЛ: HELP ===
+do
+    local HelpLayout = Instance.new("UIListLayout", UI.Pages.Help)
+    HelpLayout.Padding = UDim.new(0, 10)
+    HelpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    local function createHelpCard(q, a, btnText, btnLink)
+        local card = Instance.new("Frame", UI.Pages.Help)
+        card.Size = UDim2.new(1, -20, 0, 0); card.AutomaticSize = Enum.AutomaticSize.Y
+        card.BackgroundColor3 = Color3.fromRGB(30, 30, 35); card.BackgroundTransparency = 0.5
+        Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+        Instance.new("UIStroke", card).Color = Color3.fromRGB(100, 80, 140)
+
+        local layout = Instance.new("UIListLayout", card)
+        layout.Padding = UDim.new(0, 5); layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+        local spacer1 = Instance.new("Frame", card); spacer1.Size = UDim2.new(1,0,0,5); spacer1.BackgroundTransparency = 1
+
+        local qLbl = Instance.new("TextLabel", card)
+        qLbl.Size = UDim2.new(1, -20, 0, 0); qLbl.AutomaticSize = Enum.AutomaticSize.Y
+        qLbl.BackgroundTransparency = 1; qLbl.Text = "Q: " .. q
+        qLbl.Font = Enum.Font.GothamBold; qLbl.TextSize = 13; qLbl.TextColor3 = Color3.fromRGB(220, 190, 255)
+        qLbl.TextWrapped = true; qLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+        if a ~= "" then
+            local aLbl = Instance.new("TextLabel", card)
+            aLbl.Size = UDim2.new(1, -20, 0, 0); aLbl.AutomaticSize = Enum.AutomaticSize.Y
+            aLbl.BackgroundTransparency = 1; aLbl.Text = "A: " .. a
+            aLbl.Font = Enum.Font.Gotham; aLbl.TextSize = 12; aLbl.TextColor3 = Color3.new(1, 1, 1)
+            aLbl.TextWrapped = true; aLbl.TextXAlignment = Enum.TextXAlignment.Left
+        end
+        
+        if btnText then
+            local linkBtn = Instance.new("TextButton", card)
+            linkBtn.Size = UDim2.new(1, -20, 0, 30); linkBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            applyGradient(linkBtn); linkBtn.Text = ""; Instance.new("UICorner", linkBtn).CornerRadius = UDim.new(0, 6)
+            local btnLbl = Instance.new("TextLabel", linkBtn); btnLbl.Size = UDim2.new(1,0,1,0); btnLbl.BackgroundTransparency = 1
+            btnLbl.Text = btnText; btnLbl.TextColor3 = Color3.new(1,1,1); btnLbl.Font = Enum.Font.GothamBold
+            linkBtn.MouseButton1Click:Connect(function()
+                pcall(function() if setclipboard then setclipboard(btnLink) elseif toclipboard then toclipboard(btnLink) end end)
+                showNotification("Ссылка скопирована!")
+            end)
+        end
+        
+        local spacer2 = Instance.new("Frame", card); spacer2.Size = UDim2.new(1,0,0,5); spacer2.BackgroundTransparency = 1
+    end
+
+    createHelpCard("Why is the menu taking a long time to load?", "Loading the menu depends on your internet connection.")
+    createHelpCard("Why is the mascot not loaded in the notification?", "It also depends on your Internet connection, or on the roblox/injector itself if it does not support image uploading.")
+    createHelpCard("Why are the menus lagging/hanging?", "This is also due to the fact that fixes are released daily and because of this we cannot notice all the bugs in the new versions, we continue to work on optimizing the GUI.")
+    createHelpCard("Why is there a server List with a single player?", "We are aware of this issue and are already working to fix the situation. Different servers will be displayed soon.")
+    createHelpCard("Why aren't the servers displayed?", "If your servers are not displayed, then your injector does not support server loading, this is not a bug!")
+    createHelpCard("How do I create my own Notification Mascot?", "Go to the create section on the roblox website, then go to Creations, then go to Decals, click on the plus sign, you will be redirected to the publication menu. You select the image you need, the main thing is that it should be without a background and in PNG format. After creation, you go to the images section, click on the 3 dots on the desired image, then copy the Asset ID and insert it in the script.")
+    createHelpCard("How do I remove the background and make a PNG format?", "Go into any AI and throw him a picture with the following message: Remove the background and make a PNG Format for this picture.")
+    createHelpCard("How to contact us?", "So far, not as possible, we will soon create a Telegram channel or a discord channel.")
+    createHelpCard("How to bypass the system key from injectors or scripts:", "", "Bypass Bot", "https://t.me/OrxBypass_not")
+
+    task.spawn(function()
+        task.wait(1)
+        UI.Pages.Help.CanvasSize = UDim2.new(0, 0, 0, HelpLayout.AbsoluteContentSize.Y + 20)
+    end)
+end
+
+-- === УПРАВЛЕНИЕ СТРАНИЦАМИ И ОСНОВНЫЕ КНОПКИ ===
+local currentPage = UI.Pages.Home
+UI.NavBtns.Home.Indicator.BackgroundTransparency = 0 
+
+local function switchTab(btn, page)
+    if UI.Frame.Size.Y.Offset < 100 or currentPage == page then return end 
+    for _, b in pairs(UI.SideMenuScroll:GetChildren()) do if b:IsA("TextButton") and b:FindFirstChild("Indicator") then Services.TS:Create(b.Indicator, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play() end end
+    Services.TS:Create(btn.Indicator, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+    if currentPage then local oldPage = currentPage; Services.TS:Create(oldPage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 110, 0, 50)}):Play(); task.delay(0.2, function() if currentPage ~= oldPage then oldPage.Visible = false end end) end
+    page.Visible = true; page.Position = UDim2.new(0, 110, 0, 30); Services.TS:Create(page, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 110, 0, 40)}):Play()
+    currentPage = page
+end
+
+UI.NavBtns.Home.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Home, UI.Pages.Home) end)
+UI.NavBtns.Server.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Server, UI.Pages.Server) end)
+UI.NavBtns.Visuals.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Visuals, UI.Pages.Visuals) end)
+UI.NavBtns.Teleport.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Teleport, UI.Pages.Teleport) end)
+UI.NavBtns.Moved.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Moved, UI.Pages.Moved) end)
+UI.NavBtns.Misc.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Misc, UI.Pages.Misc) end)
+UI.NavBtns.Settings.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Settings, UI.Pages.Settings) end)
+UI.NavBtns.Help.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Help, UI.Pages.Help) end)
+
+local Title = Instance.new("TextLabel", UI.Frame)
+Title.Size = UDim2.new(0, 180, 0, 30); Title.Position = UDim2.new(0, 12, 0, 4); Title.BackgroundTransparency = 1
+Title.Text = "SEPTUS HUB"; Title.TextColor3 = Color3.fromRGB(220, 190, 255); Title.TextSize = 20; Title.Font = Enum.Font.GothamBold; Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local InjectorTag = Instance.new("TextLabel", UI.Frame)
+local executor = "Unknown"; pcall(function() if identifyexecutor then executor = identifyexecutor() elseif getexecutorname then executor = getexecutorname() end end)
+InjectorTag.Size = UDim2.new(0, 90, 0, 20); InjectorTag.Position = UDim2.new(1, -145, 0, 6); InjectorTag.BackgroundColor3 = Color3.fromRGB(220,190,255)
+InjectorTag.Text = executor; InjectorTag.TextColor3 = Color3.fromRGB(20,20,25); InjectorTag.TextSize = 11; InjectorTag.Font = Enum.Font.GothamBold
+Instance.new("UICorner", InjectorTag).CornerRadius = UDim.new(0,8)
+
+-- ИСПРАВЛЕНО СКРЫТИЕ TOPBAR ПРИ СВОРАЧИВАНИИ
+local MinBtn = Instance.new("TextButton", UI.Frame)
+MinBtn.Size = UDim2.new(0, 20, 0, 20); MinBtn.Position = UDim2.new(1, -50, 0, 6); MinBtn.Text = "-"; MinBtn.TextColor3 = Color3.fromRGB(255,255,255); MinBtn.TextSize = 18; MinBtn.BackgroundTransparency = 1
+local minimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    UI.Frame:TweenSize(UDim2.new(0,437,0, minimized and 35 or 238), "Out", "Quad", 0.2, true)
+    UI.SideMenuScroll.Visible = not minimized
+    UI.SideBar.Visible = not minimized
+    TopBar.Visible = not minimized
+    if currentPage then currentPage.Visible = not minimized end
+end)
+
+local CloseBtn = Instance.new("TextButton", UI.Frame)
+CloseBtn.Size = UDim2.new(0, 20, 0, 20); CloseBtn.Position = UDim2.new(1, -25, 0, 6); CloseBtn.Text = "X"; CloseBtn.TextColor3 = Color3.fromRGB(255,255,255); CloseBtn.TextSize = 14; CloseBtn.BackgroundTransparency = 1
+CloseBtn.MouseButton1Click:Connect(function() UI.Screen:Destroy() end)
+
+local ToggleBtn = Instance.new("TextButton", UI.Screen)
+ToggleBtn.Size = UDim2.new(0,50,0,50); ToggleBtn.Position = UDim2.new(0,50,0.5,-25); ToggleBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.Text = ""; applyGradient(ToggleBtn); ToggleBtn.Visible = false
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0,12); Instance.new("UIStroke", ToggleBtn).Color = Color3.fromRGB(240,220,255)
+local toggleLbl = Instance.new("TextLabel", ToggleBtn); toggleLbl.Size = UDim2.new(1,0,1,0); toggleLbl.BackgroundTransparency = 1
+toggleLbl.Text = "SH"; toggleLbl.TextColor3 = Color3.fromRGB(255, 255, 255); toggleLbl.TextSize = 20; toggleLbl.Font = Enum.Font.GothamBold
+
+task.spawn(function()
+    repeat task.wait() until _G.MainMenuLoaded == true
+    ToggleBtn.Visible = true
+    showNotification("SEPTUS HUB успешно загружен!")
+end)
+
+local isGuiVisible = false
+ToggleBtn.MouseButton1Click:Connect(function()
+    isGuiVisible = not isGuiVisible
+    if isGuiVisible then
+        UI.Frame.Visible = true
+         Services.TS:Create(UI.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = minimized and UDim2.new(0, 437, 0, 35) or UDim2.new(0, 437, 0, 238), Position = UDim2.new(0.5, -218.5, 0.5, -119)
+        }):Play()
+    else
+        Services.TS:Create(UI.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)
+        }):Play()
+        task.delay(0.4, function() if not isGuiVisible then UI.Frame.Visible = false end end)
+    end
+end)
+makeDraggable(ToggleBtn)
