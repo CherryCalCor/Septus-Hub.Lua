@@ -14,6 +14,8 @@ The script is under development, so there may be bugs or flaws, as well as some 
 
 In the full V2 version, you will find a large number of different visuals, new ESP systems, new GUI customization systems, BringParts redesign, and many other minor fixes.
 
+We do not recommend taking the source codes of other versions except V1Fixx or V2Beta because many versions do not work or are unstable and due to the large number of bugs and flaws, they also have less functionality.
+
 Sincerely, CalCor🫠
 
 
