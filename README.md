@@ -10,4 +10,7 @@ This script is intended for everyday use or modification to suit your desired ga
 
 The source code is allowed to be taken only for reworking, but not for issuing the script as your own.
 
+The script is under development, so there may be bugs or flaws, as well as some functions like BringParts may be visual. We are working on this.
+
 Sincerely, CalCor🫠
+
