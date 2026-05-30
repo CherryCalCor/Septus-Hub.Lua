@@ -1688,7 +1688,7 @@ local toggleIcon = Instance.new("ImageLabel", ToggleBtn)
 toggleIcon.Size = UDim2.new(1, -14, 1, -14)
 toggleIcon.Position = UDim2.new(0, 7, 0, 7)
 toggleIcon.BackgroundTransparency = 1
-toggleIcon.Image = "rbxassetid://126267076956184" -- Твоя иконка по умолчанию
+toggleIcon.Image = "rbxassetid://86200346416829"
 
 -- ФУНКЦИЯ ДЛЯ СМЕНЫ ИКОНКИ ТОГГЛА ИЗ МЕНЮ НАСТРОЕК
 _G.UpdateToggleIcon = function(id)
