@@ -20,7 +20,6 @@ _G.NotificationAssetID = "rbxthumb://type=Asset&id=115669221263328&w=150&h=150"
 _G.MainMenuLoaded = false
 _G.UseNewNotifications = false
 
--- Глобальная система конфигов
 _G.ConfigState = {}
 _G.ConfigUpdaters = {}
 
