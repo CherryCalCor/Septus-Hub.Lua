@@ -1,4 +1,4 @@
--- === ЧАСТЬ 1: СЕРВИСЫ, БАЗА, ЗАГРУЗКА, HOME, SERVER, TELEPORT, SETTINGS, MOVED, VISUALS ===
+
 local Services = {
     Http = game:GetService("HttpService"),
     TP = game:GetService("TeleportService"),
@@ -176,7 +176,6 @@ local function makeDraggable(guiObj, dragHandle)
     end)
 end
 
--- ОБНОВЛЕННАЯ СИСТЕМА TOGGLE ДЛЯ CONFIGS
 local function createToggle(parent, name, y, defaultState, callback)
     local label = Instance.new("TextLabel", parent)
     label.Text = name
@@ -224,7 +223,6 @@ local function createToggle(parent, name, y, defaultState, callback)
     return bg, circle, setState
 end
 
--- ОБНОВЛЕННАЯ СИСТЕМА SLIDER ДЛЯ CONFIGS
 local function createSlider(parent, yPos, name, min, max, default, callback)
     local bg = Instance.new("TextButton", parent)
     bg.Text = ""
@@ -1166,7 +1164,6 @@ do -- Visuals Page
     end))
 end
 
--- === ЧАСТЬ 2: ОСТАЛЬНЫЕ ВКЛАДКИ, PROTECT, ИКОНКА УПРАВЛЕНИЯ, ОЧИСТКА ===
 local function createFloatingMenu(titleText)
     local win = Instance.new("Frame", UI.Screen)
     win.Size = UDim2.new(0, 200, 0, 250); win.Position = UDim2.new(0.5, -100, 0.5, -125); win.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(win)
@@ -1940,10 +1937,8 @@ Title.Position = UDim2.new(0, 12, 0, 4); Title.BackgroundTransparency = 1
 Title.Text = "SEPTUS HUB"; Title.TextColor3 = Color3.fromRGB(220, 190, 255); Title.TextSize = 20
 Title.Font = Enum.Font.GothamBold; Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- НОВЫЙ БЕЙДЖ ВЕРСИИ
 local VersionTag = Instance.new("Frame", UI.Frame)
 VersionTag.Size = UDim2.new(0, 45, 0, 20)
--- Теперь позиция отсчитывается с правого края (1, -195), а высота Y (0, 6) совпадает с InjectorTag
 VersionTag.Position = UDim2.new(1, -195, 0, 6)
 VersionTag.BackgroundColor3 = Color3.fromRGB(180, 150, 255)
 Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
