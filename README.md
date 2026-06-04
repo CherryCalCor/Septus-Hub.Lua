@@ -1,4 +1,7 @@
-# Septus-Hub.Lua
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/3983aaea-7e73-42e3-8575-b2fcc728c7e5" width="280px" />
+
+  ## Septus-Hub.Lua
 
 Current version of V2Full (finally out) :)
 
