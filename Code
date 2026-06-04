@@ -1227,11 +1227,12 @@ do -- Misc Page
 
     local diffOpened, otherOpened = false, false
     local function updateMainMiscPositions()
-        local diffHeight = diffOpened and 160 or 0
+        local diffHeight = diffOpened and 200 or 0
         Services.TS:Create(OtherBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + diffHeight)}):Play()
         Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + diffHeight)}):Play()
     end
-    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,160) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
+    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,200) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
+    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,200) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
     OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,120) or UDim2.new(1,-20,0,0)}):Play() end)
 
     local antiAfkEnabled, noclipEnabled, autoReconEnabled, freeCamEnabled = false, false, false, false
@@ -1255,7 +1256,22 @@ do -- Misc Page
             cam.CameraType = Enum.CameraType.Custom; if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then LP.Character.HumanoidRootPart.Anchored = false end 
         end 
     end)
-    
+
+    local invisEnabled = false
+    createToggle(DiffMenu, "Invisibility", 160, false, function(state)
+        invisEnabled = state
+        if LP.Character then
+            for _, v in pairs(LP.Character:GetDescendants()) do
+                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                    v.Transparency = state and 1 or 0
+                elseif v:IsA("Decal") then
+                    v.Transparency = state and 1 or 0
+                end
+            end
+        end
+    end)
+
+
     table.insert(UI.Connections, Services.UIS.InputBegan:Connect(function(i, g) if not g then if i.KeyCode == Enum.KeyCode.W then fcKeys.W = true elseif i.KeyCode == Enum.KeyCode.A then fcKeys.A = true elseif i.KeyCode == Enum.KeyCode.S then fcKeys.S = true elseif i.KeyCode == Enum.KeyCode.D then fcKeys.D = true elseif i.KeyCode == Enum.KeyCode.Space then fcKeys.Space = true elseif i.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = true end end end))
     table.insert(UI.Connections, Services.UIS.InputEnded:Connect(function(i) if i.KeyCode == Enum.KeyCode.W then fcKeys.W = false elseif i.KeyCode == Enum.KeyCode.A then fcKeys.A = false elseif i.KeyCode == Enum.KeyCode.S then fcKeys.S = false elseif i.KeyCode == Enum.KeyCode.D then fcKeys.D = false elseif i.KeyCode == Enum.KeyCode.Space then fcKeys.Space = false elseif i.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = false end end))
     table.insert(UI.Connections, Services.Run.RenderStepped:Connect(function() if freeCamEnabled then local v = Vector3.new()
@@ -1944,7 +1960,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.02"
+VTagLbl.Text = "V2.03"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2061,6 +2077,57 @@ toggleIcon.BackgroundTransparency = 1
 toggleIcon.Image = "rbxassetid://83309664199973"
 
 _G.UpdateToggleIcon = function(id) if toggleIcon then toggleIcon.Image = id end end
+
+local UpdateWin = Instance.new("Frame", UI.Screen)
+UpdateWin.Size = UDim2.new(0, 270, 0, 190)
+UpdateWin.Position = UDim2.new(1, -290, 0.5, -95) -- Позиция справа, вне основного GUI
+UpdateWin.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+UpdateWin.BackgroundTransparency = 0.1
+UpdateWin.BorderSizePixel = 0
+applyGradient(UpdateWin)
+Instance.new("UICorner", UpdateWin).CornerRadius = UDim.new(0, 10)
+local upStroke = Instance.new("UIStroke", UpdateWin)
+upStroke.Color = _G.CurrentGradientColors[2]
+upStroke.Thickness = 1.2
+
+local UpTitle = Instance.new("TextLabel", UpdateWin)
+UpTitle.Size = UDim2.new(1, 0, 0, 35)
+UpTitle.BackgroundTransparency = 1
+UpTitle.Text = "⚡ Update V2.03 ⚡"
+UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
+UpTitle.Font = Enum.Font.GothamBold
+UpTitle.TextSize = 15
+
+local UpText = Instance.new("TextLabel", UpdateWin)
+UpText.Size = UDim2.new(1, -20, 1, -80)
+UpText.Position = UDim2.new(0, 10, 0, 35)
+UpText.BackgroundTransparency = 1
+UpText.Text = "- Invisibility has been added to Misc\n- Added transparency deactivation in the main menu to the Theme settings.\n- Fixed bugs with the appearance of servers in the server menu\n- Fixed script crashes and lags."
+UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
+UpText.Font = Enum.Font.Gotham
+UpText.TextSize = 12
+UpText.TextXAlignment = Enum.TextXAlignment.Left
+UpText.TextYAlignment = Enum.TextYAlignment.Top
+UpText.TextWrapped = true
+
+local UpCloseBtn = Instance.new("TextButton", UpdateWin)
+UpCloseBtn.Size = UDim2.new(1, -40, 0, 30)
+UpCloseBtn.Position = UDim2.new(0, 20, 1, -35)
+UpCloseBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+applyGradient(UpCloseBtn)
+Instance.new("UICorner", UpCloseBtn).CornerRadius = UDim.new(0, 6)
+UpCloseBtn.Text = ""
+
+local UpCloseLbl = Instance.new("TextLabel", UpCloseBtn)
+UpCloseLbl.Size = UDim2.new(1, 0, 1, 0)
+UpCloseLbl.BackgroundTransparency = 1
+UpCloseLbl.Text = "Close"
+UpCloseLbl.TextColor3 = Color3.new(1, 1, 1)
+UpCloseLbl.Font = Enum.Font.GothamBold
+
+UpCloseBtn.MouseButton1Click:Connect(function()
+    UpdateWin:Destroy() -- Полностью удаляем меню после закрытия
+end)
 
 task.spawn(function()
     repeat task.wait() until _G.MainMenuLoaded == true
