@@ -283,6 +283,137 @@ UI.Screen.Parent = Services.Core:FindFirstChild("RobloxGui") or LP:WaitForChild(
 UI.Screen.ResetOnSpawn = false
 UI.Screen.Name = "MainGUI"
 
+local ManualOpPanel = Instance.new("Frame", UI.Screen)
+ManualOpPanel.Size = UDim2.new(0, 300, 0, 40)
+ManualOpPanel.Position = UDim2.new(0.5, -150, 0, 10) -- Вверху экрана по центру
+ManualOpPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+ManualOpPanel.BackgroundTransparency = 0.1
+ManualOpPanel.Visible = false
+applyGradient(ManualOpPanel)
+Instance.new("UICorner", ManualOpPanel).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", ManualOpPanel).Color = _G.CurrentGradientColors[2]
+ManualOpPanel.UIStroke.Thickness = 1.2
+
+local ManualInput = Instance.new("TextBox", ManualOpPanel)
+ManualInput.Size = UDim2.new(1, -70, 1, -10)
+ManualInput.Position = UDim2.new(0, 10, 0, 5)
+ManualInput.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+ManualInput.TextColor3 = Color3.new(1, 1, 1)
+ManualInput.Font = Enum.Font.Gotham
+ManualInput.TextSize = 14
+ManualInput.PlaceholderText = "Enter function name..."
+ManualInput.Text = ""
+ManualInput.ClearTextOnFocus = false
+Instance.new("UICorner", ManualInput).CornerRadius = UDim.new(0, 6)
+
+local ManualEnterBtn = Instance.new("TextButton", ManualOpPanel)
+ManualEnterBtn.Size = UDim2.new(0, 50, 1, -10)
+ManualEnterBtn.Position = UDim2.new(1, -55, 0, 5)
+ManualEnterBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ManualEnterBtn.Text = "Enter"
+ManualEnterBtn.Font = Enum.Font.GothamBold
+ManualEnterBtn.TextColor3 = Color3.new(1, 1, 1)
+applyGradient(ManualEnterBtn)
+Instance.new("UICorner", ManualEnterBtn).CornerRadius = UDim.new(0, 6)
+
+local InstrWin = Instance.new("Frame", UI.Screen)
+InstrWin.Size = UDim2.new(0, 350, 0, 300)
+InstrWin.Position = UDim2.new(0.5, -175, 0.5, -150)
+InstrWin.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+applyGradient(InstrWin)
+InstrWin.BackgroundTransparency = 0.1
+InstrWin.Visible = false
+InstrWin.ClipsDescendants = true
+Instance.new("UICorner", InstrWin).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", InstrWin).Color = _G.CurrentGradientColors[2]
+InstrWin.UIStroke.Thickness = 1.2
+
+local InstrTopBar = Instance.new("Frame", InstrWin)
+InstrTopBar.Size = UDim2.new(1, 0, 0, 30)
+InstrTopBar.BackgroundTransparency = 1
+makeDraggable(InstrWin, InstrTopBar)
+
+local InstrTitle = Instance.new("TextLabel", InstrTopBar)
+InstrTitle.Size = UDim2.new(0, 200, 1, 0)
+InstrTitle.Position = UDim2.new(0, 15, 0, 0)
+InstrTitle.BackgroundTransparency = 1
+InstrTitle.Text = "Instruction Manual"
+InstrTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+InstrTitle.Font = Enum.Font.GothamBold
+InstrTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local InstrCloseBtn = Instance.new("TextButton", InstrTopBar)
+InstrCloseBtn.Size = UDim2.new(0, 25, 0, 25)
+InstrCloseBtn.Position = UDim2.new(1, -30, 0, 2)
+InstrCloseBtn.BackgroundTransparency = 1
+InstrCloseBtn.Text = "X"
+InstrCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+InstrCloseBtn.Font = Enum.Font.GothamBold
+
+local InstrText = Instance.new("TextLabel", InstrWin)
+InstrText.Size = UDim2.new(1, -20, 0, 60)
+InstrText.Position = UDim2.new(0, 10, 0, 35)
+InstrText.BackgroundTransparency = 1
+InstrText.Text = "In the text input field, enter the name of any function, for example Noclip, then press enter and the function turns on automatically."
+InstrText.TextColor3 = Color3.fromRGB(240, 240, 240)
+InstrText.Font = Enum.Font.Gotham
+InstrText.TextSize = 13
+InstrText.TextWrapped = true
+InstrText.TextXAlignment = Enum.TextXAlignment.Left
+InstrText.TextYAlignment = Enum.TextYAlignment.Top
+
+local FuncListScroll = Instance.new("ScrollingFrame", InstrWin)
+FuncListScroll.Size = UDim2.new(1, -20, 1, -105)
+FuncListScroll.Position = UDim2.new(0, 10, 0, 95)
+FuncListScroll.BackgroundTransparency = 1
+FuncListScroll.ScrollBarThickness = 4
+FuncListScroll.BorderSizePixel = 0
+local FuncListLayout = Instance.new("UIListLayout", FuncListScroll)
+FuncListLayout.Padding = UDim.new(0, 5)
+
+local function refreshFunctionList()
+    for _, v in pairs(FuncListScroll:GetChildren()) do
+        if v:IsA("TextLabel") then v:Destroy() end
+    end
+    for name, _ in pairs(_G.ConfigUpdaters) do
+        local lbl = Instance.new("TextLabel", FuncListScroll)
+        lbl.Size = UDim2.new(1, 0, 0, 25)
+        lbl.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+        lbl.BackgroundTransparency = 0.5
+        lbl.Text = " " .. name
+        lbl.TextColor3 = Color3.fromRGB(220, 190, 255)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 13
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 4)
+    end
+    FuncListScroll.CanvasSize = UDim2.new(0, 0, 0, FuncListLayout.AbsoluteContentSize.Y + 5)
+end
+
+local function executeManualCommand()
+    local cmd = ManualInput.Text:lower()
+    local found = false
+  
+    for name, updater in pairs(_G.ConfigUpdaters) do
+        if name:lower() == cmd then
+            
+            updater(not _G.ConfigState[name])
+            showNotification(name .. " toggled manually!")
+            found = true
+            break
+        end
+    end
+    if not found then
+        showNotification("Function not found: " .. ManualInput.Text)
+    end
+    ManualInput.Text = ""
+end
+
+ManualEnterBtn.MouseButton1Click:Connect(executeManualCommand)
+ManualInput.FocusLost:Connect(function(enterPressed)
+    if enterPressed then executeManualCommand() end
+end)
+
 do -- Welcome Menu
     local WelcomeGui = Instance.new("Frame", UI.Screen)
     WelcomeGui.Size = UDim2.new(0, 440, 0, 200)
@@ -491,6 +622,29 @@ do -- Home Page
         NotepadWin.Visible = state
     end)
     NoteCloseBtn.MouseButton1Click:Connect(function() setNotepad(false, true); NotepadWin.Visible = false end)
+
+    local ManualOpCont = Instance.new("Frame", UI.Pages.Home)
+    ManualOpCont.Size = UDim2.new(1, -10, 0, 35)
+    ManualOpCont.Position = UDim2.new(0, 0, 0, 305) -- Под Notepad
+    ManualOpCont.BackgroundTransparency = 1
+    
+    local ManualToggle, ManualCircle, setManual = createToggle(ManualOpCont, "Manual operation", 0, false, function(state)
+        ManualOpPanel.Visible = state
+    end)
+
+    local InstrCont = Instance.new("Frame", UI.Pages.Home)
+    InstrCont.Size = UDim2.new(1, -10, 0, 35)
+    InstrCont.Position = UDim2.new(0, 0, 0, 345) -- Под Manual operation
+    InstrCont.BackgroundTransparency = 1
+
+    local InstrToggle, InstrCircle, setInstr = createToggle(InstrCont, "Instruction manual", 0, false, function(state)
+        InstrWin.Visible = state
+        if state then refreshFunctionList() end -- Динамически загружаем список при открытии
+    end)
+    
+    InstrCloseBtn.MouseButton1Click:Connect(function() setInstr(false, true); InstrWin.Visible = false end)
+
+    UI.Pages.Home.CanvasSize = UDim2.new(0, 0, 0, 450)
 end
 
 do -- Server Page
@@ -1915,7 +2069,6 @@ do -- HELP PAGE
     task.spawn(function() task.wait(1); UI.Pages.Help.CanvasSize = UDim2.new(0, 0, 0, HelpLayout.AbsoluteContentSize.Y + 20) end)
 end
 
--- === УПРАВЛЕНИЕ СТРАНИЦАМИ И ОСНОВНЫЕ КНОПКИ ===
 local currentPage = UI.Pages.Home
 UI.NavBtns.Home.Indicator.BackgroundTransparency = 0 
 
@@ -1960,7 +2113,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.03"
+VTagLbl.Text = "V2.04"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2012,7 +2165,7 @@ btnYes.Size = UDim2.new(0, 100, 0, 35)
 btnYes.Position = UDim2.new(0, 20, 0, 65)
 btnYes.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 applyGradient(btnYes)
-btnYes.Text = "" -- Убираем родной текст
+btnYes.Text = ""
 btnYes.ZIndex = 1000
 Instance.new("UICorner", btnYes)
 
@@ -2080,7 +2233,7 @@ _G.UpdateToggleIcon = function(id) if toggleIcon then toggleIcon.Image = id end 
 
 local UpdateWin = Instance.new("Frame", UI.Screen)
 UpdateWin.Size = UDim2.new(0, 270, 0, 190)
-UpdateWin.Position = UDim2.new(1, -290, 0.5, -95) -- Позиция справа, вне основного GUI
+UpdateWin.Position = UDim2.new(1, -290, 0.5, -95)
 UpdateWin.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 UpdateWin.BackgroundTransparency = 0.1
 UpdateWin.BorderSizePixel = 0
@@ -2093,7 +2246,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.03 ⚡"
+UpTitle.Text = "⚡ Update V2.04 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2102,7 +2255,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Invisibility has been added to Misc\n- Added transparency deactivation in the main menu to the Theme settings.\n- Fixed bugs with the appearance of servers in the server menu\n- Fixed script crashes and lags."
+UpText.Text = "- Added manual function control  \n- Fixed different menu.\n- The menu has been optimized and some functions too\n- Fixed script crashes and lags."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
