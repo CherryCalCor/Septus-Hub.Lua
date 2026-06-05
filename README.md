@@ -3,7 +3,7 @@
 
   ## Septus-Hub.Lua
 
-Current version of V2Full (finally out) :)
+Current version of 2.05 
 
 Developers:CherryCalcor, Adevihia, SigmaGermany1488, Grenki_Waves, LLNortinain
 
@@ -14,6 +14,8 @@ This script is intended for everyday use or modification to suit your desired ga
 The source code is allowed to be taken only for reworking, but not for issuing the script as your own.
 
 Sincerely, CalCor🫠
+
+I don't know when V3 will be released But we are actively developing it.
 
 
 
