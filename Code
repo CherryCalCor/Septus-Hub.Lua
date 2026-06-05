@@ -634,17 +634,80 @@ do -- Home Page
 
     local InstrCont = Instance.new("Frame", UI.Pages.Home)
     InstrCont.Size = UDim2.new(1, -10, 0, 35)
-    InstrCont.Position = UDim2.new(0, 0, 0, 345) -- Под Manual operation
+    InstrCont.Position = UDim2.new(0, 0, 0, 345) 
     InstrCont.BackgroundTransparency = 1
 
     local InstrToggle, InstrCircle, setInstr = createToggle(InstrCont, "Instruction manual", 0, false, function(state)
         InstrWin.Visible = state
-        if state then refreshFunctionList() end -- Динамически загружаем список при открытии
+        if state then refreshFunctionList() end
     end)
     
     InstrCloseBtn.MouseButton1Click:Connect(function() setInstr(false, true); InstrWin.Visible = false end)
 
-    UI.Pages.Home.CanvasSize = UDim2.new(0, 0, 0, 450)
+    local TopStatusPanel = Instance.new("Frame", UI.Screen)
+    TopStatusPanel.Size = UDim2.new(0.3, 0, 0, 35)
+    TopStatusPanel.Position = UDim2.new(0.5, 0, 0, 5)
+    TopStatusPanel.AnchorPoint = Vector2.new(0.5, 0)
+    TopStatusPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    TopStatusPanel.BackgroundTransparency = 0.2
+    TopStatusPanel.Visible = false
+    applyGradient(TopStatusPanel)
+    Instance.new("UICorner", TopStatusPanel).CornerRadius = UDim.new(0, 8)
+    Instance.new("UIStroke", TopStatusPanel).Color = _G.CurrentGradientColors[2]
+    TopStatusPanel.UIStroke.Thickness = 1.2
+
+    local TopStatusLayout = Instance.new("UIListLayout", TopStatusPanel)
+    TopStatusLayout.FillDirection = Enum.FillDirection.Horizontal
+    TopStatusLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    TopStatusLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    TopStatusLayout.Padding = UDim.new(0, 15)
+
+    local function createStatusLabel(text)
+        local lbl = Instance.new("TextLabel", TopStatusPanel)
+        lbl.Size = UDim2.new(0, 0, 1, 0)
+        lbl.AutomaticSize = Enum.AutomaticSize.X
+        lbl.BackgroundTransparency = 1
+        lbl.Text = text
+        lbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 13
+        return lbl
+    end
+
+    local topFPSLabel = createStatusLabel("FPS: 0")
+    local topPingLabel = createStatusLabel("Ping: 0 ms")
+    local topTimeLabel = createStatusLabel("Time: 00:00")
+
+    task.spawn(function()
+        while task.wait(1) do
+            if TopStatusPanel.Visible then
+                
+                local fps = math.floor(workspace:GetRealPhysicsFPS())
+                local ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+                
+                local totalSeconds = math.floor(workspace.DistributedGameTime)
+                local hours = math.floor(totalSeconds / 3600)
+                local minutes = math.floor((totalSeconds % 3600) / 60)
+                local seconds = totalSeconds % 60
+                local timeStr = hours > 0 and string.format("%02d:%02d:%02d", hours, minutes, seconds) or string.format("%02d:%02d", minutes, seconds)
+               
+                topFPSLabel.Text = "FPS: " .. tostring(fps)
+                topPingLabel.Text = "Ping: " .. tostring(ping) .. " ms"
+                topTimeLabel.Text = "Time: " .. timeStr
+            end
+        end
+    end)
+
+    local StatusDisplayCont = Instance.new("Frame", UI.Pages.Home)
+    StatusDisplayCont.Size = UDim2.new(1, -10, 0, 35)
+    StatusDisplayCont.Position = UDim2.new(0, 0, 0, 385) -- Ровно под Instruction manual (+40 пикселей)
+    StatusDisplayCont.BackgroundTransparency = 1
+
+    local StatusToggle, StatusCircle, setStatus = createToggle(StatusDisplayCont, "Status display", 0, false, function(state)
+        TopStatusPanel.Visible = state
+    end)
+
+    UI.Pages.Home.CanvasSize = UDim2.new(0, 0, 0, 490)
 end
 
 do -- Server Page
@@ -2113,7 +2176,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.04"
+VTagLbl.Text = "V2.05"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2182,7 +2245,7 @@ btnNo.Size = UDim2.new(0, 100, 0, 35)
 btnNo.Position = UDim2.new(1, -120, 0, 65)
 btnNo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 applyGradient(btnNo)
-btnNo.Text = "" -- Убираем родной текст
+btnNo.Text = "" 
 btnNo.ZIndex = 1000
 Instance.new("UICorner", btnNo)
 
@@ -2246,7 +2309,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.04 ⚡"
+UpTitle.Text = "⚡ Update V2.05 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2255,7 +2318,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added manual function control  \n- Fixed different menu.\n- The menu has been optimized and some functions too\n- Fixed script crashes and lags."
+UpText.Text = "- Added status display  \n- Fixed different menu.\n- The menu has been optimized and some functions too\n- Fixed script crashes and lags."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
@@ -2279,7 +2342,7 @@ UpCloseLbl.TextColor3 = Color3.new(1, 1, 1)
 UpCloseLbl.Font = Enum.Font.GothamBold
 
 UpCloseBtn.MouseButton1Click:Connect(function()
-    UpdateWin:Destroy() -- Полностью удаляем меню после закрытия
+    UpdateWin:Destroy()
 end)
 
 task.spawn(function()
