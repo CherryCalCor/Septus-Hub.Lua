@@ -1385,7 +1385,7 @@ do -- Misc Page
         Services.TS:Create(OtherBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + diffHeight)}):Play()
         Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + diffHeight)}):Play()
     end
-    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,200) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
+    
     DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,200) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
     OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,120) or UDim2.new(1,-20,0,0)}):Play() end)
 
