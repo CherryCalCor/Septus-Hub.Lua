@@ -530,7 +530,8 @@ UI.NavBtns.Shaders = createNavBtn("Shaders", 8)
 UI.NavBtns.Protect = createNavBtn("Protect", 9)
 UI.NavBtns.Funny = createNavBtn("Funny", 10)
 UI.NavBtns.Config = createNavBtn("Config", 11)
-UI.NavBtns.Help = createNavBtn("Help", 12)
+UI.NavBtns.QoL = createNavBtn("QoL", 12)
+UI.NavBtns.Help = createNavBtn("Help", 13)
 
 UI.Pages.Home = createPage(400); UI.Pages.Server = Instance.new("Frame", UI.Frame)
 UI.Pages.Visuals = createPage(900)
@@ -541,6 +542,7 @@ UI.Pages.Shaders = createPage(400)
 UI.Pages.Protect = createPage(300)
 UI.Pages.Funny = createPage(500)
 UI.Pages.Config = createPage(500)
+UI.Pages.QoL = createPage(600)
 UI.Pages.Help = createPage(1000)
 
 UI.Pages.Server.Visible = false; UI.Pages.Server.Position = UDim2.new(0,110,0,40)
@@ -1230,7 +1232,7 @@ do -- Visuals Page
 
     local espOpened, boostOpened, miscOpened = false, false, false
     local function updatePositions()
-        local espHeight = espOpened and 210 or 0
+        local espHeight = espOpened and 250 or 0
         local boostHeight = boostOpened and 260 or 0
         Services.TS:Create(BoostBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + espHeight)}):Play()
         Services.TS:Create(BoostMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + espHeight)}):Play()
@@ -1240,7 +1242,7 @@ do -- Visuals Page
 
     MiscBtn.MouseButton1Click:Connect(function() miscOpened = not miscOpened; Services.TS:Create(MiscArrow, TweenInfo.new(.2), {Rotation = miscOpened and 180 or 0}):Play(); MiscArrow.Text = miscOpened and "▲" or "▼"; MiscMenu.Visible = true; Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Size = miscOpened and UDim2.new(1,-20,0,180) or UDim2.new(1,-20,0,0)}):Play() end)
     BoostBtn.MouseButton1Click:Connect(function() boostOpened = not boostOpened; Services.TS:Create(BoostArrow, TweenInfo.new(.2), {Rotation = boostOpened and 180 or 0}):Play(); BoostArrow.Text = boostOpened and "▲" or "▼"; BoostMenu.Visible = true; Services.TS:Create(BoostMenu, TweenInfo.new(.2), {Size = boostOpened and UDim2.new(1,-20,0,260) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
-    ESPBtn.MouseButton1Click:Connect(function() espOpened = not espOpened; Services.TS:Create(Arrow, TweenInfo.new(.2), {Rotation = espOpened and 180 or 0}):Play(); Arrow.Text = espOpened and "▲" or "▼"; ESPMenu.Visible = true; Services.TS:Create(ESPMenu, TweenInfo.new(.2), {Size = espOpened and UDim2.new(1,-20,0,210) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
+    ESPBtn.MouseButton1Click:Connect(function() espOpened = not espOpened; Services.TS:Create(Arrow, TweenInfo.new(.2), {Rotation = espOpened and 180 or 0}):Play(); Arrow.Text = espOpened and "▲" or "▼"; ESPMenu.Visible = true; Services.TS:Create(ESPMenu, TweenInfo.new(.2), {Size = espOpened and UDim2.new(1,-20,0,250) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
 
     local headless, korblox, skyboxEnabled, thirdPersonEnabled = false, false, false, false
     local oldSkybox = nil
@@ -1286,6 +1288,26 @@ do -- Visuals Page
     createToggle(ESPMenu, "Item ESP", 80, false, function(state) itemESP = state end)
     createToggle(ESPMenu, "Box ESP", 120, false, function(state) boxESP = state end)
     createToggle(ESPMenu, "Tracers", 160, false, function(state) tracersESP = state end)
+
+    local xrayOriginals = {}
+    createToggle(ESPMenu, "X-Ray", 200, false, function(state)
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") and not obj.Parent:FindFirstChild("Humanoid") then
+                if state then
+                    if not xrayOriginals[obj] then
+                        xrayOriginals[obj] = obj.Transparency
+                    end
+                    obj.Transparency = 0.6
+                else
+                    if xrayOriginals[obj] then
+                        obj.Transparency = xrayOriginals[obj]
+                        xrayOriginals[obj] = nil
+                    end
+                end
+            end
+        end
+    end)
+
 
     task.spawn(function()
         while UI.Screen and UI.Screen.Parent do
@@ -1444,12 +1466,12 @@ do -- Misc Page
 
     local diffOpened, otherOpened = false, false
     local function updateMainMiscPositions()
-        local diffHeight = diffOpened and 200 or 0
+        local diffHeight = diffOpened and 240 or 0
         Services.TS:Create(OtherBtn, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 55 + diffHeight)}):Play()
         Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 95 + diffHeight)}):Play()
     end
     
-    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,200) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
+    DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,240) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
     OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,120) or UDim2.new(1,-20,0,0)}):Play() end)
 
     local antiAfkEnabled, noclipEnabled, autoReconEnabled, freeCamEnabled = false, false, false, false
@@ -1487,6 +1509,34 @@ do -- Misc Page
             end
         end
     end)
+
+    local cinematicEnabled = false
+    local cinemCam = workspace.CurrentCamera
+    local PlayerModule = require(LP.PlayerScripts:WaitForChild("PlayerModule"))
+    local Controls = PlayerModule:GetControls()
+    
+    createToggle(DiffMenu, "Cinematic Mode", 200, false, function(state)
+        cinematicEnabled = state
+        pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not state) end)
+        if UI.Screen then UI.Screen.Enabled = not state end -- Прячем хаб
+        
+        if state then
+            cinemCam.CameraType = Enum.CameraType.Scriptable
+        else
+            cinemCam.CameraType = Enum.CameraType.Custom
+        end
+    end)
+
+    table.insert(UI.Connections, Services.Run.RenderStepped:Connect(function()
+        if cinematicEnabled then
+            local moveVector = Controls:GetMoveVector() -- Идеально читает ПК WASD и мобильный джойстик!
+            local lookVector = cinemCam.CFrame.LookVector
+            local rightVector = cinemCam.CFrame.RightVector
+            
+            local moveDir = (lookVector * moveVector.Z * -1) + (rightVector * moveVector.X)
+            cinemCam.CFrame = cinemCam.CFrame + (moveDir * 1.5) -- 1.5 - скорость камеры
+        end
+    end))
 
 
     table.insert(UI.Connections, Services.UIS.InputBegan:Connect(function(i, g) if not g then if i.KeyCode == Enum.KeyCode.W then fcKeys.W = true elseif i.KeyCode == Enum.KeyCode.A then fcKeys.A = true elseif i.KeyCode == Enum.KeyCode.S then fcKeys.S = true elseif i.KeyCode == Enum.KeyCode.D then fcKeys.D = true elseif i.KeyCode == Enum.KeyCode.Space then fcKeys.Space = true elseif i.KeyCode == Enum.KeyCode.LeftShift then fcKeys.LeftShift = true end end end))
@@ -2088,6 +2138,130 @@ do -- CONFIG PAGE
     end)
 end
 
+do -- QoL Page
+    local BindLbl = Instance.new("TextLabel", UI.Pages.QoL)
+    BindLbl.Size = UDim2.new(1, -20, 0, 30); BindLbl.Position = UDim2.new(0, 10, 0, 10)
+    BindLbl.BackgroundTransparency = 1; BindLbl.Text = "Custom Keybinds"
+    BindLbl.TextColor3 = Color3.fromRGB(220, 190, 255); BindLbl.Font = Enum.Font.GothamBold
+    BindLbl.TextSize = 16; BindLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local BindKeyInput = Instance.new("TextBox", UI.Pages.QoL)
+    BindKeyInput.Size = UDim2.new(0, 50, 0, 35); BindKeyInput.Position = UDim2.new(0, 10, 0, 45)
+    BindKeyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 35); BindKeyInput.TextColor3 = Color3.new(1,1,1)
+    BindKeyInput.PlaceholderText = "Key"; BindKeyInput.Font = Enum.Font.Gotham
+    Instance.new("UICorner", BindKeyInput).CornerRadius = UDim.new(0, 6)
+
+    local BindFuncInput = Instance.new("TextBox", UI.Pages.QoL)
+    BindFuncInput.Size = UDim2.new(1, -150, 0, 35); BindFuncInput.Position = UDim2.new(0, 70, 0, 45)
+    BindFuncInput.BackgroundColor3 = Color3.fromRGB(30, 30, 35); BindFuncInput.TextColor3 = Color3.new(1,1,1)
+    BindFuncInput.PlaceholderText = "Function Name (e.g. Noclip)"; BindFuncInput.Font = Enum.Font.Gotham
+    Instance.new("UICorner", BindFuncInput).CornerRadius = UDim.new(0, 6)
+
+    local AddBindBtn = Instance.new("TextButton", UI.Pages.QoL)
+    AddBindBtn.Size = UDim2.new(0, 60, 0, 35); AddBindBtn.Position = UDim2.new(1, -70, 0, 45)
+    AddBindBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(AddBindBtn)
+    AddBindBtn.Text = "Add"; AddBindBtn.Font = Enum.Font.GothamBold; AddBindBtn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", AddBindBtn).CornerRadius = UDim.new(0, 6)
+
+    _G.UserBinds = {}
+    AddBindBtn.MouseButton1Click:Connect(function()
+        local key = BindKeyInput.Text:upper()
+        local func = BindFuncInput.Text
+        if key ~= "" and func ~= "" then
+            _G.UserBinds[key] = func
+            showNotification("Байнд установлен: " .. key .. " -> " .. func)
+            BindKeyInput.Text = ""; BindFuncInput.Text = ""
+        end
+    end)
+
+    table.insert(UI.Connections, Services.UIS.InputBegan:Connect(function(input, isProcessed)
+        if isProcessed then return end
+        local keyName = input.KeyCode.Name
+        if _G.UserBinds[keyName] then
+            local funcName = _G.UserBinds[keyName]
+            local found = false
+            for name, updater in pairs(_G.ConfigUpdaters) do
+                if name:lower() == funcName:lower() then
+                    updater(not _G.ConfigState[name])
+                    showNotification(name .. " toggled via Bind!")
+                    found = true; break
+                end
+            end
+            if not found then showNotification("Функция не найдена: " .. funcName) end
+        end
+    end))
+
+    
+    local MacroLbl = Instance.new("TextLabel", UI.Pages.QoL)
+    MacroLbl.Size = UDim2.new(1, -20, 0, 30); MacroLbl.Position = UDim2.new(0, 10, 0, 100)
+    MacroLbl.BackgroundTransparency = 1; MacroLbl.Text = "Macro Recorder (Movement)"
+    MacroLbl.TextColor3 = Color3.fromRGB(220, 190, 255); MacroLbl.Font = Enum.Font.GothamBold
+    MacroLbl.TextSize = 16; MacroLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local macroFrames = {}
+    local isRecording, isPlaying = false, false
+    local recConnection, playConnection
+
+    local RecBtn = Instance.new("TextButton", UI.Pages.QoL)
+    RecBtn.Size = UDim2.new(0.5, -15, 0, 35); RecBtn.Position = UDim2.new(0, 10, 0, 140)
+    RecBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80); RecBtn.Text = "Start Record"
+    RecBtn.Font = Enum.Font.GothamBold; RecBtn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", RecBtn).CornerRadius = UDim.new(0, 6)
+
+    local PlayBtn = Instance.new("TextButton", UI.Pages.QoL)
+    PlayBtn.Size = UDim2.new(0.5, -15, 0, 35); PlayBtn.Position = UDim2.new(0.5, 5, 0, 140)
+    PlayBtn.BackgroundColor3 = Color3.fromRGB(80, 255, 80); PlayBtn.Text = "Play Macro"
+    PlayBtn.Font = Enum.Font.GothamBold; PlayBtn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", PlayBtn).CornerRadius = UDim.new(0, 6)
+
+    RecBtn.MouseButton1Click:Connect(function()
+        if isPlaying then return end
+        isRecording = not isRecording
+        if isRecording then
+            macroFrames = {}
+            RecBtn.Text = "Stop Record"; RecBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+            showNotification("Запись макроса началась")
+            recConnection = Services.Run.Heartbeat:Connect(function()
+                if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                    table.insert(macroFrames, LP.Character.HumanoidRootPart.CFrame)
+                end
+            end)
+        else
+            RecBtn.Text = "Start Record"; RecBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+            if recConnection then recConnection:Disconnect() end
+            showNotification("Запись сохранена! Фреймов: " .. #macroFrames)
+        end
+    end)
+
+    local macroLoop = false
+    createToggle(UI.Pages.QoL, "Loop Macro Playback", 185, false, function(state) macroLoop = state end)
+
+    PlayBtn.MouseButton1Click:Connect(function()
+        if isRecording or #macroFrames == 0 then return end
+        isPlaying = not isPlaying
+        if isPlaying then
+            PlayBtn.Text = "Stop Playback"; PlayBtn.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+            local frameIndex = 1
+            playConnection = Services.Run.Heartbeat:Connect(function()
+                if not LP.Character or not LP.Character:FindFirstChild("HumanoidRootPart") then return end
+                LP.Character.HumanoidRootPart.CFrame = macroFrames[frameIndex]
+                frameIndex = frameIndex + 1
+                if frameIndex > #macroFrames then
+                    if macroLoop then frameIndex = 1 else
+                        isPlaying = false
+                        PlayBtn.Text = "Play Macro"; PlayBtn.BackgroundColor3 = Color3.fromRGB(80, 255, 80)
+                        playConnection:Disconnect()
+                    end
+                end
+            end)
+        else
+            PlayBtn.Text = "Play Macro"; PlayBtn.BackgroundColor3 = Color3.fromRGB(80, 255, 80)
+            if playConnection then playConnection:Disconnect() end
+        end
+    end)
+end
+
+
 do -- HELP PAGE
     local HelpLayout = Instance.new("UIListLayout", UI.Pages.Help)
     HelpLayout.Padding = UDim.new(0, 10); HelpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -2159,6 +2333,7 @@ UI.NavBtns.Shaders.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Sha
 UI.NavBtns.Protect.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Protect, UI.Pages.Protect) end)
 UI.NavBtns.Funny.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Funny, UI.Pages.Funny) end)
 UI.NavBtns.Config.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Config, UI.Pages.Config) end)
+UI.NavBtns.QoL.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.QoL, UI.Pages.QoL) end)
 UI.NavBtns.Help.MouseButton1Click:Connect(function() switchTab(UI.NavBtns.Help, UI.Pages.Help) end)
 
 local Title = Instance.new("TextLabel", UI.Frame)
@@ -2170,13 +2345,13 @@ Title.Font = Enum.Font.GothamBold; Title.TextXAlignment = Enum.TextXAlignment.Le
 local VersionTag = Instance.new("Frame", UI.Frame)
 VersionTag.Size = UDim2.new(0, 45, 0, 20)
 VersionTag.Position = UDim2.new(1, -195, 0, 6)
-VersionTag.BackgroundColor3 = Color3.fromRGB(180, 150, 255)
+VersionTag.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
 Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.05"
+VTagLbl.Text = "V2.10"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2309,7 +2484,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.05 ⚡"
+UpTitle.Text = "⚡ Update V2.10 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2318,7 +2493,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added status display  \n- Fixed different menu.\n- The menu has been optimized and some functions too\n- Fixed script crashes and lags."
+UpText.Text = "- Added new QoL section  \n- X-ray added to ESP.\n- Added cinematic mode in different \n- Fixed errors in the console \n- Fixed false errors in the console \n- Fixed long loading time."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
