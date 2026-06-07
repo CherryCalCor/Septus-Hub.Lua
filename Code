@@ -1240,7 +1240,7 @@ do -- Visuals Page
         Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Position = UDim2.new(0,10,0, 135 + espHeight + boostHeight)}):Play()
     end
 
-    MiscBtn.MouseButton1Click:Connect(function() miscOpened = not miscOpened; Services.TS:Create(MiscArrow, TweenInfo.new(.2), {Rotation = miscOpened and 180 or 0}):Play(); MiscArrow.Text = miscOpened and "▲" or "▼"; MiscMenu.Visible = true; Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Size = miscOpened and UDim2.new(1,-20,0,180) or UDim2.new(1,-20,0,0)}):Play() end)
+    MiscBtn.MouseButton1Click:Connect(function() miscOpened = not miscOpened; Services.TS:Create(MiscArrow, TweenInfo.new(.2), {Rotation = miscOpened and 180 or 0}):Play(); MiscArrow.Text = miscOpened and "▲" or "▼"; MiscMenu.Visible = true; Services.TS:Create(MiscMenu, TweenInfo.new(.2), {Size = miscOpened and UDim2.new(1,-20,0,225) or UDim2.new(1,-20,0,0)}):Play() end)
     BoostBtn.MouseButton1Click:Connect(function() boostOpened = not boostOpened; Services.TS:Create(BoostArrow, TweenInfo.new(.2), {Rotation = boostOpened and 180 or 0}):Play(); BoostArrow.Text = boostOpened and "▲" or "▼"; BoostMenu.Visible = true; Services.TS:Create(BoostMenu, TweenInfo.new(.2), {Size = boostOpened and UDim2.new(1,-20,0,260) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
     ESPBtn.MouseButton1Click:Connect(function() espOpened = not espOpened; Services.TS:Create(Arrow, TweenInfo.new(.2), {Rotation = espOpened and 180 or 0}):Play(); Arrow.Text = espOpened and "▲" or "▼"; ESPMenu.Visible = true; Services.TS:Create(ESPMenu, TweenInfo.new(.2), {Size = espOpened and UDim2.new(1,-20,0,250) or UDim2.new(1,-20,0,0)}):Play(); updatePositions() end)
 
@@ -1270,6 +1270,73 @@ do -- Visuals Page
         if state then LP.CameraMode = Enum.CameraMode.Classic; LP.CameraMaxZoomDistance = 12; LP.CameraMinZoomDistance = 12
         else LP.CameraMaxZoomDistance = 400; LP.CameraMinZoomDistance = 0.5 end
     end)
+
+local RadarWin = Instance.new("Frame", UI.Screen)
+RadarWin.Size = UDim2.new(0, 150, 0, 150)
+RadarWin.Position = UDim2.new(1, -170, 0, 20)
+RadarWin.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+RadarWin.BackgroundTransparency = 0.2
+RadarWin.Visible = false
+applyGradient(RadarWin)
+Instance.new("UICorner", RadarWin).CornerRadius = UDim.new(1, 0) -- Делаем круглым
+Instance.new("UIStroke", RadarWin).Color = _G.CurrentGradientColors[2]
+
+local RadarCenter = Instance.new("Frame", RadarWin)
+RadarCenter.Size = UDim2.new(0, 4, 0, 4)
+RadarCenter.Position = UDim2.new(0.5, -2, 0.5, -2)
+RadarCenter.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", RadarCenter).CornerRadius = UDim.new(1, 0)
+
+makeDraggable(RadarWin)
+
+local radarEnabled = false
+createToggle(MiscMenu, "Radar", 180, false, function(state)
+    radarEnabled = state
+    RadarWin.Visible = state
+end)
+
+local radarDots = {}
+table.insert(UI.Connections, Services.Run.RenderStepped:Connect(function()
+    if not radarEnabled then return end
+    local myHrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+    if not myHrp then return end
+    
+    for _, plr in ipairs(Services.Players:GetPlayers()) do
+        if plr ~= LP then
+            local char = plr.Character
+            if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
+                local dot = radarDots[plr]
+                if not dot then
+                    dot = Instance.new("Frame", RadarWin)
+                    dot.Size = UDim2.new(0, 4, 0, 4)
+                    dot.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+                    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+                    radarDots[plr] = dot
+                end
+               
+                local offset = myHrp.CFrame:ToObjectSpace(char.HumanoidRootPart.CFrame).Position
+                local distance = offset.Magnitude
+                local maxDist = 200 -- Радиус охвата радара в стадах
+                
+                if distance <= maxDist then
+                    local x = (offset.X / maxDist) * 75
+                    local z = (offset.Z / maxDist) * 75
+                    dot.Position = UDim2.new(0.5, x - 2, 0.5, z - 2)
+                    dot.Visible = true
+                else
+                    dot.Visible = false
+                end
+            else
+                if radarDots[plr] then radarDots[plr].Visible = false end
+            end
+        end
+    end
+end))
+
+table.insert(UI.Connections, Services.Players.PlayerRemoving:Connect(function(plr)
+    if radarDots[plr] then radarDots[plr]:Destroy(); radarDots[plr] = nil end
+end))
+
 
     local boostFPS, skinReplace, potatoEnabled, removeEnabled, fullbright, effectsEnabled = false, false, false, false, false, false
     local RemoveTool, oldLighting = nil, {}
@@ -1472,7 +1539,7 @@ do -- Misc Page
     end
     
     DiffBtn.MouseButton1Click:Connect(function() diffOpened = not diffOpened; Services.TS:Create(DiffArrow, TweenInfo.new(.2), {Rotation = diffOpened and 180 or 0}):Play(); DiffArrow.Text = diffOpened and "▲" or "▼"; DiffMenu.Visible = true; Services.TS:Create(DiffMenu, TweenInfo.new(.2), {Size = diffOpened and UDim2.new(1,-20,0,240) or UDim2.new(1,-20,0,0)}):Play(); updateMainMiscPositions() end)
-    OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,120) or UDim2.new(1,-20,0,0)}):Play() end)
+    OtherBtn.MouseButton1Click:Connect(function() otherOpened = not otherOpened; Services.TS:Create(OtherArrow, TweenInfo.new(.2), {Rotation = otherOpened and 180 or 0}):Play(); OtherArrow.Text = otherOpened and "▲" or "▼"; OtherMenu.Visible = true; Services.TS:Create(OtherMenu, TweenInfo.new(.2), {Size = otherOpened and UDim2.new(1,-20,0,160) or UDim2.new(1,-20,0,0)}):Play() end)
 
     local antiAfkEnabled, noclipEnabled, autoReconEnabled, freeCamEnabled = false, false, false, false
     
@@ -1640,6 +1707,99 @@ do -- Misc Page
 
     local _, _, setConsoleState = createToggle(OtherMenu, "Console", 80, false, function(state) consoleEnabled = state; ConsoleWin.Visible = state end)
     ConCloseBtn.MouseButton1Click:Connect(function() setConsoleState(false, true); ConsoleWin.Visible = false end)
+
+local SpyWin = Instance.new("Frame", UI.Screen)
+SpyWin.Size = UDim2.new(0, 500, 0, 300)
+SpyWin.Position = UDim2.new(0.5, -250, 0.5, -150)
+SpyWin.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+SpyWin.BackgroundTransparency = 0.1
+SpyWin.BorderSizePixel = 0
+SpyWin.Visible = false
+SpyWin.ClipsDescendants = true
+applyGradient(SpyWin)
+Instance.new("UICorner", SpyWin).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", SpyWin).Color = _G.CurrentGradientColors[2]
+
+local SpyTopBar = Instance.new("Frame", SpyWin)
+SpyTopBar.Size = UDim2.new(1, 0, 0, 30)
+SpyTopBar.BackgroundTransparency = 1
+makeDraggable(SpyWin, SpyTopBar)
+
+local SpyTitle = Instance.new("TextLabel", SpyTopBar)
+SpyTitle.Size = UDim2.new(0, 200, 1, 0)
+SpyTitle.Position = UDim2.new(0, 15, 0, 0)
+SpyTitle.BackgroundTransparency = 1
+SpyTitle.Text = "Remote Spy"
+SpyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpyTitle.Font = Enum.Font.GothamBold
+SpyTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local SpyMinBtn = Instance.new("TextButton", SpyTopBar)
+SpyMinBtn.Size = UDim2.new(0, 25, 0, 25)
+SpyMinBtn.Position = UDim2.new(1, -60, 0, 2)
+SpyMinBtn.BackgroundTransparency = 1
+SpyMinBtn.Text = "-"
+SpyMinBtn.TextColor3 = Color3.new(1, 1, 1)
+SpyMinBtn.TextSize = 18
+
+local SpyCloseBtn = Instance.new("TextButton", SpyTopBar)
+SpyCloseBtn.Size = UDim2.new(0, 25, 0, 25)
+SpyCloseBtn.Position = UDim2.new(1, -30, 0, 2)
+SpyCloseBtn.BackgroundTransparency = 1
+SpyCloseBtn.Text = "X"
+SpyCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+SpyCloseBtn.Font = Enum.Font.GothamBold
+
+local spyMinimized = false
+SpyMinBtn.MouseButton1Click:Connect(function()
+    spyMinimized = not spyMinimized
+    SpyWin:TweenSize(UDim2.new(0, 500, 0, spyMinimized and 30 or 300), "Out", "Quad", 0.2, true)
+end)
+
+local SpyScroll = Instance.new("ScrollingFrame", SpyWin)
+SpyScroll.Size = UDim2.new(1, -20, 1, -40)
+SpyScroll.Position = UDim2.new(0, 10, 0, 35)
+SpyScroll.BackgroundTransparency = 1
+SpyScroll.ScrollBarThickness = 4
+SpyScroll.BorderSizePixel = 0
+local spyLayout = Instance.new("UIListLayout", SpyScroll)
+spyLayout.Padding = UDim.new(0, 5)
+
+spyLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    SpyScroll.CanvasSize = UDim2.new(0, 0, 0, spyLayout.AbsoluteContentSize.Y + 10)
+end)
+
+local function logRemote(remoteName, method, argsCount)
+    local lbl = Instance.new("TextLabel", SpyScroll)
+    lbl.Size = UDim2.new(1, 0, 0, 0)
+    lbl.AutomaticSize = Enum.AutomaticSize.Y
+    lbl.BackgroundTransparency = 1
+    lbl.Text = string.format("[%s] %s | Args: %d", method, tostring(remoteName), argsCount)
+    lbl.TextWrapped = true
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 12
+    lbl.TextColor3 = Color3.fromRGB(255, 180, 255)
+    SpyScroll.CanvasPosition = Vector2.new(0, 99999) -- Автоскролл вниз
+end
+
+local spyEnabled = false
+local _, _, setSpyState = createToggle(OtherMenu, "Remote Spy", 120, false, function(state) 
+    spyEnabled = state
+    SpyWin.Visible = state 
+end)
+SpyCloseBtn.MouseButton1Click:Connect(function() setSpyState(false, true); SpyWin.Visible = false end)
+
+local oldNamecall
+oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    if spyEnabled and not checkcaller() and (method == "FireServer" or method == "InvokeServer") then
+        local args = {...}
+        task.spawn(function() logRemote(self.Name, method, #args) end)
+    end
+    return oldNamecall(self, ...)
+end)
+
 
     local _, _, setFlingState = createToggle(OtherMenu, "Fling", 0, false, function(state) flingEnabled = state; FlingWin.Visible = state; if state then populatePlayers(FlingScroll, FlingLayout, FlingActionLbl, "Fling", function(p) currentFlingTarget = p end) end end)
     local _, _, setBringState = createToggle(OtherMenu, "Bring parts", 40, false, function(state) bringMenuEnabled = state; BringWin.Visible = state; if state then populatePlayers(BringScroll, BringLayout, BringActionLbl, "Bring", function(p) currentBringTarget = p end) end end)
@@ -2351,7 +2511,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.10"
+VTagLbl.Text = "V2.11"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2484,7 +2644,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.10 ⚡"
+UpTitle.Text = "⚡ Update V2.11 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2493,7 +2653,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added new QoL section  \n- X-ray added to ESP.\n- Added cinematic mode in different \n- Fixed errors in the console \n- Fixed false errors in the console \n- Fixed long loading time."
+UpText.Text = "- Added Remote Spy in misc \n- Added Radar in visuals \n- Fixed errors in the console \n- Fixed false errors in the console \n- Fixed a bug with script hanging."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
