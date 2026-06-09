@@ -485,6 +485,14 @@ Instance.new("UICorner", UI.Frame).CornerRadius = UDim.new(0,10)
 local mainStroke = Instance.new("UIStroke", UI.Frame); mainStroke.Color = _G.CurrentGradientColors[2]
 mainStroke.Thickness = 1.2
 
+local Watermark = Instance.new("ImageLabel", UI.Frame)
+Watermark.Size = UDim2.new(0, 160, 0, 160)
+Watermark.Position = UDim2.new(1, -150, 1, -150)
+Watermark.BackgroundTransparency = 1
+Watermark.ImageTransparency = 0.85 
+Watermark.Image = _G.NotificationAssetID 
+Watermark.ZIndex = 0
+
 local TopBar = Instance.new("Frame", UI.Frame)
 TopBar.Size = UDim2.new(1, -2, 0, 1); TopBar.Position = UDim2.new(0, 1, 0.12, 0)
 TopBar.BackgroundColor3 = Color3.fromRGB(140,140,140); TopBar.BackgroundTransparency = 0.35; TopBar.BorderSizePixel = 0
@@ -1049,6 +1057,15 @@ local ResetThemeBtn = Instance.new("TextButton", ColorsMenu)
 ResetThemeBtn.Size = UDim2.new(1, 0, 0, 30); ResetThemeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 55); ResetThemeBtn.Text = "Reset the theme"; ResetThemeBtn.Font = Enum.Font.GothamBold
 ResetThemeBtn.TextSize = 13; ResetThemeBtn.TextColor3 = Color3.fromRGB(220, 190, 255); Instance.new("UICorner", ResetThemeBtn)
 ResetThemeBtn.MouseButton1Click:Connect(function() _G.changeTheme(Color3.fromRGB(15, 15, 20), Color3.fromRGB(130, 90, 180)) end)
+
+local WatermarkToggleCont = Instance.new("Frame", ThemeScroll)
+WatermarkToggleCont.LayoutOrder = 12 
+WatermarkToggleCont.Size = UDim2.new(1, 0, 0, 35)
+WatermarkToggleCont.BackgroundTransparency = 1
+
+createToggle(WatermarkToggleCont, "Watermark", 0, true, function(state)
+    if Watermark then Watermark.Visible = state end
+end)
 
 local NotifToggleCont = Instance.new("Frame", NotifScroll); NotifToggleCont.Size = UDim2.new(1, 0, 0, 35); NotifToggleCont.BackgroundTransparency = 1
 createToggle(NotifToggleCont, "Enable Notifications", 0, true, function(state) _G.NotificationsEnabled = state end)
@@ -2511,7 +2528,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.11"
+VTagLbl.Text = "V2.12"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2594,6 +2611,12 @@ lblNo.ZIndex = 1000
 
 btnNo.MouseButton1Click:Connect(function() ConfirmCloseWin.Visible = false end)
 btnYes.MouseButton1Click:Connect(function()
+    for name, updater in pairs(_G.ConfigUpdaters) do
+        if _G.ConfigState[name] then
+            pcall(function() updater(false) end)
+        end
+    end
+
     for _, conn in pairs(UI.Connections) do if conn.Disconnect then conn:Disconnect() end end
     for _, draw in pairs(_G.pDrawings) do draw.box:Remove(); draw.tracer:Remove() end
     if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then LP.Character.HumanoidRootPart.Anchored = false end
@@ -2601,7 +2624,7 @@ btnYes.MouseButton1Click:Connect(function()
     local lighting = game:GetService("Lighting")
     lighting.GlobalShadows = true
     for _, obj in pairs(lighting:GetChildren()) do
-        if obj.Name == "RetroCC" or obj.Name == "CustomSky" or obj.Name == "RTXShaders" or obj.Name == "CyberShaders" or obj.Name == "SilentShaders" or obj.Name == "FriedShaders" or obj.Name == "NightVisionShaders" then 
+        if obj.Name == "RetroCC" or obj.Name == "CustomSky" or obj.Name == "RTXShaders" or obj.Name == "CyberShaders" or obj.Name == "SilentShaders" or obj.Name == "FriedShaders" or obj.Name == "NightVisionShaders" or obj.Name == "SeptusBlur" then 
             obj:Destroy() 
         end
     end
@@ -2644,7 +2667,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.11 ⚡"
+UpTitle.Text = "⚡ Update V2.12 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2653,7 +2676,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added Remote Spy in misc \n- Added Radar in visuals \n- Fixed errors in the console \n- Fixed false errors in the console \n- Fixed a bug with script hanging."
+UpText.Text = "- Added blurr when opening the menu \n- Added disabling the blurr \n- Added smart cleaning of functions \n- added a watermark (we don't know why) \n- Fixed a bug with script hanging \n- Added disabling the watermark."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
@@ -2687,6 +2710,11 @@ task.spawn(function()
 end)
 
 local isGuiVisible = false
+local blurEffect = Instance.new("BlurEffect", game:GetService("Lighting"))
+blurEffect.Size = 0
+blurEffect.Name = "SeptusBlur"
+
+local isGuiVisible = false
 ToggleBtn.MouseButton1Click:Connect(function()
     isGuiVisible = not isGuiVisible
     if isGuiVisible then
@@ -2694,11 +2722,14 @@ ToggleBtn.MouseButton1Click:Connect(function()
         Services.TS:Create(UI.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Size = minimized and UDim2.new(0, 437, 0, 35) or UDim2.new(0, 437, 0, 238), Position = UDim2.new(0.5, -218.5, 0.5, -119)
         }):Play()
+        Services.TS:Create(blurEffect, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 15}):Play()
     else
         Services.TS:Create(UI.Frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)
         }):Play()
+        Services.TS:Create(blurEffect, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = 0}):Play()
         task.delay(0.4, function() if not isGuiVisible then UI.Frame.Visible = false end end)
     end
 end)
+
 makeDraggable(ToggleBtn)
