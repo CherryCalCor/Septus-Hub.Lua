@@ -17,5 +17,5 @@ Sincerely, CalCor🫠
 
 I don't know when V3 will be released But we are actively developing it.
 
-
+Fix Patch We should expect about June 15-20
 
