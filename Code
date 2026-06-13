@@ -1601,8 +1601,21 @@ do -- Misc Page
     
     createToggle(DiffMenu, "Cinematic Mode", 200, false, function(state)
         cinematicEnabled = state
+        
+      
         pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not state) end)
-        if UI.Screen then UI.Screen.Enabled = not state end -- Прячем хаб
+        
+        
+        for _, gui in pairs(LP.PlayerGui:GetChildren()) do
+            if gui ~= UI.Screen and gui:IsA("ScreenGui") then
+                gui.Enabled = not state
+            end
+        end
+
+        
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character.HumanoidRootPart.Anchored = state
+        end
         
         if state then
             cinemCam.CameraType = Enum.CameraType.Scriptable
@@ -1613,12 +1626,12 @@ do -- Misc Page
 
     table.insert(UI.Connections, Services.Run.RenderStepped:Connect(function()
         if cinematicEnabled then
-            local moveVector = Controls:GetMoveVector() -- Идеально читает ПК WASD и мобильный джойстик!
+            local moveVector = Controls:GetMoveVector() 
             local lookVector = cinemCam.CFrame.LookVector
             local rightVector = cinemCam.CFrame.RightVector
             
             local moveDir = (lookVector * moveVector.Z * -1) + (rightVector * moveVector.X)
-            cinemCam.CFrame = cinemCam.CFrame + (moveDir * 1.5) -- 1.5 - скорость камеры
+            cinemCam.CFrame = cinemCam.CFrame + (moveDir * 1.5) -- 1.5 
         end
     end))
 
@@ -1989,22 +2002,32 @@ do -- Shaders Page
         ccEffect.Parent = state and game:GetService("Lighting") or nil
     end)
 
-    -- 2. RTX / Vibrant
+   
     local rtxEnabled = false
-    local RTXFolder = Instance.new("Folder")
-    RTXFolder.Name = "RTXShaders"
-    local rCC = Instance.new("ColorCorrectionEffect", RTXFolder)
+    -- Эффекты создаем без папки
+    local rCC = Instance.new("ColorCorrectionEffect")
+    rCC.Name = "RTX_CC"
     rCC.Contrast = 0.3; rCC.Saturation = 0.6; rCC.Brightness = 0.1; rCC.TintColor = Color3.fromRGB(255, 255, 255)
-    local rBloom = Instance.new("BloomEffect", RTXFolder)
+    
+    local rBloom = Instance.new("BloomEffect")
+    rBloom.Name = "RTX_Bloom"
     rBloom.Intensity = 0.8; rBloom.Size = 24
-    local rDof = Instance.new("DepthOfFieldEffect", RTXFolder)
+    
+    local rDof = Instance.new("DepthOfFieldEffect")
+    rDof.Name = "RTX_DoF"
     rDof.FocusDistance = 10; rDof.InFocusRadius = 20; rDof.NearIntensity = 0.1; rDof.FarIntensity = 0.5
-    local rSun = Instance.new("SunRaysEffect", RTXFolder)
+    
+    local rSun = Instance.new("SunRaysEffect")
+    rSun.Name = "RTX_Sun"
     rSun.Intensity = 0.1
 
     createToggle(UI.Pages.Shaders, "RTX / Vibrant", 55, false, function(state)
         rtxEnabled = state
-        RTXFolder.Parent = state and game:GetService("Lighting") or nil
+        
+        rCC.Parent = state and game:GetService("Lighting") or nil
+        rBloom.Parent = state and game:GetService("Lighting") or nil
+        rDof.Parent = state and game:GetService("Lighting") or nil
+        rSun.Parent = state and game:GetService("Lighting") or nil
     end)
 
     -- 3. Cyberpunk Neon
@@ -2554,6 +2577,10 @@ MinBtn.MouseButton1Click:Connect(function()
     UI.SideBar.Visible = not minimized
     TopBar.Visible = not minimized
     if currentPage then currentPage.Visible = not minimized end
+
+    if blurEffect then
+        Services.TS:Create(blurEffect, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = minimized and 0 or 15}):Play()
+    end
 end)
 
 local ConfirmCloseWin = Instance.new("Frame", UI.Screen)
@@ -2667,7 +2694,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.12 ⚡"
+UpTitle.Text = "⚡ Update V2.13 Fix ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2676,7 +2703,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added blurr when opening the menu \n- Added disabling the blurr \n- Added smart cleaning of functions \n- added a watermark (we don't know why) \n- Fixed a bug with script hanging \n- Added disabling the watermark."
+UpText.Text = "- Fixed the blur when collapsing \n- Fixed RTX  \n- Fixed hiding accessories when closing the script. \n- Watermark removed \n- Fixed Cinematic mode \n- And other minor fixes."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
