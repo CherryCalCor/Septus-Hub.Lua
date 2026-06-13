@@ -3,7 +3,7 @@
 
   ## Septus-Hub.Lua
 
-Current version of 2.10
+Current version of 2.13
 
 Developers:CherryCalcor, Adevihia, SigmaGermany1488, Grenki_Waves, LLNortinain
 
