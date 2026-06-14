@@ -1599,12 +1599,13 @@ do -- Misc Page
     local PlayerModule = require(LP.PlayerScripts:WaitForChild("PlayerModule"))
     local Controls = PlayerModule:GetControls()
     
+    local cinemPart = nil
+    local oldMinZoom, oldMaxZoom = 0.5, 400
+
     createToggle(DiffMenu, "Cinematic Mode", 200, false, function(state)
         cinematicEnabled = state
         
-      
         pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not state) end)
-        
         
         for _, gui in pairs(LP.PlayerGui:GetChildren()) do
             if gui ~= UI.Screen and gui:IsA("ScreenGui") then
@@ -1612,26 +1613,48 @@ do -- Misc Page
             end
         end
 
-        
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character.HumanoidRootPart.Anchored = state
-        end
-        
         if state then
-            cinemCam.CameraType = Enum.CameraType.Scriptable
+
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character.HumanoidRootPart.Anchored = true
+            end
+            oldMinZoom = LP.CameraMinZoomDistance
+            oldMaxZoom = LP.CameraMaxZoomDistance
+            
+            cinemPart = Instance.new("Part")
+            cinemPart.Name = "CinemPart"
+            cinemPart.Transparency = 1
+            cinemPart.Anchored = true
+            cinemPart.CanCollide = false
+            cinemPart.CFrame = cinemCam.CFrame
+            cinemPart.Parent = workspace
+            
+            cinemCam.CameraSubject = cinemPart
+            LP.CameraMinZoomDistance = 0.5
+            LP.CameraMaxZoomDistance = 0.5
         else
-            cinemCam.CameraType = Enum.CameraType.Custom
+            
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character.HumanoidRootPart.Anchored = false
+                if LP.Character:FindFirstChild("Humanoid") then
+                    cinemCam.CameraSubject = LP.Character.Humanoid
+                end
+            end
+            if cinemPart then cinemPart:Destroy() end
+            LP.CameraMinZoomDistance = oldMinZoom
+            LP.CameraMaxZoomDistance = oldMaxZoom
         end
     end)
 
     table.insert(UI.Connections, Services.Run.RenderStepped:Connect(function()
-        if cinematicEnabled then
+        
+        if cinematicEnabled and cinemPart then
             local moveVector = Controls:GetMoveVector() 
             local lookVector = cinemCam.CFrame.LookVector
             local rightVector = cinemCam.CFrame.RightVector
             
             local moveDir = (lookVector * moveVector.Z * -1) + (rightVector * moveVector.X)
-            cinemCam.CFrame = cinemCam.CFrame + (moveDir * 1.5) -- 1.5 
+            cinemPart.CFrame = cinemPart.CFrame + (moveDir * 1.5)
         end
     end))
 
@@ -2004,7 +2027,7 @@ do -- Shaders Page
 
    
     local rtxEnabled = false
-    -- Эффекты создаем без папки
+   
     local rCC = Instance.new("ColorCorrectionEffect")
     rCC.Name = "RTX_CC"
     rCC.Contrast = 0.3; rCC.Saturation = 0.6; rCC.Brightness = 0.1; rCC.TintColor = Color3.fromRGB(255, 255, 255)
@@ -2069,13 +2092,13 @@ do -- Shaders Page
 
     -- 5. Deep Fried
     local friedEnabled = false
-    local FriedFolder = Instance.new("Folder")
-    FriedFolder.Name = "FriedShaders"
-    local fCC = Instance.new("ColorCorrectionEffect", FriedFolder); fCC.Brightness = 0.2; fCC.Contrast = 2.0; fCC.Saturation = 2.0; fCC.TintColor = Color3.fromRGB(255, 150, 50)
+    local fCC = Instance.new("ColorCorrectionEffect")
+    fCC.Name = "Fried_CC"
+    fCC.Brightness = 0.2; fCC.Contrast = 2.0; fCC.Saturation = 2.0; fCC.TintColor = Color3.fromRGB(255, 150, 50)
     
     createToggle(UI.Pages.Shaders, "Deep Fried", 190, false, function(state)
         friedEnabled = state
-        FriedFolder.Parent = state and game:GetService("Lighting") or nil
+        fCC.Parent = state and game:GetService("Lighting") or nil
     end)
 
     -- 6. Night Vision
@@ -2551,7 +2574,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.13"
+VTagLbl.Text = "V2.14"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2567,7 +2590,8 @@ Instance.new("UICorner", InjectorTag).CornerRadius = UDim.new(0,8)
 
 local MinBtn = Instance.new("TextButton", UI.Frame)
 MinBtn.Size = UDim2.new(0, 20, 0, 20)
-MinBtn.Position = UDim2.new(1, -50, 0, 6); MinBtn.Text = "-"; MinBtn.TextColor3 = Color3.fromRGB(255,255,255); MinBtn.TextSize = 18
+MinBtn.Position = UDim2.new(1, -50, 0, 6);
+MinBtn.Text = "-"; MinBtn.TextColor3 = Color3.fromRGB(255,255,255); MinBtn.TextSize = 18
 MinBtn.BackgroundTransparency = 1
 local minimized = false
 MinBtn.MouseButton1Click:Connect(function()
@@ -2578,8 +2602,9 @@ MinBtn.MouseButton1Click:Connect(function()
     TopBar.Visible = not minimized
     if currentPage then currentPage.Visible = not minimized end
 
-    if blurEffect then
-        Services.TS:Create(blurEffect, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = minimized and 0 or 15}):Play()
+    local currentBlur = game:GetService("Lighting"):FindFirstChild("SeptusBlur")
+    if currentBlur then
+        Services.TS:Create(currentBlur, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = minimized and 0 or 15}):Play()
     end
 end)
 
@@ -2694,7 +2719,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.13 Fix ⚡"
+UpTitle.Text = "⚡ Update V2.14 Fix ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2703,7 +2728,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Fixed the blur when collapsing \n- Fixed RTX  \n- Fixed hiding accessories when closing the script. \n- Watermark removed \n- Fixed Cinematic mode \n- And other minor fixes."
+UpText.Text = "- Fixed the blur when collapsing \n- Fixed Deep Fried  \n- Redesigned Cinematic mode system. \n- Optimization \n- Fixed Cinematic mode \n- And other minor fixes."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
