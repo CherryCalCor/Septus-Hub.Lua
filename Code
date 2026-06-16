@@ -1065,6 +1065,39 @@ WatermarkToggleCont.BackgroundTransparency = 1
 
 createToggle(WatermarkToggleCont, "Watermark", 0, true, function(state)
     if Watermark then Watermark.Visible = state end
+
+local OldDesignToggleCont = Instance.new("Frame", ThemeScroll)
+OldDesignToggleCont.LayoutOrder = 13
+OldDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
+OldDesignToggleCont.BackgroundTransparency = 1
+
+local savedColors = {}
+
+createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
+    local lightPurple = Color3.fromRGB(150, 110, 210)
+    
+    for _, obj in pairs(UI.Screen:GetDescendants()) do
+        
+        if obj:IsA("UIGradient") then
+            obj.Enabled = not state
+        м
+        elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+            if obj.BackgroundTransparency < 1 then
+                if state then
+                    if not savedColors[obj] then savedColors[obj] = obj.BackgroundColor3 end
+                    obj.BackgroundColor3 = lightPurple
+                else
+                    if savedColors[obj] then
+                        obj.BackgroundColor3 = savedColors[obj]
+                    end
+                end
+            end
+        end
+    end
+    
+    
+    if not state then savedColors = {} end
+end)
 end)
 
 local NotifToggleCont = Instance.new("Frame", NotifScroll); NotifToggleCont.Size = UDim2.new(1, 0, 0, 35); NotifToggleCont.BackgroundTransparency = 1
@@ -2565,6 +2598,13 @@ Title.Position = UDim2.new(0, 12, 0, 4); Title.BackgroundTransparency = 1
 Title.Text = "SEPTUS HUB"; Title.TextColor3 = Color3.fromRGB(220, 190, 255); Title.TextSize = 20
 Title.Font = Enum.Font.GothamBold; Title.TextXAlignment = Enum.TextXAlignment.Left
 
+local TitleLogo = Instance.new("ImageLabel", UI.Frame)
+TitleLogo.Size = UDim2.new(0, 22, 0, 22) 
+TitleLogo.Position = UDim2.new(0, 150, 0, 4)
+TitleLogo.BackgroundTransparency = 1
+TitleLogo.Image = "rbxassetid://103278376636044"
+
+
 local VersionTag = Instance.new("Frame", UI.Frame)
 VersionTag.Size = UDim2.new(0, 45, 0, 20)
 VersionTag.Position = UDim2.new(1, -195, 0, 6)
@@ -2574,7 +2614,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.14"
+VTagLbl.Text = "V2.2"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2719,7 +2759,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.14 Fix ⚡"
+UpTitle.Text = "⚡ Update V2.2 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2728,7 +2768,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Fixed the blur when collapsing \n- Fixed Deep Fried  \n- Redesigned Cinematic mode system. \n- Optimization \n- Fixed Cinematic mode \n- And other minor fixes."
+UpText.Text = "- Added a logo \n- An old design feature has been added to the settings  \n- And other minor fixes."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
