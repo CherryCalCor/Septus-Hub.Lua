@@ -19,3 +19,4 @@ I don't know when V3 will be released But we are actively developing it.
 
 Fix Patch We should expect about June 15-20
 
+In V3, we will completely redesign the server section systems, add functionality to Settings, you will be able to completely return the old design and many new details and functions.
