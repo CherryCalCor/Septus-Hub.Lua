@@ -1072,15 +1072,11 @@ OldDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
 OldDesignToggleCont.BackgroundTransparency = 1
 
 local savedColors = {}
-
 createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
-    local lightPurple = Color3.fromRGB(150, 110, 210)
-    
-    for _, obj in pairs(UI.Screen:GetDescendants()) do
-        
+    local lightPurple = Color3.fromRGB(150, 110, 210) 
+    for _, obj in pairs(UI.Screen:GetDescendants()) do  
         if obj:IsA("UIGradient") then
             obj.Enabled = not state
-        
         elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") or obj:IsA("TextButton") or obj:IsA("TextBox") then
             if obj.BackgroundTransparency < 1 then
                 if state then
@@ -1094,8 +1090,6 @@ createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
             end
         end
     end
-    
-    
     if not state then savedColors = {} end
 end)
 
