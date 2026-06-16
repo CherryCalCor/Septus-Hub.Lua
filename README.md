@@ -5,7 +5,7 @@
 
 Current version of 2.14
 
-Developers:CherryCalcor, Adevihia, SigmaGermany1488, LLNortinain
+Developers:CherryCalcor, Adevihia, LLNortinain
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/CherryCalCor/Septus-Hub.Lua/refs/heads/main/Code"))()
 
