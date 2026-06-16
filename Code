@@ -1092,6 +1092,7 @@ createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
     end
     if not state then savedColors = {} end
 end)
+end)
 
 local NotifToggleCont = Instance.new("Frame", NotifScroll); NotifToggleCont.Size = UDim2.new(1, 0, 0, 35); NotifToggleCont.BackgroundTransparency = 1
 createToggle(NotifToggleCont, "Enable Notifications", 0, true, function(state) _G.NotificationsEnabled = state end)
