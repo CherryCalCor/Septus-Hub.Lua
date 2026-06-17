@@ -1075,6 +1075,7 @@ OldDesignToggleCont.BackgroundTransparency = 1
 local savedColors = {}
 createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
     local injectorColor = Color3.fromRGB(220, 190, 255) 
+    local darkBackgroundColor = Color3.fromRGB(25, 25, 30)
     
     for _, obj in pairs(UI.Screen:GetDescendants()) do  
         if obj:IsA("UIGradient") then
@@ -1086,7 +1087,9 @@ createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
                     
                     local isMainWindow = (obj == UI.Frame) or (obj.Parent == UI.Screen and obj:IsA("Frame"))
                     
-                    if not isMainWindow then
+                    if isMainWindow then
+                        obj.BackgroundColor3 = darkBackgroundColor
+                    else
                         obj.BackgroundColor3 = injectorColor
                     end
                 else
@@ -1328,7 +1331,7 @@ RadarWin.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 RadarWin.BackgroundTransparency = 0.2
 RadarWin.Visible = false
 applyGradient(RadarWin)
-Instance.new("UICorner", RadarWin).CornerRadius = UDim.new(1, 0) -- Делаем круглым
+Instance.new("UICorner", RadarWin).CornerRadius = UDim.new(1, 0)
 Instance.new("UIStroke", RadarWin).Color = _G.CurrentGradientColors[2]
 
 local RadarCenter = Instance.new("Frame", RadarWin)
