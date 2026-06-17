@@ -1074,7 +1074,8 @@ OldDesignToggleCont.BackgroundTransparency = 1
 
 local savedColors = {}
 createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
-    local lightPurple = Color3.fromRGB(150, 110, 210) 
+    local injectorColor = Color3.fromRGB(220, 190, 255) 
+    
     for _, obj in pairs(UI.Screen:GetDescendants()) do  
         if obj:IsA("UIGradient") then
             obj.Enabled = not state
@@ -1082,7 +1083,12 @@ createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
             if obj.BackgroundTransparency < 1 then
                 if state then
                     if not savedColors[obj] then savedColors[obj] = obj.BackgroundColor3 end
-                    obj.BackgroundColor3 = lightPurple
+                    
+                    local isMainWindow = (obj == UI.Frame) or (obj.Parent == UI.Screen and obj:IsA("Frame"))
+                    
+                    if not isMainWindow then
+                        obj.BackgroundColor3 = injectorColor
+                    end
                 else
                     if savedColors[obj] then
                         obj.BackgroundColor3 = savedColors[obj]
@@ -2594,7 +2600,7 @@ Title.Font = Enum.Font.GothamBold; Title.TextXAlignment = Enum.TextXAlignment.Le
 
 local TitleLogo = Instance.new("ImageLabel", UI.Frame)
 TitleLogo.Size = UDim2.new(0, 22, 0, 22) 
-TitleLogo.Position = UDim2.new(0, 150, 0, 4)
+TitleLogo.Position = UDim2.new(0, 125, 0, 8)
 TitleLogo.BackgroundTransparency = 1
 TitleLogo.Image = "rbxassetid://103278376636044"
 
@@ -2608,7 +2614,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.2"
+VTagLbl.Text = "V2.21"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2753,7 +2759,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.2 ⚡"
+UpTitle.Text = "⚡ Update V2.21 ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2762,7 +2768,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- Added a logo \n- An old design feature has been added to the settings  \n- And other minor fixes."
+UpText.Text = "- The logo is aligned \n- An old design feature has been added to the settings  \n- Color correction in old design \n- Fixed Old design."
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
