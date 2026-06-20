@@ -3,7 +3,7 @@
 
   ## Septus-Hub.Lua
 
-Current version of 2.2
+Current version of 2.21 meow
 
 Developers:CherryCalcor, Adevihia, LLNortinain
 
