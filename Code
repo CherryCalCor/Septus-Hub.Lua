@@ -1073,7 +1073,18 @@ OldDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
 OldDesignToggleCont.BackgroundTransparency = 1
 
 local savedColors = {}
-createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
+-- Заранее объявляем переменные для управления тумблерами
+local OldDesignToggle, OldDesignCircle, setOldDesign
+local NewDesignToggle, NewDesignCircle, setNewDesign
+
+OldDesignToggle, OldDesignCircle, setOldDesign = createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
+    -- Проверка на конфликт с New Design
+    if state and _G.ConfigState["New design"] then
+        showNotification("Сначала выключите New design!")
+        task.spawn(function() setOldDesign(false, true) end)
+        return
+    end
+
     local injectorColor = Color3.fromRGB(220, 190, 255) 
     local darkBackgroundColor = Color3.fromRGB(25, 25, 30)
     
@@ -1114,8 +1125,6 @@ local newDesignSavedColors = {}
 local function applyNewDesignTheme()
     if not _G.NewDesignActive then return end
     
-    -- 1. Все окна-менюшки (Settings, Bring Parts, Fling и вообще все всплывающие окна)
-    -- Перебираем всех прямых детей интерфейса
     for _, win in ipairs(UI.Screen:GetChildren()) do
         if win:IsA("Frame") then
             win.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -1129,35 +1138,36 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Глобальный проход по всем элементам
     for _, v in ipairs(UI.Screen:GetDescendants()) do
-        -- Отключаем все градиенты
         if v:IsA("UIGradient") then
             v.Enabled = false
         end
         
-        -- Скроллы: убираем фон и делаем ползунки белыми
         if v:IsA("ScrollingFrame") then
             v.BackgroundTransparency = 1
             v.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
         end
 
-        -- Логотип/название SEPTUS (или вариации)
-        if v:IsA("TextLabel") and v.Text and type(v.Text) == "string" and string.find(v.Text:upper(), "SEPTUS") then
-            v.TextColor3 = Color3.fromRGB(255, 255, 255)
-        end
-
-        -- Блоки Инжектора, Версии, Статуса (в TopBar и на Home Page)
         if v:IsA("TextLabel") and v.Text and type(v.Text) == "string" then
             local txt = v.Text:lower()
+            
+            -- Исправление белого текста для Notification
+            if txt == "notification" then
+                v.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+
+            if string.find(txt, "septus") then
+                v.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+
+            -- Исправление белых блоков сверху (инжектор, версия и т.д.)
             if txt:find("version") or txt:find("injector") or txt:find("executor") then
                 local card = v.Parent
                 if card and card:IsA("Frame") and card.Name ~= "NewDesignLeftLine" then
                     card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     card.BackgroundTransparency = 0
-                    
                     v.TextColor3 = Color3.fromRGB(0, 0, 0)
-                    -- Все соседние тексты внутри этой плашки тоже делаем черными
+                    -- Красим все соседние текста в этой плашке в черный
                     for _, sibling in ipairs(card:GetChildren()) do
                         if sibling:IsA("TextLabel") then
                             sibling.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -1167,11 +1177,9 @@ local function applyNewDesignTheme()
             end
         end
         
-        -- Кнопки функций (убираем проблему "белый текст на белом фоне")
         if v:IsA("TextButton") and v.Parent ~= UI.SideMenuScroll then
             local isToggle = v:FindFirstChild("circle") or v:FindFirstChildOfClass("Frame")
             if not isToggle then
-                -- Если кнопка имеет фон (не полностью прозрачная)
                 if v.BackgroundTransparency < 1 or v.BackgroundColor3 == Color3.fromRGB(255, 255, 255) then
                     v.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                     v.BackgroundTransparency = 0
@@ -1187,13 +1195,24 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Переключатели (Toggles) и кнопка Server List
+    -- Исправление раздела Help: единый стиль табличек
+    if UI.Pages and UI.Pages.Help then
+        for _, elem in ipairs(UI.Pages.Help:GetDescendants()) do
+            if elem:IsA("Frame") and elem.BackgroundTransparency < 1 then
+                elem.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                local stroke = elem:FindFirstChildOfClass("UIStroke")
+                if stroke then stroke.Color = Color3.fromRGB(255, 255, 255) end
+            elseif elem:IsA("TextLabel") or elem:IsA("TextBox") then
+                elem.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextButton") then
             local circle = v:FindFirstChildOfClass("Frame")
             if not circle then circle = v:FindFirstChild("circle") end
             
-            -- Проверяем, является ли это переключателем (наличие кружка)
             if circle and circle.Size.X.Offset <= 35 then 
                 local label = v.Parent:FindFirstChildOfClass("TextLabel") or v:FindFirstChildOfClass("TextLabel")
                 local isServerToggle = (v.Name:lower():find("server") or (label and label.Text:lower():find("server")))
@@ -1201,16 +1220,13 @@ local function applyNewDesignTheme()
                 if label then label.TextColor3 = Color3.fromRGB(255, 255, 255) end
                 v.BackgroundTransparency = 0
                 
-                -- Белая обводка для самого тумблера
                 local stroke = v:FindFirstChildOfClass("UIStroke") or v.Parent:FindFirstChildOfClass("UIStroke")
                 if stroke then stroke.Color = Color3.fromRGB(255, 255, 255) end
 
-                -- Жесткая логика для Server Toggle и Server List
                 if isServerToggle then
                     v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                 else
-                    -- Логика обычного тумблера (Вкл/Выкл)
                     if circle.Position.X.Scale >= 0.5 or circle.Position.X.Offset > 10 then
                         v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                         circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1223,10 +1239,9 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Карточки на Home Page (белые карточки, черный текст)
     if UI.Pages and UI.Pages.Home then
         for _, card in ipairs(UI.Pages.Home:GetChildren()) do
-            if card:IsA("Frame") and card.BackgroundTransparency < 1 and card ~= NewDesignToggleCont then
+            if card:IsA("Frame") and card.BackgroundTransparency < 1 and card ~= NewDesignToggleCont and card ~= OldDesignToggleCont then
                 card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                 card.BackgroundTransparency = 0
                 for _, t in ipairs(card:GetDescendants()) do
@@ -1238,7 +1253,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Кнопки левого меню (исправление бага с мигающей линией)
     if UI.SideMenuScroll then
         for _, btn in ipairs(UI.SideMenuScroll:GetChildren()) do
             if btn:IsA("TextButton") then
@@ -1258,10 +1272,7 @@ local function applyNewDesignTheme()
                 
                 local defaultInd = btn:FindFirstChild("Indicator")
                 if defaultInd then
-                    -- Прячем дефолтный индикатор, просто перекрашивая его в цвет фона (черный)
                     defaultInd.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-                    
-                    -- Считываем его прозрачность. Если активен - показываем нашу белую линию
                     if defaultInd.BackgroundTransparency < 0.5 then
                         leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                         leftLine.BackgroundTransparency = 0
@@ -1274,10 +1285,16 @@ local function applyNewDesignTheme()
     end
 end
 
-createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
+NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
+    -- Проверка на конфликт с Old Design
+    if state and _G.ConfigState["Old design"] then
+        showNotification("Сначала выключите Old design!")
+        task.spawn(function() setNewDesign(false, true) end)
+        return
+    end
+
     _G.NewDesignActive = state
     if state then
-        -- Сохраняем исходные цвета
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("ScrollingFrame") then
                 newDesignSavedColors[v] = {
@@ -1290,7 +1307,38 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
         end
         applyNewDesignTheme()
     else
-        -- Возвращаем всё назад
+        -- Исправление бага с переключателями: динамическое восстановление состояния
+        for _, v in ipairs(UI.Screen:GetDescendants()) do
+            if v:IsA("TextButton") then
+                local circle = v:FindFirstChildOfClass("Frame") or v:FindFirstChild("circle")
+                if circle and circle.Size.X.Offset <= 35 then
+                    local isOn = (circle.Position.X.Scale >= 0.5 or circle.Position.X.Offset > 10)
+                    local grad = v:FindFirstChildOfClass("UIGradient")
+                    
+                    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    local stroke = v:FindFirstChildOfClass("UIStroke") or v.Parent:FindFirstChildOfClass("UIStroke")
+                    if stroke then stroke.Color = _G.CurrentGradientColors[2] end
+                    
+                    local label = v.Parent:FindFirstChildOfClass("TextLabel") or v:FindFirstChildOfClass("TextLabel")
+                    if label then label.TextColor3 = Color3.fromRGB(220, 190, 255) end
+
+                    if isOn then
+                        v.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                        if grad then grad.Enabled = true end
+                    else
+                        v.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+                        if grad then grad.Enabled = false end
+                    end
+                    
+                    -- Убираем их из сохраненных цветов, чтобы не перезаписать их старым состоянием
+                    newDesignSavedColors[v] = nil
+                    newDesignSavedColors[circle] = nil
+                    if label then newDesignSavedColors[label] = nil end
+                    if stroke then newDesignSavedColors[stroke] = nil end
+                end
+            end
+        end
+
         for obj, info in pairs(newDesignSavedColors) do
             if obj and obj.Parent then
                 obj.BackgroundColor3 = info.BgColor
@@ -1309,20 +1357,10 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
             if v:IsA("UIGradient") then v.Enabled = true end
             if v.Name == "NewDesignLeftLine" then v:Destroy() end
             if v.Name == "Indicator" then 
-                v.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Стандартный цвет
+                v.BackgroundColor3 = Color3.fromRGB(255, 255, 255) 
             end
         end
         _G.changeTheme(_G.CurrentGradientColors[1], _G.CurrentGradientColors[2])
-    end
-end)
-
--- Поддержка интерфейса в реальном времени
-task.spawn(function()
-    while true do
-        task.wait(0.05)
-        if _G.NewDesignActive then
-            applyNewDesignTheme()
-        end
     end
 end)
 
