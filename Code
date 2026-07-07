@@ -726,7 +726,10 @@ do
     Instance.new("UICorner", RejoinBtn)
     local rejLbl = Instance.new("TextLabel", RejoinBtn); rejLbl.Size = UDim2.new(1,0,1,0); rejLbl.BackgroundTransparency = 1; rejLbl.Text = "🖱 Rejoin"
     rejLbl.Font = Enum.Font.GothamBold; rejLbl.TextColor3 = Color3.new(1,1,1)
-    RejoinBtn.MouseButton1Click:Connect(function() showNotification("Перезаход на сервер..."); Services.TP:Teleport(game.PlaceId, LP) end)
+RejoinBtn.MouseButton1Click:Connect(function() 
+showNotification("Перезаход на сервер...")
+    Services.TP:TeleportToPlaceInstance(game.PlaceId, game.JobId, LP) 
+end)
 
     local HopBtn = Instance.new("TextButton", UI.Pages.Server)
     HopBtn.Size = UDim2.new(1,-20,0,35); HopBtn.Position = UDim2.new(0,10,0,55); HopBtn.BackgroundColor3 = Color3.fromRGB(255,255,255); HopBtn.Text = ""; applyGradient(HopBtn)
@@ -796,7 +799,24 @@ do
     SrvMinBtn.MouseButton1Click:Connect(function() srvMinimized = not srvMinimized; ServerMenu:TweenSize(UDim2.new(0, 380, 0, srvMinimized and 30 or 260), "Out", "Quad", 0.2, true); SrvListScroll.Visible = not srvMinimized end)
     SrvCloseBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = false end)
     ServerWidgetBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = not ServerMenu.Visible; if ServerMenu.Visible then task.spawn(populateServers) end end)
-    HopBtn.MouseButton1Click:Connect(function() ServerMenu.Visible = true; task.spawn(populateServers) end)
+    HopBtn.MouseButton1Click:Connect(function() 
+    showNotification("Ищем другой сервер...")
+    task.spawn(function()
+        local s, r = pcall(function() 
+            return Services.Http:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100")) 
+        end)
+        
+        if s and r and r.data then
+            for _, srv in ipairs(r.data) do
+                if srv.playing and srv.maxPlayers and srv.playing < srv.maxPlayers and srv.id ~= game.JobId then
+                    Services.TP:TeleportToPlaceInstance(game.PlaceId, srv.id, LP)
+                    return
+                end
+            end
+        end
+        showNotification("Не удалось найти подходящий сервер")
+    end)
+end)
 
     createToggle(UI.Pages.Server, "Servers Toggle", 100, false, function(state)
         ServerWidget.Visible = state
@@ -3027,7 +3047,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- A new design has been added to the settings. \n- Fixed Bugs. \n- Fixed menu bugs in the New Design. "
+UpText.Text = "- A new design has been added to the settings. \n- Fixed Bugs. \n- Fixed Rejoin and ServerHop. "
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
