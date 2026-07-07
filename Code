@@ -1114,7 +1114,6 @@ local newDesignSavedColors = {}
 local function applyNewDesignTheme()
     if not _G.NewDesignActive then return end
     
-    -- 1. Полностью чёрный фон для всех основных окон и меню
     local windows = {UI.Frame, SettingsWin, InstrWin, NotepadWin, ServerMenu, IconCustWin, CharCustWin, ManualOpPanel, TopStatusPanel}
     for _, win in pairs(windows) do
         if win and win.Parent then
@@ -1127,7 +1126,6 @@ local function applyNewDesignTheme()
         end
     end
     
-    -- 2. Глобальное отключение градиентов и скрытие фонов скролл-меню
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("ScrollingFrame") then
             v.BackgroundTransparency = 1
@@ -1135,13 +1133,12 @@ local function applyNewDesignTheme()
         if v:IsA("UIGradient") then
             v.Enabled = false
         end
-        -- Название SEPTUS Hub (и любые вариации) становится белым
+
         if v:IsA("TextLabel") and string.find(v.Text:upper(), "SEPTUS") then
             v.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end
 
-    -- 3. Блоки инжектора/версии/статуса на Home Page (белая оболочка, чёрный текст)
     if UI.Pages and UI.Pages.Home then
         for _, card in ipairs(UI.Pages.Home:GetChildren()) do
             if card:IsA("Frame") and card.BackgroundTransparency < 1 and card ~= NewDesignToggleCont then
@@ -1156,7 +1153,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 4. Кнопки левого меню (пропадает оболочка, добавляется белая полоска слева при выборе)
     if UI.SideMenuScroll then
         for _, btn in ipairs(UI.SideMenuScroll:GetChildren()) do
             if btn:IsA("TextButton") then
@@ -1174,7 +1170,6 @@ local function applyNewDesignTheme()
                 leftLine.Size = UDim2.new(0, 4, 1, 0)
                 leftLine.Position = UDim2.new(0, 0, 0, 0)
                 
-                -- Синхронизация подсветки с выбранной вкладкой
                 local defaultInd = btn:FindFirstChild("Indicator")
                 if defaultInd and defaultInd.BackgroundTransparency < 1 then
                     leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1187,7 +1182,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Убираем оболочки у остальных обычных кнопок (Rejoin, Server Hop, Сортировка и т.д.)
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextButton") and v.Parent ~= UI.SideMenuScroll and not v:FindFirstChild("circle") and v.Name ~= "TextButton" then
             v.BackgroundTransparency = 1
@@ -1200,7 +1194,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 5. Переключатели (Выкл: белая оболочка, чёрный круг | Вкл: чёрная оболочка, белый круг)
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextButton") and v:FindFirstChildOfClass("Frame") and v.Parent:IsA("Frame") then
             local circle = v:FindFirstChildOfClass("Frame")
@@ -1209,7 +1202,7 @@ local function applyNewDesignTheme()
                 if label then label.TextColor3 = Color3.fromRGB(255, 255, 255) end
                 
                 v.BackgroundTransparency = 0
-                -- Проверяем положение кружка (справа = включен, слева = выключен)
+
                 if circle.Position.X.Scale == 1 or circle.Position.X.Offset < 0 then
                     v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1225,7 +1218,7 @@ end
 createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
     _G.NewDesignActive = state
     if state then
-        -- Сохраняем старую цветовую схему для корректного возврата
+
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
                 newDesignSavedColors[v] = {
@@ -2475,7 +2468,6 @@ do -- CONFIG PAGE
                             Services.TS:Create(ConfigsArrow, TweenInfo.new(.2), {Rotation = 0}):Play()
                             updateConfigPos()
                             
-                            -- Интеграция улучшенной загрузки конфига
                             local rawData = readfile(file)
                             local decoded = Services.Http:JSONDecode(rawData)
                             if decoded.ThemeC1 and decoded.ThemeC2 then
@@ -2531,7 +2523,7 @@ do -- CONFIG PAGE
                 selectedConfigToLoad = autoCfg
                 ConfigsLbl.Text = "Configs: " .. autoCfg
                 showNotification("Авто-загрузка конфига: " .. autoCfg)
-                -- Применение авто-конфига при старте:
+
                 pcall(function()
                     local cpath = folderName .. "/" .. autoCfg .. ".json"
                     if isfile(cpath) then
@@ -2561,7 +2553,7 @@ do -- CONFIG PAGE
     end)
 end
 
-do -- QoL Page
+do
     local BindLbl = Instance.new("TextLabel", UI.Pages.QoL)
     BindLbl.Size = UDim2.new(1, -20, 0, 30); BindLbl.Position = UDim2.new(0, 10, 0, 10)
     BindLbl.BackgroundTransparency = 1; BindLbl.Text = "Custom Keybinds"
@@ -2685,7 +2677,7 @@ do -- QoL Page
 end
 
 
-do -- HELP PAGE
+do
     local HelpLayout = Instance.new("UIListLayout", UI.Pages.Help)
     HelpLayout.Padding = UDim.new(0, 10); HelpLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
@@ -2781,7 +2773,7 @@ Instance.new("UICorner", VersionTag).CornerRadius = UDim.new(0, 6)
 local VTagLbl = Instance.new("TextLabel", VersionTag)
 VTagLbl.Size = UDim2.new(1,0,1,0)
 VTagLbl.BackgroundTransparency = 1
-VTagLbl.Text = "V2.21"
+VTagLbl.Text = "V2.3B"
 VTagLbl.TextColor3 = Color3.fromRGB(0, 0, 0)
 VTagLbl.Font = Enum.Font.GothamBold
 VTagLbl.TextSize = 11
@@ -2926,7 +2918,7 @@ upStroke.Thickness = 1.2
 local UpTitle = Instance.new("TextLabel", UpdateWin)
 UpTitle.Size = UDim2.new(1, 0, 0, 35)
 UpTitle.BackgroundTransparency = 1
-UpTitle.Text = "⚡ Update V2.21 ⚡"
+UpTitle.Text = "⚡ Update V2.3B ⚡"
 UpTitle.TextColor3 = Color3.fromRGB(220, 190, 255)
 UpTitle.Font = Enum.Font.GothamBold
 UpTitle.TextSize = 15
@@ -2935,7 +2927,7 @@ local UpText = Instance.new("TextLabel", UpdateWin)
 UpText.Size = UDim2.new(1, -20, 1, -80)
 UpText.Position = UDim2.new(0, 10, 0, 35)
 UpText.BackgroundTransparency = 1
-UpText.Text = "- The logo is aligned \n- An old design feature has been added to the settings  \n- Color correction in old design \n- Fixed Old design."
+UpText.Text = "- A new design has been added to the settings. \n- Fixed Bugs"
 UpText.TextColor3 = Color3.fromRGB(240, 240, 240)
 UpText.Font = Enum.Font.Gotham
 UpText.TextSize = 12
