@@ -1114,7 +1114,6 @@ local newDesignSavedColors = {}
 local function applyNewDesignTheme()
     if not _G.NewDesignActive then return end
     
-    -- 1. Основные окна (фон окон всегда черный)
     for _, win in ipairs(UI.Screen:GetChildren()) do
         if win:IsA("Frame") then
             win.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -1124,7 +1123,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 2. Глобальная чистка (красим всё в белый по умолчанию)
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("UIGradient") then v.Enabled = false end
         if v:IsA("UIStroke") then v.Color = Color3.fromRGB(255, 255, 255) end
@@ -1134,13 +1132,11 @@ local function applyNewDesignTheme()
             v.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)
         end
         
-        -- Весь текст и поля ввода делаем белыми (позже перезапишем для белых блоков)
         if v:IsA("TextLabel") or v:IsA("TextBox") then
             v.TextColor3 = Color3.fromRGB(255, 255, 255)
         end
     end
 
-    -- 3. TopBar и плашки с версией/инжектором
     local topPanels = {UI.Screen:FindFirstChild("TopStatusPanel", true), UI.Screen:FindFirstChild("TopBar", true)}
     for _, panel in ipairs(topPanels) do
         if panel then
@@ -1156,7 +1152,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- На случай, если версия/инжектор лежат в других местах
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextLabel") and v.Text then
             local txt = string.lower(tostring(v.Text))
@@ -1174,21 +1169,20 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 4. Страницы меню (Home - белые карточки, Help/Settings - черные с белой обводкой)
     if UI.Pages then
         for _, page in ipairs(UI.Pages:GetChildren()) do
             if page:IsA("ScrollingFrame") or page:IsA("Frame") then
                 for _, card in ipairs(page:GetChildren()) do
                     if card:IsA("Frame") and card.BackgroundTransparency < 1 and card ~= NewDesignToggleCont then
                         if page.Name == "Home" then
-                            -- Карточки Home (Белые, текст черный)
+                           
                             card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                             card.BackgroundTransparency = 0
                             for _, t in ipairs(card:GetDescendants()) do
                                 if t:IsA("TextLabel") or t:IsA("TextBox") then t.TextColor3 = Color3.fromRGB(0, 0, 0) end
                             end
                         else
-                            -- Карточки остальных разделов (Черные, белая обводка, белый текст)
+
                             card.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
                             card.BackgroundTransparency = 0
                             local stroke = card:FindFirstChildOfClass("UIStroke")
@@ -1203,7 +1197,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 5. Обычные кнопки функций
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextButton") and v.Parent ~= UI.SideMenuScroll then
             local isToggle = v:FindFirstChild("circle") or v:FindFirstChildOfClass("Frame")
@@ -1220,7 +1213,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 6. Переключатели (Toggles) и Server List
     for _, v in ipairs(UI.Screen:GetDescendants()) do
         if v:IsA("TextButton") then
             local circle = v:FindFirstChildOfClass("Frame") or v:FindFirstChild("circle")
@@ -1246,7 +1238,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- 7. Левое меню (исправление полосок)
     if UI.SideMenuScroll then
         for _, btn in ipairs(UI.SideMenuScroll:GetChildren()) do
             if btn:IsA("TextButton") then
@@ -1277,7 +1268,7 @@ local function applyNewDesignTheme()
 end
 
 createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
-    -- ЗАЩИТА: Блокировка, если включен Old Design
+
     if state and _G.OldDesignActive then
         if typeof(Notif) == "table" and Notif.Notify then
             Notif:Notify("Сначала выключи Old Design!", 3, "Warning")
@@ -1285,7 +1276,6 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
             warn("Сначала выключи Old Design!")
         end
         
-        -- Визуально возвращаем кружок обратно (эмуляция отмены нажатия)
         local btn = NewDesignToggleCont:FindFirstChildOfClass("TextButton")
         if btn then
             local circle = btn:FindFirstChildOfClass("Frame") or btn:FindFirstChild("circle")
@@ -1294,12 +1284,11 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
                 ts:Create(circle, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -circle.Size.Y.Offset/2)}):Play()
             end
         end
-        return -- Прерываем выполнение
+        return 
     end
 
     _G.NewDesignActive = state
     if state then
-        -- Сохраняем цвета, ИГНОРИРУЯ тумблеры (чтобы избежать бага с частичным перекрасом)
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             local isTogglePart = false
             if v:IsA("Frame") and v.Parent and v.Parent:IsA("TextButton") and v.Size.X.Offset <= 35 then isTogglePart = true end
@@ -1317,7 +1306,7 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
         end
         applyNewDesignTheme()
     else
-        -- Возвращаем всё назад
+
         for obj, info in pairs(newDesignSavedColors) do
             if obj and obj.Parent then
                 if not obj:IsA("UIStroke") then
@@ -1337,7 +1326,6 @@ createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
         end
         newDesignSavedColors = {}
         
-        -- Жестко сбрасываем тумблеры в дефолтное прозрачное состояние
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             if v:IsA("TextButton") then
                 local circle = v:FindFirstChildOfClass("Frame") or v:FindFirstChild("circle")
