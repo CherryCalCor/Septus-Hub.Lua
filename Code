@@ -414,7 +414,7 @@ ManualInput.FocusLost:Connect(function(enterPressed)
     if enterPressed then executeManualCommand() end
 end)
 
-do -- Welcome Menu
+do 
     local WelcomeGui = Instance.new("Frame", UI.Screen)
     WelcomeGui.Size = UDim2.new(0, 440, 0, 200)
     WelcomeGui.Position = UDim2.new(0.5, -220, 0.5, -100); WelcomeGui.BackgroundColor3 = Color3.fromRGB(255, 255, 255); WelcomeGui.BackgroundTransparency = 0.15; WelcomeGui.BorderSizePixel = 0; applyGradient(WelcomeGui)
@@ -446,7 +446,7 @@ do -- Welcome Menu
     repeat task.wait() until welcomeDone
 end
 
-do -- Loading Screen
+do 
     local LoadingFrame = Instance.new("Frame", UI.Screen)
     LoadingFrame.Size = UDim2.new(0,500,0,300)
     LoadingFrame.Position = UDim2.new(0.5,-250,0.5,-150); LoadingFrame.BackgroundColor3 = Color3.fromRGB(255,255,255); applyGradient(LoadingFrame); LoadingFrame.BackgroundTransparency = 0.15; Instance.new("UICorner", LoadingFrame).CornerRadius = UDim.new(0,20); Instance.new("UIStroke", LoadingFrame).Color = _G.CurrentGradientColors[2]
@@ -557,7 +557,7 @@ UI.Pages.Server.Visible = false; UI.Pages.Server.Position = UDim2.new(0,110,0,40
 UI.Pages.Server.Size = UDim2.new(1,-120,1,-50)
 UI.Pages.Server.BackgroundTransparency = 1
 
-do -- Home Page
+do 
     local PlayerCard = Instance.new("Frame", UI.Pages.Home)
     PlayerCard.Size = UDim2.new(1,-10,0,80)
     PlayerCard.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(PlayerCard); PlayerCard.BackgroundTransparency = .15; Instance.new("UICorner", PlayerCard)
@@ -720,7 +720,7 @@ do -- Home Page
     UI.Pages.Home.CanvasSize = UDim2.new(0, 0, 0, 490)
 end
 
-do -- Server Page
+do 
     local RejoinBtn = Instance.new("TextButton", UI.Pages.Server)
     RejoinBtn.Size = UDim2.new(1,-20,0,35); RejoinBtn.Position = UDim2.new(0,10,0,10); RejoinBtn.BackgroundColor3 = Color3.fromRGB(255,255,255); RejoinBtn.Text = ""; applyGradient(RejoinBtn)
     Instance.new("UICorner", RejoinBtn)
@@ -804,7 +804,7 @@ do -- Server Page
     end)
 end
 
-do -- Teleport Page
+do 
     local TPCard = Instance.new("Frame", UI.Pages.Teleport)
     TPCard.Size = UDim2.new(1, -10, 0, 90); TPCard.BackgroundColor3 = Color3.fromRGB(255, 255, 255); applyGradient(TPCard); TPCard.BackgroundTransparency = .15
     Instance.new("UICorner", TPCard)
@@ -1446,7 +1446,7 @@ createToggle(ShadowsCont, "Drawing shadows", 0, true, function(state)
     game:GetService("Lighting").GlobalShadows = state
 end)
 
-do -- Moved Page
+do 
     createSlider(UI.Pages.Moved, 10, "Speed", 16, 200, 16, function(v) if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.WalkSpeed = v end end)
     createSlider(UI.Pages.Moved, 80, "Jump", 50, 200, 50, function(v) 
     if LP.Character and LP.Character:FindFirstChild("Humanoid") then LP.Character.Humanoid.UseJumpPower = true; LP.Character.Humanoid.JumpPower = v end end)
@@ -1514,7 +1514,7 @@ do -- Moved Page
     end))
 end
 
-do -- Visuals Page
+do 
     local ESPBtn, Arrow = createMenuBtn(UI.Pages.Visuals, "ESP", 10, true)
     local ESPMenu = Instance.new("Frame", UI.Pages.Visuals)
     ESPMenu.Visible = false; ESPMenu.Position = UDim2.new(0,10,0,50); ESPMenu.BackgroundTransparency = 1; ESPMenu.ClipsDescendants = true
@@ -1818,7 +1818,7 @@ local function populatePlayers(scroll, layout, actionLbl, defaultText, targetCal
     task.delay(0.05, function() scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 5) end)
 end
 
-do -- Misc Page
+do 
     local DiffBtn, DiffArrow = createMenuBtn(UI.Pages.Misc, "Different", 10, true)
     local DiffMenu = Instance.new("Frame", UI.Pages.Misc)
     DiffMenu.Visible = false
@@ -2241,7 +2241,7 @@ end)
     end)
 end
 
-do -- Protect Page
+do 
     local antiFling, antiSit, antiVoid, antiStun, antiRagdoll = false, false, false, false, false
 
     createToggle(UI.Pages.Protect, "Anti Fling", 10, false, function(state) antiFling = state end)
@@ -2286,7 +2286,7 @@ do -- Protect Page
     end))
 end
 
-do -- Shaders Page
+do 
     local origLighting = {
         Ambient = game:GetService("Lighting").Ambient,
         OutdoorAmbient = game:GetService("Lighting").OutdoorAmbient,
@@ -2296,7 +2296,6 @@ do -- Shaders Page
         FogColor = game:GetService("Lighting").FogColor
     }
 
-    -- 1. Retro Game
     local retroEnabled = false
     local ccEffect = Instance.new("ColorCorrectionEffect")
     ccEffect.Name = "RetroCC"; ccEffect.Brightness = 0.1; ccEffect.Contrast = 0.5; ccEffect.Saturation = -0.4; ccEffect.TintColor = Color3.fromRGB(255, 230, 200)
@@ -2334,7 +2333,6 @@ do -- Shaders Page
         rSun.Parent = state and game:GetService("Lighting") or nil
     end)
 
-    -- 3. Cyberpunk Neon
     local cyberEnabled = false
     local CyberFolder = Instance.new("Folder")
     CyberFolder.Name = "CyberShaders"
@@ -2353,7 +2351,6 @@ do -- Shaders Page
         end
     end)
 
-    -- 4. Silent Hill
     local silentEnabled = false
     local SilentFolder = Instance.new("Folder")
     SilentFolder.Name = "SilentShaders"
@@ -2371,7 +2368,6 @@ do -- Shaders Page
         end
     end)
 
-    -- 5. Deep Fried
     local friedEnabled = false
     local fCC = Instance.new("ColorCorrectionEffect")
     fCC.Name = "Fried_CC"
@@ -2382,7 +2378,6 @@ do -- Shaders Page
         fCC.Parent = state and game:GetService("Lighting") or nil
     end)
 
-    -- 6. Night Vision
     local nvEnabled = false
     local NVFolder = Instance.new("Folder")
     NVFolder.Name = "NightVisionShaders"
@@ -2401,7 +2396,7 @@ do -- Shaders Page
     end)
 end
 
-do -- Funny Page
+do 
     local stalkMenuEnabled = false
     local StalkWin, StalkClose, StalkScroll, StalkLayout, StalkActionBtn, StalkActionLbl = createFloatingMenu("Stalk")
     local currentStalkTarget = nil
@@ -2491,7 +2486,7 @@ do -- Funny Page
     end)
 end
 
-do -- CONFIG PAGE 
+do 
     local ConfigsBtn, ConfigsArrow, ConfigsLbl = createMenuBtn(UI.Pages.Config, "Configs (Select to load)", 10, true)
     local ConfigsMenu = Instance.new("ScrollingFrame", UI.Pages.Config)
     ConfigsMenu.Visible = false; ConfigsMenu.Position = UDim2.new(0, 10, 0, 50); ConfigsMenu.BackgroundTransparency = 1; ConfigsMenu.ClipsDescendants = true; ConfigsMenu.Size = UDim2.new(1, -20, 0, 0)
