@@ -1103,6 +1103,170 @@ createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
     if not state then savedColors = {} end
 end)
 
+local NewDesignToggleCont = Instance.new("Frame", ThemeScroll)
+NewDesignToggleCont.LayoutOrder = 14
+NewDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
+NewDesignToggleCont.BackgroundTransparency = 1
+
+_G.NewDesignActive = false
+local newDesignSavedColors = {}
+
+local function applyNewDesignTheme()
+    if not _G.NewDesignActive then return end
+    
+    -- 1. Полностью чёрный фон для всех основных окон и меню
+    local windows = {UI.Frame, SettingsWin, InstrWin, NotepadWin, ServerMenu, IconCustWin, CharCustWin, ManualOpPanel, TopStatusPanel}
+    for _, win in pairs(windows) do
+        if win and win.Parent then
+            win.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            win.BackgroundTransparency = 0
+            local grad = win:FindFirstChildOfClass("UIGradient")
+            if grad then grad.Enabled = false end
+            local stroke = win:FindFirstChildOfClass("UIStroke")
+            if stroke then stroke.Color = Color3.fromRGB(255, 255, 255) end
+        end
+    end
+    
+    -- 2. Глобальное отключение градиентов и скрытие фонов скролл-меню
+    for _, v in ipairs(UI.Screen:GetDescendants()) do
+        if v:IsA("ScrollingFrame") then
+            v.BackgroundTransparency = 1
+        end
+        if v:IsA("UIGradient") then
+            v.Enabled = false
+        end
+        -- Название SEPTUS Hub (и любые вариации) становится белым
+        if v:IsA("TextLabel") and string.find(v.Text:upper(), "SEPTUS") then
+            v.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+    end
+
+    -- 3. Блоки инжектора/версии/статуса на Home Page (белая оболочка, чёрный текст)
+    if UI.Pages and UI.Pages.Home then
+        for _, card in ipairs(UI.Pages.Home:GetChildren()) do
+            if card:IsA("Frame") and card.BackgroundTransparency < 1 and card ~= NewDesignToggleCont then
+                card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                card.BackgroundTransparency = 0
+                for _, t in ipairs(card:GetDescendants()) do
+                    if t:IsA("TextLabel") then
+                        t.TextColor3 = Color3.fromRGB(0, 0, 0)
+                    end
+                end
+            end
+        end
+    end
+
+    -- 4. Кнопки левого меню (пропадает оболочка, добавляется белая полоска слева при выборе)
+    if UI.SideMenuScroll then
+        for _, btn in ipairs(UI.SideMenuScroll:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.BackgroundTransparency = 1
+                local lbl = btn:FindFirstChildOfClass("TextLabel")
+                if lbl then lbl.TextColor3 = Color3.fromRGB(255, 255, 255) end
+                
+                local leftLine = btn:FindFirstChild("NewDesignLeftLine")
+                if not leftLine then
+                    leftLine = Instance.new("Frame", btn)
+                    leftLine.Name = "NewDesignLeftLine"
+                    leftLine.BorderSizePixel = 0
+                    Instance.new("UICorner", leftLine).CornerRadius = UDim.new(0, 2)
+                end
+                leftLine.Size = UDim2.new(0, 4, 1, 0)
+                leftLine.Position = UDim2.new(0, 0, 0, 0)
+                
+                -- Синхронизация подсветки с выбранной вкладкой
+                local defaultInd = btn:FindFirstChild("Indicator")
+                if defaultInd and defaultInd.BackgroundTransparency < 1 then
+                    leftLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    leftLine.BackgroundTransparency = 0
+                else
+                    leftLine.BackgroundTransparency = 1
+                end
+                if defaultInd then defaultInd.BackgroundTransparency = 1 end
+            end
+        end
+    end
+
+    -- Убираем оболочки у остальных обычных кнопок (Rejoin, Server Hop, Сортировка и т.д.)
+    for _, v in ipairs(UI.Screen:GetDescendants()) do
+        if v:IsA("TextButton") and v.Parent ~= UI.SideMenuScroll and not v:FindFirstChild("circle") and v.Name ~= "TextButton" then
+            v.BackgroundTransparency = 1
+            if v.Text == "" then
+                local lbl = v:FindFirstChildOfClass("TextLabel")
+                if lbl then lbl.TextColor3 = Color3.fromRGB(255, 255, 255) end
+            else
+                v.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+
+    -- 5. Переключатели (Выкл: белая оболочка, чёрный круг | Вкл: чёрная оболочка, белый круг)
+    for _, v in ipairs(UI.Screen:GetDescendants()) do
+        if v:IsA("TextButton") and v:FindFirstChildOfClass("Frame") and v.Parent:IsA("Frame") then
+            local circle = v:FindFirstChildOfClass("Frame")
+            if circle and circle.Size.X.Offset == 24 then 
+                local label = v.Parent:FindFirstChildOfClass("TextLabel")
+                if label then label.TextColor3 = Color3.fromRGB(255, 255, 255) end
+                
+                v.BackgroundTransparency = 0
+                -- Проверяем положение кружка (справа = включен, слева = выключен)
+                if circle.Position.X.Scale == 1 or circle.Position.X.Offset < 0 then
+                    v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                else
+                    v.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                    circle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                end
+            end
+        end
+    end
+end
+
+createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
+    _G.NewDesignActive = state
+    if state then
+        -- Сохраняем старую цветовую схему для корректного возврата
+        for _, v in ipairs(UI.Screen:GetDescendants()) do
+            if v:IsA("Frame") or v:IsA("TextButton") or v:IsA("TextLabel") or v:IsA("TextBox") then
+                newDesignSavedColors[v] = {
+                    BgColor = v.BackgroundColor3,
+                    BgTrans = v.BackgroundTransparency,
+                    TextColor = v:IsA("TextLabel") and v.TextColor3 or nil
+                }
+            end
+        end
+        applyNewDesignTheme()
+    else
+
+        for obj, info in pairs(newDesignSavedColors) do
+            if obj and obj.Parent then
+                obj.BackgroundColor3 = info.BgColor
+                obj.BackgroundTransparency = info.BgTrans
+                if obj:IsA("TextLabel") and info.TextColor then
+                    obj.TextColor3 = info.TextColor
+                end
+            end
+        end
+        newDesignSavedColors = {}
+        
+        for _, v in ipairs(UI.Screen:GetDescendants()) do
+            if v:IsA("UIGradient") then v.Enabled = true end
+            if v.Name == "NewDesignLeftLine" then v:Destroy() end
+            if v.Name == "Indicator" then v.BackgroundTransparency = 1 end
+        end
+        _G.changeTheme(_G.CurrentGradientColors[1], _G.CurrentGradientColors[2])
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        if _G.NewDesignActive then
+            applyNewDesignTheme()
+        end
+    end
+end)
+
 local NotifToggleCont = Instance.new("Frame", NotifScroll); NotifToggleCont.Size = UDim2.new(1, 0, 0, 35); NotifToggleCont.BackgroundTransparency = 1
 createToggle(NotifToggleCont, "Enable Notifications", 0, true, function(state) _G.NotificationsEnabled = state end)
 
