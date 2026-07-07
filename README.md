@@ -125,6 +125,7 @@ Settings
   · Watermark
   · Old design
   · Colors
+  · New Design
 · Notification:
   · Enable Notifications
   · New notification system
