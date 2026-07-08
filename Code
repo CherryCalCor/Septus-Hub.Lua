@@ -1093,12 +1093,10 @@ OldDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
 OldDesignToggleCont.BackgroundTransparency = 1
 
 local savedColors = {}
--- Заранее объявляем переменные для управления тумблерами
 local OldDesignToggle, OldDesignCircle, setOldDesign
 local NewDesignToggle, NewDesignCircle, setNewDesign
 
 OldDesignToggle, OldDesignCircle, setOldDesign = createToggle(OldDesignToggleCont, "Old design", 0, false, function(state)
-    -- Проверка на конфликт с New Design
     if state and _G.ConfigState["New design"] then
         showNotification("Сначала выключите New design!")
         task.spawn(function() setOldDesign(false, true) end)
@@ -1171,7 +1169,6 @@ local function applyNewDesignTheme()
         if v:IsA("TextLabel") and v.Text and type(v.Text) == "string" then
             local txt = v.Text:lower()
             
-            -- Исправление белого текста для Notification
             if txt == "notification" then
                 v.TextColor3 = Color3.fromRGB(255, 255, 255)
             end
@@ -1180,7 +1177,6 @@ local function applyNewDesignTheme()
                 v.TextColor3 = Color3.fromRGB(255, 255, 255)
             end
 
-            -- Исправление белых блоков сверху (инжектор, версия и т.д.)
             if txt:find("version") or txt:find("injector") or txt:find("executor") then
                 local card = v.Parent
                 if card and card:IsA("Frame") and card.Name ~= "NewDesignLeftLine" then
@@ -1215,7 +1211,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Исправление раздела Help: единый стиль табличек
     if UI.Pages and UI.Pages.Help then
         for _, elem in ipairs(UI.Pages.Help:GetDescendants()) do
             if elem:IsA("Frame") and elem.BackgroundTransparency < 1 then
@@ -1306,7 +1301,6 @@ local function applyNewDesignTheme()
 end
 
 NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCont, "New design", 0, false, function(state)
-    -- Проверка на конфликт с Old Design
     if state and _G.ConfigState["Old design"] then
         showNotification("Сначала выключите Old design!")
         task.spawn(function() setNewDesign(false, true) end)
@@ -1327,7 +1321,6 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         applyNewDesignTheme()
     else
-        -- Исправление бага с переключателями: динамическое восстановление состояния
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             if v:IsA("TextButton") then
                 local circle = v:FindFirstChildOfClass("Frame") or v:FindFirstChild("circle")
@@ -1350,7 +1343,6 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
                         if grad then grad.Enabled = false end
                     end
                     
-                    -- Убираем их из сохраненных цветов, чтобы не перезаписать их старым состоянием
                     newDesignSavedColors[v] = nil
                     newDesignSavedColors[circle] = nil
                     if label then newDesignSavedColors[label] = nil end
