@@ -184,24 +184,76 @@ local function createToggle(parent, name, y, defaultState, callback)
     bg.Text = ""
     bg.Size = UDim2.new(0, 60, 0, 30); bg.Position = UDim2.new(1, -65, 0, y); bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
     applyGradient(bg)
-    Instance.new("UICorner", bg).CornerRadius = UDim.new(1, 0)
+    local bgCorner = Instance.new("UICorner", bg)
+    bgCorner.CornerRadius = UDim.new(1, 0)
     
     local circle = Instance.new("Frame", bg)
     circle.Size = UDim2.new(0, 24, 0, 24)
     circle.Position = UDim2.new(0, 3, 0.5, -12); circle.BackgroundColor3 = Color3.new(1, 1, 1)
-    Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    local circleCorner = Instance.new("UICorner", circle)
+    circleCorner.CornerRadius = UDim.new(1, 0)
     
     local state = defaultState or false
     
     local function updateVisuals(st, showNotif)
-        Services.TS:Create(circle, TweenInfo.new(.2), {Position = st and UDim2.new(1,-27,.5,-12) or UDim2.new(0,3,.5,-12)}):Play()
-        if st then
-            bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            applyGradient(bg)
-        else
+        if _G.NewDesignActive then
+
+            bgCorner.CornerRadius = UDim.new(0, 4)
+            circleCorner.CornerRadius = UDim.new(0, 2)
+            
+            bg.Size = UDim2.new(0, 24, 0, 24)
+            bg.Position = UDim2.new(1, -29, 0, y + 3)
+            circle.Size = UDim2.new(0, 12, 0, 12)
+            circle.Position = UDim2.new(0.5, -6, 0.5, -6)
+            
             for _, v in pairs(bg:GetChildren()) do if v:IsA("UIGradient") then v:Destroy() end end
-            bg.BackgroundColor3 = Color3.fromRGB(50,50,60)
+            
+            local stroke = bg:FindFirstChildOfClass("UIStroke")
+            if not stroke then
+                stroke = Instance.new("UIStroke", bg)
+                stroke.Thickness = 1.2
+            end
+            stroke.Color = Color3.fromRGB(255, 255, 255)
+            stroke.Enabled = true
+            
+            if st then
+                bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                circle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                circle.BackgroundTransparency = 0
+            else
+                bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                circle.BackgroundTransparency = 1
+            end
+            
+            label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+
+            bgCorner.CornerRadius = UDim.new(1, 0)
+            circleCorner.CornerRadius = UDim.new(1, 0)
+            
+            bg.Size = UDim2.new(0, 60, 0, 30)
+            bg.Position = UDim2.new(1, -65, 0, y)
+            circle.Size = UDim2.new(0, 24, 0, 24)
+            circle.Position = st and UDim2.new(1, -27, 0.5, -12) or UDim2.new(0, 3, 0.5, -12)
+            circle.BackgroundTransparency = 0
+            circle.BackgroundColor3 = Color3.new(1, 1, 1)
+            
+            local stroke = bg:FindFirstChildOfClass("UIStroke")
+            if stroke then stroke.Enabled = false end
+            
+            if st then
+                bg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                if not bg:FindFirstChildOfClass("UIGradient") then
+                    applyGradient(bg)
+                end
+            else
+                for _, v in pairs(bg:GetChildren()) do if v:IsA("UIGradient") then v:Destroy() end end
+                bg.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+            end
+            
+            label.TextColor3 = Color3.fromRGB(220, 190, 255)
         end
+        
         if showNotif then showNotification(name .. (st and " включен!" or " выключен.")) end
     end
 
@@ -217,6 +269,13 @@ local function createToggle(parent, name, y, defaultState, callback)
     
     updateVisuals(state, false)
     _G.ConfigState[name] = state
+    
+    UI.Toggles = UI.Toggles or {}
+    table.insert(UI.Toggles, {
+        update = updateVisuals,
+        getState = function() return state end,
+        label = label
+    })
     
     return bg, circle, setState
 end
@@ -1132,13 +1191,29 @@ OldDesignToggle, OldDesignCircle, setOldDesign = createToggle(OldDesignToggleCon
     if not state then savedColors = {} end
 end)
 
-local NewDesignToggleCont = Instance.new("Frame", ThemeScroll)
-NewDesignToggleCont.LayoutOrder = 14
-NewDesignToggleCont.Size = UDim2.new(1, 0, 0, 35)
-NewDesignToggleCont.BackgroundTransparency = 1
-
 _G.NewDesignActive = false
 local newDesignSavedColors = {}
+
+-- Вспомогательная функция для динамического поиска тегов версии и инжектора
+local function getTags()
+    local versionTag, injectorTag
+    if UI.Frame then
+        for _, child in ipairs(UI.Frame:GetChildren()) do
+            if child:IsA("Frame") then
+                local lbl = child:FindFirstChildOfClass("TextLabel")
+                if lbl and (lbl.Text:sub(1,2) == "V2" or lbl.Text:find("^V%d")) then
+                    versionTag = child
+                end
+            elseif child:IsA("TextLabel") then
+                local text = child.Text:lower()
+                if text ~= "septus hub" and text ~= "" and not child.Name:find("Title") then
+                    injectorTag = child
+                end
+            end
+        end
+    end
+    return versionTag, injectorTag
+end
 
 local function applyNewDesignTheme()
     if not _G.NewDesignActive then return end
@@ -1176,21 +1251,6 @@ local function applyNewDesignTheme()
             if string.find(txt, "septus") then
                 v.TextColor3 = Color3.fromRGB(255, 255, 255)
             end
-
-            if txt:find("version") or txt:find("injector") or txt:find("executor") then
-                local card = v.Parent
-                if card and card:IsA("Frame") and card.Name ~= "NewDesignLeftLine" then
-                    card.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    card.BackgroundTransparency = 0
-                    v.TextColor3 = Color3.fromRGB(0, 0, 0)
-                    -- Красим все соседние текста в этой плашке в черный
-                    for _, sibling in ipairs(card:GetChildren()) do
-                        if sibling:IsA("TextLabel") then
-                            sibling.TextColor3 = Color3.fromRGB(0, 0, 0)
-                        end
-                    end
-                end
-            end
         end
         
         if v:IsA("TextButton") and v.Parent ~= UI.SideMenuScroll then
@@ -1223,35 +1283,18 @@ local function applyNewDesignTheme()
         end
     end
 
-    for _, v in ipairs(UI.Screen:GetDescendants()) do
-        if v:IsA("TextButton") then
-            local circle = v:FindFirstChildOfClass("Frame")
-            if not circle then circle = v:FindFirstChild("circle") end
-            
-            if circle and circle.Size.X.Offset <= 35 then 
-                local label = v.Parent:FindFirstChildOfClass("TextLabel") or v:FindFirstChildOfClass("TextLabel")
-                local isServerToggle = (v.Name:lower():find("server") or (label and label.Text:lower():find("server")))
-
-                if label then label.TextColor3 = Color3.fromRGB(255, 255, 255) end
-                v.BackgroundTransparency = 0
-                
-                local stroke = v:FindFirstChildOfClass("UIStroke") or v.Parent:FindFirstChildOfClass("UIStroke")
-                if stroke then stroke.Color = Color3.fromRGB(255, 255, 255) end
-
-                if isServerToggle then
-                    v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-                    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                else
-                    if circle.Position.X.Scale >= 0.5 or circle.Position.X.Offset > 10 then
-                        v.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-                        circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    else
-                        v.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                        circle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-                    end
-                end
-            end
-        end
+    -- Перекрашиваем плашки тегов в белый цвет с черным текстом
+    local versionTag, injectorTag = getTags()
+    if versionTag then
+        versionTag.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        versionTag.BackgroundTransparency = 0
+        local lbl = versionTag:FindFirstChildOfClass("TextLabel")
+        if lbl then lbl.TextColor3 = Color3.fromRGB(0, 0, 0) end
+    end
+    if injectorTag then
+        injectorTag.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        injectorTag.BackgroundTransparency = 0
+        injectorTag.TextColor3 = Color3.fromRGB(0, 0, 0)
     end
 
     if UI.Pages and UI.Pages.Home then
@@ -1321,36 +1364,7 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         applyNewDesignTheme()
     else
-        for _, v in ipairs(UI.Screen:GetDescendants()) do
-            if v:IsA("TextButton") then
-                local circle = v:FindFirstChildOfClass("Frame") or v:FindFirstChild("circle")
-                if circle and circle.Size.X.Offset <= 35 then
-                    local isOn = (circle.Position.X.Scale >= 0.5 or circle.Position.X.Offset > 10)
-                    local grad = v:FindFirstChildOfClass("UIGradient")
-                    
-                    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                    local stroke = v:FindFirstChildOfClass("UIStroke") or v.Parent:FindFirstChildOfClass("UIStroke")
-                    if stroke then stroke.Color = _G.CurrentGradientColors[2] end
-                    
-                    local label = v.Parent:FindFirstChildOfClass("TextLabel") or v:FindFirstChildOfClass("TextLabel")
-                    if label then label.TextColor3 = Color3.fromRGB(220, 190, 255) end
-
-                    if isOn then
-                        v.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                        if grad then grad.Enabled = true end
-                    else
-                        v.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-                        if grad then grad.Enabled = false end
-                    end
-                    
-                    newDesignSavedColors[v] = nil
-                    newDesignSavedColors[circle] = nil
-                    if label then newDesignSavedColors[label] = nil end
-                    if stroke then newDesignSavedColors[stroke] = nil end
-                end
-            end
-        end
-
+        -- Возвращаем всё к исходным цветам
         for obj, info in pairs(newDesignSavedColors) do
             if obj and obj.Parent then
                 obj.BackgroundColor3 = info.BgColor
@@ -1365,6 +1379,20 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         newDesignSavedColors = {}
         
+        -- Возвращаем цвета плашек тегов к исходным (фиолетовым)
+        local versionTag, injectorTag = getTags()
+        if versionTag then
+            versionTag.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
+            versionTag.BackgroundTransparency = 0
+            local lbl = versionTag:FindFirstChildOfClass("TextLabel")
+            if lbl then lbl.TextColor3 = Color3.fromRGB(0, 0, 0) end
+        end
+        if injectorTag then
+            injectorTag.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
+            injectorTag.BackgroundTransparency = 0
+            injectorTag.TextColor3 = Color3.fromRGB(20, 20, 25)
+        end
+        
         for _, v in ipairs(UI.Screen:GetDescendants()) do
             if v:IsA("UIGradient") then v.Enabled = true end
             if v.Name == "NewDesignLeftLine" then v:Destroy() end
@@ -1374,8 +1402,14 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         _G.changeTheme(_G.CurrentGradientColors[1], _G.CurrentGradientColors[2])
     end
-end)
 
+    -- Обновляем визуальный вид и цвета текста всех переключателей в системе
+    if UI.Toggles then
+        for _, toggle in ipairs(UI.Toggles) do
+            toggle.update(toggle.getState(), false)
+        end
+    end
+end)
 
 local NotifToggleCont = Instance.new("Frame", NotifScroll); NotifToggleCont.Size = UDim2.new(1, 0, 0, 35); NotifToggleCont.BackgroundTransparency = 1
 createToggle(NotifToggleCont, "Enable Notifications", 0, true, function(state) _G.NotificationsEnabled = state end)
