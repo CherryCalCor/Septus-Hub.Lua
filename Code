@@ -2173,7 +2173,7 @@ local function logRemote(remoteName, method, argsCount)
     lbl.Font = Enum.Font.Gotham
     lbl.TextSize = 12
     lbl.TextColor3 = Color3.fromRGB(255, 180, 255)
-    SpyScroll.CanvasPosition = Vector2.new(0, 99999) -- Автоскролл вниз
+    SpyScroll.CanvasPosition = Vector2.new(0, 99999) 
 end
 
 local spyEnabled = false
