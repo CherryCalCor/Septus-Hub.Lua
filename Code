@@ -1194,7 +1194,6 @@ end)
 _G.NewDesignActive = false
 local newDesignSavedColors = {}
 
--- Вспомогательная функция для динамического поиска тегов версии и инжектора
 local function getTags()
     local versionTag, injectorTag
     if UI.Frame then
@@ -1283,7 +1282,6 @@ local function applyNewDesignTheme()
         end
     end
 
-    -- Перекрашиваем плашки тегов в белый цвет с черным текстом
     local versionTag, injectorTag = getTags()
     if versionTag then
         versionTag.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1364,7 +1362,7 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         applyNewDesignTheme()
     else
-        -- Возвращаем всё к исходным цветам
+
         for obj, info in pairs(newDesignSavedColors) do
             if obj and obj.Parent then
                 obj.BackgroundColor3 = info.BgColor
@@ -1379,7 +1377,6 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         end
         newDesignSavedColors = {}
         
-        -- Возвращаем цвета плашек тегов к исходным (фиолетовым)
         local versionTag, injectorTag = getTags()
         if versionTag then
             versionTag.BackgroundColor3 = Color3.fromRGB(220, 190, 255)
@@ -1403,7 +1400,6 @@ NewDesignToggle, NewDesignCircle, setNewDesign = createToggle(NewDesignToggleCon
         _G.changeTheme(_G.CurrentGradientColors[1], _G.CurrentGradientColors[2])
     end
 
-    -- Обновляем визуальный вид и цвета текста всех переключателей в системе
     if UI.Toggles then
         for _, toggle in ipairs(UI.Toggles) do
             toggle.update(toggle.getState(), false)
