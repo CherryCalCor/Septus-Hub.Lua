@@ -18,7 +18,7 @@
 Для запуска **Septus Hub** используйте следующий скрипт. Скопируйте его и вставьте в ваш исполнитель (executor):
 
 ```lua
-loadstring(game:HttpGet("[https://raw.githubusercontent.com/CherryCalCor/Septus-Hub.Lua/refs/heads/main/Code](https://raw.githubusercontent.com/CherryCalCor/Septus-Hub.Lua/refs/heads/main/Code)"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/CherryCalCor/Septus-Hub.Lua/refs/heads/main/Code.Lua"))()
 ```
 
 ### ⚡Function | Функции
